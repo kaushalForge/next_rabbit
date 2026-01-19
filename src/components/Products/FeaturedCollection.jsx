@@ -22,7 +22,7 @@ const FeaturedCollection = () => {
               great every dat.
             </p>
             <Link
-              href="/collection/all"
+              href="/collections/all"
               className="bg-black text-white px-6 py-3 text-center rounded-lg"
             >
               Shop Now
