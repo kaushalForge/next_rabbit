@@ -10,7 +10,7 @@ export default async function ProductsPage() {
     bestSeller = await res.json();
     console.log("Best seller data:", bestSeller);
   } catch (err) {
-    console.error("Failed to fetch products:", err.message);
+    console.log("Failed to fetch products:", err.message);
   }
 
   return <BestSeller bestSeller={bestSeller} />;
