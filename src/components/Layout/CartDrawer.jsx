@@ -46,7 +46,7 @@ const CartDrawer = ({ drawerOpen, toggleCartDrawer }) => {
     <>
       <div
         ref={drawerRef}
-        className={`fixed top-0 right-0 h-full w-3/4 sm:w-1/2 md:w-[30rem] bg-white shadow-lg transform transition-transform duration-300 flex flex-col z-50 ${
+        className={`fixed top-0 right-0 h-full w-3/4 sm:w-1/2 md:w-[30rem] bg-white shadow-lg transform transition-transform duration-300 flex flex-col z-70 ${
           drawerOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >

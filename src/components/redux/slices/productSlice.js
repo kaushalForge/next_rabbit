@@ -17,35 +17,38 @@ export const fetchProductByFilters = createAsyncThunk(
       brand,
       material,
     },
-    { rejectWithValue },
+    { rejectWithValue }
   ) => {
     try {
       const query = new URLSearchParams();
 
-      if (collection && collection !== "all")
-        query.append("collection", collection);
-      if (category) query.append("category", category);
-      if (gender) query.append("gender", gender);
-      if (sortBy) query.append("sortBy", sortBy);
-      if (search) query.append("search", search);
+      if (collection && collection !== "all") query.set("collection", collection);
+      if (category) query.set("category", category);
+      if (gender) query.set("gender", gender);
+      if (sortBy) query.set("sortBy", sortBy);
+      if (search) query.set("search", search);
 
-      if (minPrice > 0) query.append("minPrice", minPrice);
-      if (maxPrice < 100) query.append("maxPrice", maxPrice);
+      if (typeof minPrice === "number" && minPrice > 0) query.set("minPrice", minPrice);
+      if (typeof maxPrice === "number" && maxPrice < 100) query.set("maxPrice", maxPrice);
 
-      if (size?.length) query.append("size", size.join(","));
-      if (color?.length) query.append("color", color.join(","));
-      if (brand?.length) query.append("brand", brand.join(","));
-      if (material?.length) query.append("material", material.join(","));
+      if (Array.isArray(size) && size.length) query.set("size", size.join(","));
+      if (Array.isArray(color) && color.length) query.set("color", color.join(","));
+      if (Array.isArray(brand) && brand.length) query.set("brand", brand.join(","));
+      if (Array.isArray(material) && material.length) query.set("material", material.join(","));
 
-      const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/products/search?${query.toString()}`;
+      // ✅ Use relative URL if your backend is exposed via /api in the same domain
+      const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "";
+      const url = `${baseUrl}/api/products/search?${query.toString()}`;
+
       const response = await axios.get(url);
       return response.data;
     } catch (error) {
+      // Make sure we handle both Axios errors and generic errors
       return rejectWithValue(
-        error.response?.data || { message: error.message },
+        error.response?.data || { message: error.message || "Something went wrong" }
       );
     }
-  },
+  }
 );
 
 const productsSlice = createSlice({

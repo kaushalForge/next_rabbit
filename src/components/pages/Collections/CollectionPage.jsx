@@ -6,6 +6,7 @@ import ProductGrid from "@/components/Common/ProductGrid";
 import SortOptions from "@/components/Products/SortOptions";
 import { FaFilter } from "react-icons/fa";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 
 const CollectionPage = ({ products }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -30,37 +31,39 @@ const CollectionPage = ({ products }) => {
   };
 
   return (
-    <div className="container mx-auto flex flex-col lg:flex-row">
-      {/* Mobile Filter Button */}
-      <button
-        onClick={() => setIsSidebarOpen((p) => !p)}
-        className="lg:hidden border p-2 flex items-center justify-center mb-4"
-      >
-        <FaFilter className="mr-2" />
-        Filters
-      </button>
+    <Suspense>
+      <div className="container mx-auto flex flex-col lg:flex-row">
+        {/* Mobile Filter Button */}
+        <button
+          onClick={() => setIsSidebarOpen((p) => !p)}
+          className="lg:hidden border p-2 flex items-center justify-center mb-4"
+        >
+          <FaFilter className="mr-2" />
+          Filters
+        </button>
 
-      {/* Sidebar */}
-      <div
-        className={`fixed inset-y-0 left-0 z-50 w-64 bg-white transition-transform duration-300
+        {/* Sidebar */}
+        <div
+          className={`fixed inset-y-0 left-0 z-50 w-64 bg-white transition-transform duration-300
           ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}
           lg:static lg:translate-x-0`}
-      >
-        <FilterSidebar />
-      </div>
-
-      {/* Products */}
-      <div className="flex-grow p-4">
-        <div className="flex flex-col md:flex-row md:justify-between mb-4 items-center">
-          <h2 className="text-2xl uppercase">All Collection</h2>
+        >
+          <FilterSidebar />
         </div>
-        <SortOptions onSortChange={handleSort} />
 
-        {products?.length === 0 && <p>No products found.</p>}
+        {/* Products */}
+        <div className="flex-grow p-4">
+          <div className="flex flex-col md:flex-row md:justify-between mb-4 items-center">
+            <h2 className="text-2xl uppercase">All Collection</h2>
+          </div>
+          <SortOptions onSortChange={handleSort} />
 
-        <ProductGrid products={products} />
+          {products?.length === 0 && <p>No products found.</p>}
+
+          <ProductGrid products={products} />
+        </div>
       </div>
-    </div>
+    </Suspense>
   );
 };
 

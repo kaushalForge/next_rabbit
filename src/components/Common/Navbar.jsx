@@ -109,7 +109,7 @@ const Navbar = () => {
 
       {/* Mobile Nav */}
       <div
-        className={`fixed top-0 left-0 w-3/4 h-full bg-white transition-transform duration-300 z-50 ${
+        className={`fixed top-0 left-0 w-3/4 h-full bg-white transition-transform duration-300 z-40 ${
           navDrawerOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
@@ -119,7 +119,7 @@ const Navbar = () => {
           </button>
         </div>
 
-        <nav className="p-4 space-y-4">
+        <div className="p-4 space-y-4">
           <Link href="/collections/all?gender=Male" onClick={toggleNavDrawer}>
             Men
           </Link>
@@ -138,7 +138,7 @@ const Navbar = () => {
           >
             Bottom Wear
           </Link>
-        </nav>
+        </div>
       </div>
     </>
   );

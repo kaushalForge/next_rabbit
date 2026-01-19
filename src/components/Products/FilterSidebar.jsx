@@ -54,10 +54,13 @@ const FilterSidebar = ({ onProductsUpdate }) => {
     setFilters(parsedFilters);
   }, [searchParams]);
 
+  /* =====================================
+     Fetch Products whenever URL changes
+  ===================================== */
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/products/search?${searchParams.toString()}`;
+        const url = `/api/products/search?${searchParams.toString()}`;
         const res = await fetch(url);
         const data = await res.json();
         if (onProductsUpdate) onProductsUpdate(data);
@@ -68,9 +71,19 @@ const FilterSidebar = ({ onProductsUpdate }) => {
     fetchProducts();
   }, [searchParams, onProductsUpdate]);
 
+  /* =====================================
+     URL WRITE (Preserve search param)
+  ===================================== */
   const writeURL = (next) => {
     const params = new URLSearchParams();
 
+    // Preserve existing search query if not overridden
+    const existingSearch = searchParams.get("search");
+    if (existingSearch && next.search === undefined) {
+      params.set("search", existingSearch);
+    }
+
+    // Add all filter params
     Object.entries(next).forEach(([key, value]) => {
       if (Array.isArray(value) && value.length) {
         params.set(key, value.join(","));
@@ -83,6 +96,9 @@ const FilterSidebar = ({ onProductsUpdate }) => {
     router.push(query ? `${pathname}?${query}` : pathname, { scroll: false });
   };
 
+  /* =====================================
+     FILTER HANDLERS
+  ===================================== */
   const toggleSingle = (key, value) => {
     writeURL({
       ...filters,
@@ -109,7 +125,9 @@ const FilterSidebar = ({ onProductsUpdate }) => {
   };
 
   return (
-    <div className="p-4 z-50 space-y-6">
+    <div className="p-4 z-70 space-y-6 fixed top-0 left-0 h-full w-full sm:w-80 bg-white overflow-y-auto shadow-md sm:relative sm:top-auto sm:left-auto sm:h-auto sm:w-auto sm:shadow-none">
+
+      {/* "fixed top-0 right-0 h-full w-3/4 sm:w-1/2 md:w-[30rem] bg-white shadow-lg transform transition-transform duration-300 flex flex-col z-70" */}
       <h3 className="text-xl font-medium">Filters</h3>
 
       {/* Category */}

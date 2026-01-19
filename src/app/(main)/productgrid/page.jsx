@@ -1,6 +1,6 @@
 // /app/products/page.jsx
 import ProductGrid from "@/components/Common/ProductGrid";
-import CollectionPage from "@/components/pages/CollectionPage";
+import CollectionPage from "@/components/pages/Collections/CollectionPage";
 export default async function ProductsPage() {
   let products = [];
 

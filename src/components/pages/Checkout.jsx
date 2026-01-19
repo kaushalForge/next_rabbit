@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 
 const cart = {
   products: [
@@ -23,6 +24,10 @@ const cart = {
 };
 
 const Checkout = () => {
+  // Optional: read query param if needed
+  const searchParams = useSearchParams();
+  const productId = searchParams?.get("productId");
+
   const [checkoutId, setCheckoutId] = useState(null);
   const [shippingAddress, setShippingAddress] = useState({
     firstName: "",
@@ -36,7 +41,7 @@ const Checkout = () => {
 
   const handleCreateCheckout = (e) => {
     e.preventDefault();
-    // In real app, call your backend to create checkout session
+    // In real app, call backend to create checkout session
     setCheckoutId(123);
   };
 
@@ -49,6 +54,7 @@ const Checkout = () => {
       {/* Left Section */}
       <div className="bg-white rounded-lg p-6 shadow-md">
         <h2 className="text-2xl uppercase mb-6">Checkout</h2>
+        {productId && <p className="mb-4 text-sm text-gray-500">Buying product: {productId}</p>}
         <form onSubmit={handleCreateCheckout}>
           <h3 className="text-lg mb-4">Contact Details</h3>
           <div className="mb-4">

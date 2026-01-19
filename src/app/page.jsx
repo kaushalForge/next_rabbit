@@ -2,7 +2,7 @@ import Hero from "@/components/Layout/Hero";
 import GenderCollectionSection from "@/components/Layout/GenderCollectionSection";
 import NewArrivalRouting from "./(main)/new-arrivals/page";
 import WomenCollectionRouting from "./(main)/women-collection/page";
-import MenCollectionRouting from "./(main)/men-collection/page";
+// import MenCollectionRouting from "../../../men-collection/page";
 import FetchingHelper from "@/components/Helper/fetchingHelper";
 import FeaturedCollection from "@/components/Products/FeaturedCollection";
 import FeaturedSection from "@/components/Products/FeaturedSection";
@@ -18,7 +18,7 @@ const page = () => {
       <GenderCollectionSection />
       <NewArrivalRouting />
       <WomenCollectionRouting />
-      <MenCollectionRouting />
+      {/* <MenCollectionRouting /> */}
       <FetchingHelper id="67c55f6d4e677e943798a3ec" />
       <FeaturedCollection />
       <FeaturedSection />

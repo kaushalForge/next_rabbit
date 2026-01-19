@@ -5,7 +5,7 @@ export default async function ProductsPage() {
 
   try {
     const res = await fetch(
-      `${import.meta.env.NEXT_PUBLIC_BACKEND_URL}/api/products/best-seller`,
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/products/best-seller`,
     );
     bestSeller = await res.json();
     console.log("Best seller data:", bestSeller);

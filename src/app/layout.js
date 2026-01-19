@@ -2,6 +2,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import ReduxProvider from "@/components/redux/ReduxProvider";
 import { Toaster } from "sonner";
+import { Suspense } from "react";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -25,7 +26,9 @@ export default function RootLayout({ children }) {
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <Toaster position="top-right" richColors closeButton duration={1000} />
-        <ReduxProvider>{children}</ReduxProvider>
+        <Suspense>
+          <ReduxProvider>{children}</ReduxProvider>
+        </Suspense>
       </body>
     </html>
   );
