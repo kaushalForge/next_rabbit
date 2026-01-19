@@ -1,4 +1,5 @@
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 import CollectionPage from "@/components/pages/CollectionPage";
 
@@ -20,6 +21,7 @@ export default async function AllCollectionPage({ searchParams }) {
 
   const res = await fetch(url, {
     cache: "no-store",
+    next: { revalidate: 0 },
   });
 
   if (!res.ok) {
