@@ -1,17 +1,14 @@
-import React from "react";
+export const dynamic = "force-dynamic";
+
 import CollectionPage from "@/components/pages/CollectionPage";
 
-export default function AllCollectionPage({ searchParams }) {
-  // ✅ REQUIRED in Next.js 15
-  const resolvedSearchParams = React.use(searchParams);
-
+export default async function AllCollectionPage({ searchParams }) {
   const query = new URLSearchParams();
   query.set("collection", "all");
 
-  for (const [key, value] of Object.entries(resolvedSearchParams || {})) {
+  for (const [key, value] of Object.entries(searchParams || {})) {
     if (value === undefined || value === null || value === "") continue;
 
-    // normalize arrays → comma separated
     if (Array.isArray(value)) {
       query.set(key, value.join(","));
     } else {
@@ -19,22 +16,17 @@ export default function AllCollectionPage({ searchParams }) {
     }
   }
 
-  return <CollectionFetcher query={query.toString()} />;
-}
-
-/* 🔥 isolate async fetch */
-async function CollectionFetcher({ query }) {
-  const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/products/search?${query}`;
+  const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/products/search?${query.toString()}`;
 
   const res = await fetch(url, {
-    cache: "no-store", // NEVER cache filtered results
+    cache: "no-store",
   });
 
   if (!res.ok) {
-    console.error("Fetch failed:", url);
     throw new Error("Failed to fetch products");
   }
 
   const products = await res.json();
+
   return <CollectionPage products={products} />;
 }
