@@ -1,25 +1,30 @@
 // app/(main)/collections/all/page.jsx
 import CollectionPage from "@/components/pages/Collections/CollectionPage";
 
-export const dynamic = "force-dynamic"; // ⚡ Forces SSR, disables static prerender
+export const dynamic = "force-dynamic"; // SSR only
 
 export default async function AllCollectionPage({ searchParams }) {
-  const params = searchParams || {};
+  // ✅ unwrap the Promise
+  const params = await searchParams;
+
   const query = new URLSearchParams({ collection: "all" });
-  for (const [key, value] of Object.entries(params)) {
+
+  for (const [key, value] of Object.entries(params ?? {})) {
     if (!value || value === "") continue;
     query.set(key, Array.isArray(value) ? value.join(",") : value);
   }
 
   let products = [];
+
   try {
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/products/search?${query.toString()}`,
-      { next: { revalidate: 0 } },
+      { cache: "no-store" } // ✅ SSR, no static build
     );
+
     if (res.ok) {
       const data = await res.json();
-      products = Array.isArray(data) ? data : data.products || [];
+      products = Array.isArray(data) ? data : data.products ?? [];
     }
   } catch (err) {
     console.error("Error fetching products:", err);
