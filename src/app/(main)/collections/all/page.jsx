@@ -18,12 +18,12 @@ export default async function AllCollectionPage({ searchParams }) {
   try {
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/products/search?${query.toString()}`,
-      { cache: "no-store" }
+      { cache: "no-store" },
     );
 
     if (res.ok) {
       const data = await res.json();
-      products = Array.isArray(data) ? data : data.products ?? [];
+      products = Array.isArray(data) ? data : (data.products ?? []);
     }
   } catch (err) {
     console.error("Error fetching products:", err);
