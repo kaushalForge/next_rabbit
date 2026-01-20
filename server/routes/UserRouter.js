@@ -8,10 +8,10 @@ const {
   userLoginController,
   userProfileController,
 } = require("../controllers/userController");
-  
+
 // @/users/api
 // @desc fetch all the userAccounts
-router.get("/api", protect, admin, async (req, res) => {
+router.get("/all", protect, admin, async (req, res) => {
   try {
     const allUsers = await userModel.find().select("-password");
     if (allUsers) {
@@ -24,7 +24,6 @@ router.get("/api", protect, admin, async (req, res) => {
     res.status(500).json({ message: "Server Error" });
   }
 });
-
 
 // @users/update-role/:id
 // @update the user role

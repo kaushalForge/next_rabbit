@@ -10,19 +10,19 @@ const { protect, admin } = require("../middleware/authMiddleware");
 
 // @/products/api
 // @desc fetch all the products
-// router.get("/", async (req, res) => {
-//   try {
-//     const allProducts = await productModel.find();
-//     if (allProducts) {
-//       res.status(200).json(allProducts);
-//     } else {
-//       re.status(404).json({ message: "Data not found" });
-//     }
-//   } catch (error) {
-//     console.log(error);
-//     res.status(500).json({ message: "Server Error" });
-//   }
-// });
+router.get("/", async (req, res) => {
+  try {
+    const allProducts = await productModel.find();
+    if (allProducts) {
+      res.status(200).json(allProducts);
+    } else {
+      re.status(404).json({ message: "Data not found" });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Server Error" });
+  }
+});
 
 router.get("/search", async (req, res) => {
   try {
@@ -55,7 +55,7 @@ router.get("/search", async (req, res) => {
       query.brand = { $in: brand.split(",") };
     }
     if (size) {
-      query.size = { $in: size.split(",") };
+      query.size = { $in: [size] };
     }
     if (color) {
       query.color = { $in: [color] };

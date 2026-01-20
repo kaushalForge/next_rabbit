@@ -4,7 +4,6 @@ import CollectionPage from "@/components/pages/Collections/CollectionPage";
 export const dynamic = "force-dynamic"; // SSR only
 
 export default async function AllCollectionPage({ searchParams }) {
-  // ✅ unwrap the Promise
   const params = await searchParams;
 
   const query = new URLSearchParams({ collection: "all" });
@@ -19,7 +18,7 @@ export default async function AllCollectionPage({ searchParams }) {
   try {
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/products/search?${query.toString()}`,
-      { cache: "no-store" } // ✅ SSR, no static build
+      { cache: "no-store" }
     );
 
     if (res.ok) {

@@ -42,27 +42,54 @@ module.exports.userRegisterController = async (req, res) => {
 
 module.exports.userLoginController = async (req, res) => {
   let { email, password, role } = req.body;
+
   try {
     if (!email || !password) {
-      return res.status(404).send("All fields are required");
+      return res.status(400).json({ message: "All fields are required" });
     }
+
     const isUserExists = await userModel.findOne({ email });
-    if (isUserExists) {
-      const isPasswordMatched = await bcrypt.compare(
-        password,
-        isUserExists.password
-      );
-      if (isPasswordMatched) {
-        const token = generateToken({ email, role });
-        res.status(200).json({ user: isUserExists, token: token });
-      } else {
-        return res.status(404).send("E-mail or Password do not matched!");
-      }
-    } else {
-      return res.status(404).send("E-mail or Password do not matched!");
+    if (!isUserExists) {
+      return res
+        .status(404)
+        .json({ message: "E-mail or Password do not matched!" });
     }
+
+    const isPasswordMatched = await bcrypt.compare(
+      password,
+      isUserExists.password,
+    );
+
+    if (!isPasswordMatched) {
+      return res
+        .status(404)
+        .json({ message: "E-mail or Password do not matched!" });
+    }
+
+    const token = generateToken({
+      id: isUserExists._id,
+      email: isUserExists.email,
+      role: isUserExists.role,
+    });
+
+    res.cookie("token", token, {
+      httpOnly: true,
+      // secure: process.env.NODE_ENV === "production",
+      secure: false,
+      sameSite: "lax",
+      path: "/",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    return res.status(200).json({
+      user: isUserExists,
+      token,
+    });
   } catch (error) {
-    return res.status(500).json({ message: "Error occurred", error });
+    return res.status(500).json({
+      message: "Error occurred",
+      error,
+    });
   }
 };
 

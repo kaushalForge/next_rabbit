@@ -12,7 +12,12 @@ const adminRouter = require("./routes/AdminRouter");
 
 const frontendURL = process.env.FRONTEND_URL;
 
-app.use(cors(frontendURL));
+app.use(
+  cors({
+    origin: frontendURL, // exact frontend URL
+    credentials: true, // allow cookies
+  }),
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 

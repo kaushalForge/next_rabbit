@@ -58,6 +58,9 @@ export const loginUser = createAsyncThunk(
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/login`,
         userData,
+        {
+          withCredentials: true,
+        },
       );
 
       if (typeof window !== "undefined") {

@@ -8,7 +8,7 @@ module.exports.protect = async (req, res, next) => {
     try {
       token = req.headers.authorization.trim();
       if (!token) {
-        return res.status(401).json({ message: "No token provided" });
+        return res.status(401).json({ message: "Not authorized!" });
       }
       const decoded = jwt.decode(token);
       // It is used to get the payload data only like the data assign with the token creation email and role in this case
@@ -28,7 +28,7 @@ module.exports.protect = async (req, res, next) => {
       return res.status(401).json({ message: "Invalid or expired token" });
     }
   } else {
-    return res.status(401).json({ message: "Not authorized, no token" });
+    return res.status(401).json({ message: "Not authorized!" });
   }
 };
 
@@ -36,7 +36,7 @@ module.exports.protect = async (req, res, next) => {
 module.exports.admin = async (req, res, next) => {
   try {
     if (req.user.role !== "admin") {
-      return res.status(403).json({ message: "User not authorized as admin" });
+      return res.status(403).json({ message: "User not authorized!" });
     } else {
       next();
     }
