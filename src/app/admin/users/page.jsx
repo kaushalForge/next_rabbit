@@ -6,7 +6,7 @@ import { cookies } from "next/headers";
 const page = async () => {
   try {
     const cookieStore = await cookies();
-    const tokenCookie = cookieStore.get("token"); 
+    const tokenCookie = cookieStore.get("cUser");
     const token = tokenCookie?.value;
     if (!token) {
       throw new Error("No auth token found in cookies");

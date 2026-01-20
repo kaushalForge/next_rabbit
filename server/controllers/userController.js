@@ -41,54 +41,53 @@ module.exports.userRegisterController = async (req, res) => {
 };
 
 module.exports.userLoginController = async (req, res) => {
-  let { email, password, role } = req.body;
+  const { email, password } = req.body;
 
   try {
     if (!email || !password) {
       return res.status(400).json({ message: "All fields are required" });
     }
 
-    const isUserExists = await userModel.findOne({ email });
-    if (!isUserExists) {
-      return res
-        .status(404)
-        .json({ message: "E-mail or Password do not matched!" });
+    const user = await userModel.findOne({ email });
+    if (!user) {
+      return res.status(401).json({
+        message: "E-mail or Password do not match!",
+      });
     }
 
-    const isPasswordMatched = await bcrypt.compare(
-      password,
-      isUserExists.password,
-    );
-
+    const isPasswordMatched = await bcrypt.compare(password, user.password);
     if (!isPasswordMatched) {
-      return res
-        .status(404)
-        .json({ message: "E-mail or Password do not matched!" });
+      return res.status(401).json({
+        message: "E-mail or Password do not match!",
+      });
     }
 
+    // 🔐 Generate token
     const token = generateToken({
-      id: isUserExists._id,
-      email: isUserExists.email,
-      role: isUserExists.role,
+      id: user._id,
+      email: user.email,
+      role: user.role,
     });
 
-    res.cookie("token", token, {
+    // 🍪 Set cookie
+    res.cookie("cUser", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      // secure: false,
       sameSite: "lax",
       path: "/",
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
+    const { password: _, ...safeUser } = user.toObject();
 
     return res.status(200).json({
-      user: isUserExists,
+      message: "Login successful!",
       token,
+      user: safeUser,
     });
   } catch (error) {
     return res.status(500).json({
       message: "Error occurred",
-      error,
+      error: error.message,
     });
   }
 };
