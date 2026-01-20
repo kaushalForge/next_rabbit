@@ -14,8 +14,8 @@ const frontendURL = process.env.FRONTEND_URL;
 
 app.use(
   cors({
-    origin: frontendURL, // exact frontend URL
-    credentials: true, // allow cookies
+    origin: frontendURL,
+    credentials: true,
   }),
 );
 app.use(express.json());
