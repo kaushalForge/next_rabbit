@@ -39,7 +39,7 @@ const AdminHomePage = () => {
   const totalProducts = useSelector((state) => state.admin.totalProducts);
 
   return (
-    <div className="w-auto container mx-auto px-4 py-6 space-y-8">
+    <div className="w-full container mx-auto px-4 py-6 space-y-8">
       {/* Header */}
       <div>
         <h1 className="text-2xl font-semibold text-gray-800">

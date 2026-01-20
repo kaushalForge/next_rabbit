@@ -1,15 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  MdSpaceDashboard,
-  MdMenu,
-  MdLogout,
-  MdChevronLeft,
-  MdChevronRight,
-} from "react-icons/md";
+import { MdSpaceDashboard, MdLogout } from "react-icons/md";
+import { RiMenuFoldFill, RiMenuFold2Fill } from "react-icons/ri";
 import { FaBoxOpen, FaClipboardList, FaStore, FaUser } from "react-icons/fa";
 
 const navItems = [
@@ -19,101 +14,101 @@ const navItems = [
   { href: "/", icon: <FaStore />, label: "Shop" },
 ];
 
-export default function AdminSidebar({ isCollapsed }) {
+export default function AdminSidebar({ collapsed, toggleCollapse }) {
   const pathname = usePathname();
-  const [collapsed, setCollapsed] = useState(false);
-  const [mobileOpen, setMobileOpen] = useState(false);
-
-  const handleLogout = () => {
-    window.location.href = "/"; // replace with real logout logic
-  };
 
   return (
-    <>
-      {/* Hamburger toggle for small devices */}
-      <div className="lg:hidden fixed top-4 left-4 z-50">
-        <button
-          onClick={() => setMobileOpen(!mobileOpen)}
-          className="p-2 bg-white rounded-full shadow-lg hover:bg-gray-100 transition-all duration-300"
-        >
-          <MdMenu className="w-6 h-6 text-gray-800" />
-        </button>
-      </div>
-
-      {/* Sidebar container */}
+    <div className="min-h-screen flex flex-shrink-0">
+      {/* Desktop Sidebar */}
       <aside
-        className={`fixed top-0 left-0 h-full bg-white border-r border-gray-200 shadow-xl z-40
-          transform transition-all duration-300 ease-in-out
-          ${mobileOpen ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0
-          ${isCollapsed ? "w-20" : "w-64"} flex flex-col
+        className={`
+          hidden lg:flex flex-col h-screen bg-white shadow-lg
+          transition-all duration-300
+          ${collapsed ? "w-20" : "w-64"}
+          flex-shrink-0
         `}
       >
-        <div className="flex flex-col h-full justify-between p-4">
-          {/* Brand */}
-          <div className="flex items-center gap-2 mb-6">
-            <Link href="/admin" className="flex items-center gap-2">
-              <MdSpaceDashboard className="text-red-500 w-7 h-7" />
-              {!isCollapsed && (
-                <span className="text-lg font-semibold">Rabbit Dashboard</span>
-              )}
-            </Link>
-          </div>
+        {/* Brand + Toggle */}
+        <div className="flex items-center justify-between p-4 mb-6">
+          <Link href="/admin" className="flex items-center gap-2">
+            <MdSpaceDashboard className="text-red-500 w-7 h-7" />
+            {!collapsed && (
+              <span className="text-lg whitespace-nowrap font-semibold">
+                Rabbit Dashboard
+              </span>
+            )}
+          </Link>
 
-          {/* Toggle collapse (large screens only) */}
-          <div className="hidden lg:flex justify-end mb-4">
-            <button
-              onClick={() => setCollapsed(!collapsed)}
-              className="p-1 rounded-full hover:bg-gray-100 transition-all duration-300"
-            >
-              {collapsed ? (
-                <MdChevronRight className="w-6 h-6 text-gray-700" />
-              ) : (
-                <MdChevronLeft className="w-6 h-6 text-gray-700" />
-              )}
-            </button>
-          </div>
-
-          {/* Navigation */}
-          <nav className="flex-1 flex flex-col space-y-1">
-            {navItems.map((item) => {
-              const isActive = pathname === item.href;
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={`flex items-center gap-3 p-3 rounded-lg transition-all duration-300
-                    ${isActive ? "bg-red-500 text-white shadow-lg" : "text-gray-700 hover:bg-gray-100 hover:shadow-sm"}
-                  `}
-                >
-                  <span className="text-2xl">{item.icon}</span>
-                  {!collapsed && (
-                    <span className="font-medium">{item.label}</span>
-                  )}
-                </Link>
-              );
-            })}
-          </nav>
-
-          {/* Logout */}
-          <div className="mt-6">
-            <button
-              onClick={handleLogout}
-              className="w-full flex items-center justify-center gap-2 py-2 px-4 bg-red-500 text-white rounded-lg shadow hover:bg-red-600 transition-all duration-300"
-            >
-              <MdLogout className="w-6 h-6" />
-              {!collapsed && <span className="font-medium">Logout</span>}
-            </button>
-          </div>
+          <button
+            onClick={toggleCollapse}
+            className="p-1 rounded-full hover:bg-gray-100"
+          >
+            {collapsed ? (
+              <RiMenuFold2Fill className="w-6 h-6" />
+            ) : (
+              <RiMenuFoldFill className="w-6 h-6" />
+            )}
+          </button>
         </div>
+
+        {/* Navigation */}
+        <nav className="flex-1 flex flex-col space-y-1 p-2">
+          {navItems.map((item) => {
+            const isActive = pathname === item.href;
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`flex items-center gap-3 p-3 rounded-lg transition
+                  ${isActive ? "bg-red-500 text-white" : "text-gray-700 hover:bg-gray-100"}
+                `}
+              >
+                <span className="text-xl">{item.icon}</span>
+                {!collapsed && <span>{item.label}</span>}
+              </Link>
+            );
+          })}
+        </nav>
+
+        {/* Logout */}
+        <button className="mt-4 flex items-center gap-3 p-3 bg-red-500 text-white rounded-lg hover:bg-red-600 transition">
+          <MdLogout className="w-5 h-5" />
+          {!collapsed && <span>Logout</span>}
+        </button>
       </aside>
 
-      {/* Overlay for mobile drawer */}
-      {mobileOpen && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-30 z-30 transition-opacity duration-300 lg:hidden"
-          onClick={() => setMobileOpen(false)}
-        />
-      )}
-    </>
+      {/* Mobile Sidebar (sm/md) */}
+      <aside className="lg:hidden flex flex-col h-screen w-20 bg-white shadow-lg">
+        {/* Brand */}
+        <div className="flex items-center justify-center p-4 mb-6">
+          <Link href="/admin">
+            <MdSpaceDashboard className="text-red-500 w-7 h-7" />
+          </Link>
+        </div>
+
+        {/* Navigation */}
+        <nav className="flex-1 flex flex-col items-center space-y-2 p-2">
+          {navItems.map((item) => {
+            const isActive = pathname === item.href;
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`flex items-center justify-center p-3 rounded-lg transition
+                  ${isActive ? "bg-red-500 text-white" : "text-gray-700 hover:bg-gray-100"}
+                `}
+              >
+                <span className="text-xl">{item.icon}</span>
+              </Link>
+            );
+          })}
+        </nav>
+
+        {/* Logout */}
+        <button className="flex items-center justify-center p-3 bg-red-500 text-white rounded-lg hover:bg-red-600 transition m-2">
+          <MdLogout className="w-5 h-5" />
+        </button>
+      </aside>
+    </div>
   );
 }

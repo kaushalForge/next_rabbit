@@ -1,24 +1,27 @@
 "use client";
 
 import { useState } from "react";
-import AdminSidebar from "@/components/admin/AdminSidebar";
+import AdminSidebar from "@/components/Admin/AdminSidebar";
 
 export default function AdminLayout({ children }) {
   const [collapsed, setCollapsed] = useState(false);
-  const toggleCollapse = () => {
-    console.log("changed");
-    setCollapsed(!collapsed);
-  };
 
   return (
-    <div className="flex min-h-screen bg-gray-100">
+    <div className="flex bg-gray-100">
       {/* Sidebar */}
-      <AdminSidebar collapsed={collapsed} toggleCollapse={toggleCollapse} />
-      {/* Main content */}
+      <div className="min-h-screen">
+        <AdminSidebar
+          collapsed={collapsed}
+          toggleCollapse={() => setCollapsed(!collapsed)}
+        />
+      </div>
+
+      {/* Main Content */}
       <main
-        className={`flex-1 transition-all duration-500 ease-in-out p-6 ${
-          collapsed ? "ml-20" : "ml-64"
-        }`}
+        className={`
+          flex-1 p-2
+          transition-all w-full duration-300
+        `}
       >
         {children}
       </main>
