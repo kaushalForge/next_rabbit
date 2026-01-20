@@ -69,14 +69,23 @@ module.exports.userLoginController = async (req, res) => {
       role: user.role,
     });
 
-    // 🍪 Set cookie
+    // // 🍪 Set cookie
+    // res.cookie("cUser", token, {
+    //   httpOnly: true,
+    //   secure: process.env.NODE_ENV === "production",
+    //   sameSite: "lax",
+    //   path: "/",
+    //   maxAge: 7 * 24 * 60 * 60 * 1000,
+    // });
+
     res.cookie("cUser", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
+      secure: true, // MUST be true on Vercel
+      sameSite: "none", // REQUIRED for cross-site cookies
       path: "/",
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
+
     const { password: _, ...safeUser } = user.toObject();
 
     return res.status(200).json({
