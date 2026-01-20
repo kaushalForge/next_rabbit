@@ -72,11 +72,11 @@ module.exports.userLoginController = async (req, res) => {
       role: isUserExists.role,
     });
 
-    const isProd = process.env.NODE_ENV === "production";
     res.cookie("token", token, {
       httpOnly: true,
-      secure: isProd,
-      sameSite: isProd ? "lax" : "lax",
+      secure: process.env.NODE_ENV === "production",
+      // secure: false,
+      sameSite: "lax",
       path: "/",
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
