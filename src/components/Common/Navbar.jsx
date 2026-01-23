@@ -12,19 +12,22 @@ import { MdLogin } from "react-icons/md";
 import { useSelector } from "react-redux";
 import SearchBar from "./SearchBar";
 import CartDrawer from "../Layout/CartDrawer";
+import { useAuth } from "@/app/context/AuthContext";
 
 const Navbar = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [navDrawerOpen, setNavDrawerOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
 
-  const { items } = useSelector((state) => state.cart);
-  const isAdmin = useSelector((state) => state.auth.isAdmin);
-  const userInfo = useSelector((state) => state.auth.user);
-
+  const { user, loading, refreshAuth } = useAuth();
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  const isLoggedIn = !!user;
+  const role = user?.role;
+
+  const { items } = useSelector((state) => state.cart);
 
   const cartItemCount =
     items?.products?.reduce((total, product) => total + product.quantity, 0) ||
@@ -46,7 +49,7 @@ const Navbar = () => {
             />
           </Link>
 
-          {/* Menu */}
+          {/* Desktop Menu */}
           <div className="hidden md:flex items-center space-x-2 text-sm font-semibold">
             <Link href="/collections/all?gender=Male">Men</Link>
             <Link href="/collections/all?gender=Female">Women</Link>
@@ -56,11 +59,12 @@ const Navbar = () => {
             </Link>
           </div>
 
-          {/* Icons */}
+          {/* Right Section */}
           <div className="flex items-center space-x-4">
-            {mounted && (
+            {mounted && !loading && (
               <>
-                {isAdmin && (
+                {/* Role-based links */}
+                {isLoggedIn && role === "admin" && (
                   <Link
                     href="/admin"
                     className="uppercase rounded-lg text-sm bg-black text-white px-2 py-1"
@@ -69,7 +73,17 @@ const Navbar = () => {
                   </Link>
                 )}
 
-                {!userInfo ? (
+                {isLoggedIn && role === "moderator" && (
+                  <Link
+                    href="/moderator"
+                    className="uppercase rounded-lg text-sm bg-black text-white px-2 py-1"
+                  >
+                    Moderator
+                  </Link>
+                )}
+
+                {/* Login */}
+                {!isLoggedIn && (
                   <Link
                     href="/login"
                     className="flex items-center gap-1 border-2 p-1 rounded-md"
@@ -77,7 +91,10 @@ const Navbar = () => {
                     <MdLogin className="h-6 w-6" />
                     <span className="text-sm whitespace-nowrap">Log In</span>
                   </Link>
-                ) : (
+                )}
+
+                {/* Profile */}
+                {isLoggedIn && (
                   <Link href="/profile">
                     <HiOutlineUser className="h-6 w-6" />
                   </Link>
@@ -98,6 +115,7 @@ const Navbar = () => {
             {/* Search */}
             <SearchBar />
 
+            {/* Mobile Menu */}
             <button onClick={toggleNavDrawer} className="lg:hidden">
               <HiBars3BottomRight className="h-6 w-6" />
             </button>

@@ -1,115 +1,91 @@
 "use client";
 
-import React, { useState } from "react";
-import Link from "next/link";
+import React from "react";
 import { useRouter } from "next/navigation";
-import { useDispatch } from "react-redux";
-import { registerUser } from "../redux/slices/authSlice";
-import { toast } from "sonner";
+import {
+  MdVerified,
+  MdRocketLaunch,
+  MdLock,
+  MdTrackChanges,
+} from "react-icons/md";
 
 const Register = () => {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const dispatch = useDispatch();
   const router = useRouter();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const resultAction = await dispatch(registerUser({ name, email, password })).unwrap();
-      if (resultAction) {
-        toast.success("Account created successfully!");
-        router.push("/login"); // Redirect to login page
-      }
-    } catch (error) {
-      toast.error("Registration failed. Please try again.");
-    }
-  };
-
   return (
-    <div className="flex">
-      {/* Form Section */}
-      <div className="w-full md:w-1/2 flex flex-col justify-center items-center p-8 md:p-12">
-        <form
-          onSubmit={handleSubmit}
-          className="w-full max-w-md bg-white p-8 rounded-lg border shadow-sm"
-        >
-          <div className="flex justify-center font-bold mb-6">
-            <h2 className="text-xl font-medium">Rabbit</h2>
-          </div>
-          <h2 className="text-2xl text-center font-bold mb-6">Hey there! 👋🏼</h2>
-          <p className="text-center mb-6">
-            Enter your username, email and password to Register
-          </p>
+    <div className="container mx-auto flex items-center justify-center bg-gray-100 h-screen">
+      <div className="rounded-3xl shadow-xl p-8 bg-white">
+        {/* Header */}
+        <h1 className="text-3xl md:text-3xl font-medium text-gray-900 mb-3 text-center leading-snug">
+          Welcome to Rabbit 🐇
+        </h1>
+        <p className="text-gray-600 mb-6 text-center">
+          Sign up securely using your Google account. Verified login ensures
+          your email is valid.
+        </p>
 
-          {/* Name */}
-          <div className="mb-4">
-            <label htmlFor="name" className="block text-sm font-semibold mb-2">
-              Name
-            </label>
-            <input
-              id="name"
-              type="text"
-              onChange={(e) => setName(e.target.value)}
-              className="w-full rounded-md border p-2"
-              placeholder="Enter your name"
-            />
-          </div>
-
-          {/* Email */}
-          <div className="flex flex-col items-start gap-1 py-2 w-full">
-            <label htmlFor="email" className="block text-sm font-semibold mb-2">
-              Email
-            </label>
-            <input
-              id="email"
-              type="text"
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-md border p-2"
-              placeholder="Enter your email address"
-            />
-          </div>
-
-          {/* Password */}
-          <div className="flex flex-col items-start gap-1 py-2 w-full">
-            <label htmlFor="password" className="block text-sm font-semibold mb-2">
-              Password
-            </label>
-            <input
-              id="password"
-              type="password"
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full rounded-md border p-2"
-              placeholder="Enter your password"
-            />
-          </div>
-
-          <button
-            type="submit"
-            className="w-full bg-black text-white mt-4 py-2 px-4 rounded-lg font-semibold hover:bg-gray-800 transition-all"
-          >
-            Sign Up
-          </button>
-
-          <p className="mt-6 text-center text-sm">
-            Already have an account?{" "}
-            <Link href="/login" className="text-blue-500 hover:underline">
-              Sign In
-            </Link>
-          </p>
-        </form>
-      </div>
-
-      {/* Image Section */}
-      <div className="hidden md:block w-1/2 bg-gray-800">
-        <div className="h-full flex flex-col justify-center items-center w-full">
-          <img
-            src="https://images.unsplash.com/photo-1517191434949-5e90cd67d2b6?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-            alt="Register"
-            className="h-[750px] w-full object-cover"
-          />
+        {/* Feature Highlights */}
+        <div className="grid grid-cols-1 gap-3 mb-6 text-left">
+          {[
+            {
+              icon: <MdVerified className="text-blue-500 text-2xl" />,
+              text: "Verified Google login",
+            },
+            {
+              icon: <MdRocketLaunch className="text-purple-500 text-2xl" />,
+              text: "Instant access without passwords",
+            },
+            {
+              icon: <MdLock className="text-red-500 text-2xl" />,
+              text: "Secure and trusted authentication",
+            },
+            {
+              icon: <MdTrackChanges className="text-green-500 text-2xl" />,
+              text: "Focus on what matters most",
+            },
+          ].map((feature, idx) => (
+            <div key={idx} className="flex items-center gap-3">
+              <span className="text-blue-500 text-xl">{feature.icon}</span>
+              <p className="text-gray-700 text-sm">{feature.text}</p>
+            </div>
+          ))}
         </div>
+
+        {/* Google OAuth Button */}
+        <a
+          href={`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/google`}
+          className="flex items-center justify-center w-full py-3 px-4 rounded-xl border shadow-md hover:shadow-lg transition-all bg-white text-gray-700 font-medium hover:bg-gray-50"
+        >
+          <img
+            src="https://developers.google.com/identity/images/g-logo.png"
+            alt="Google Logo"
+            className="h-5 w-5 mr-3"
+          />
+          Sign up with Google
+        </a>
+
+        {/* Footer */}
+        <p className="mt-6 text-center text-gray-500 text-sm">
+          By continuing, you agree to our{" "}
+          <span className="text-blue-500 underline cursor-pointer">
+            Terms of Service
+          </span>{" "}
+          and{" "}
+          <span className="text-blue-500 underline cursor-pointer">
+            Privacy Policy
+          </span>
+          .
+        </p>
+
+        <p className="mt-4 text-center text-gray-500 text-sm">
+          Already have an account?{" "}
+          <span
+            className="text-purple-500 underline cursor-pointer hover:text-purple-700 transition-colors"
+            onClick={() => router.push("/login")}
+          >
+            Sign In
+          </span>
+        </p>
       </div>
     </div>
   );

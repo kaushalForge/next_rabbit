@@ -20,6 +20,10 @@ const productSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
+    stock: {
+      type: Number,
+      required: false,
+    },
     color: {
       type: [],
     },
@@ -78,7 +82,7 @@ const productSchema = new mongoose.Schema(
       required: true,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 module.exports = mongoose.model("product", productSchema);

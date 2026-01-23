@@ -1,213 +1,174 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
-import { fetchProductDetails } from "../redux/slices/productSlice";
-import { updateProduct } from "../redux/slices/adminSlice";
-const EditProductPage = () => {
-  const { id } = useParams();
-  const dispatch = useDispatch();
-  const productDetails = useSelector((state) => state.products.selectedProduct);
+import { useState } from "react";
+import { updateProductAction } from "@/actions/adminProducts";
+import { toast } from "sonner";
+import SectionOne from "../UI/AdminEditSections/SectionOne";
+import SectionTwo from "../UI/AdminEditSections/SectionTwo";
 
-  const [productData, setProductData] = useState(null);
+const EditProductPage = ({ productDetails }) => {
+  /* ---------------- CORE ---------------- */
+  const [name, setName] = useState(productDetails?.name || "");
+  const [description, setDescription] = useState(
+    productDetails?.description || "",
+  );
+  const [originalPrice, setOriginalPrice] = useState(
+    productDetails?.originalPrice || 0,
+  );
+  const [price, setPrice] = useState(productDetails?.price || 0);
+  const [stock, setStock] = useState(productDetails?.stock || 0);
 
-  useEffect(() => {
-    dispatch(fetchProductDetails(id));
-  }, [dispatch, id]);
+  /* ---------------- ARRAYS (CSV IN UI) ---------------- */
+  const csv = (arr) => (Array.isArray(arr) ? arr.join(", ") : "");
 
-  useEffect(() => {
-    if (productDetails) {
-      setProductData({
-        name: productDetails.name || "",
-        description: productDetails.description || "",
-        price: productDetails.price || 0,
-        originalPrice: productDetails.originalPrice || 0,
-        countInStock: productDetails.countInStock || 0,
-        sku: productDetails.sku || "",
-        category: productDetails.category || "",
-        brand: productDetails.brand || "",
-        size: productDetails.size || [],
-        color: productDetails.color || [],
-        collections: productDetails.collections || "",
-        material: productDetails.material || "",
-        gender: productDetails.gender || "",
-        images: productDetails?.images || [],
-      });
-    }
-  }, [productDetails]);
+  const [size, setSize] = useState(csv(productDetails?.size));
+  const [tags, setTags] = useState(csv(productDetails?.tags));
+  const [color, setColor] = useState(csv(productDetails?.color));
+  const [material, setMaterial] = useState(csv(productDetails?.material));
+  const [brand, setBrand] = useState(csv(productDetails?.brand));
 
-  // console.log("Product Data: ", productDetails);
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setProductData((prevData) => ({ ...prevData, [name]: value }));
-  };
+  /* ---------------- SELECT / TEXT ---------------- */
+  const [gender, setGender] = useState(productDetails?.gender || "");
+  const [category, setCategory] = useState(productDetails?.category || "");
+  const [weight, setWeight] = useState(productDetails?.weight || "");
 
-  if (!productData) return <div>Loading...</div>;
+  /* ---------------- META ---------------- */
+  const [metaTitle, setMetaTitle] = useState(productDetails?.metaTitle || "");
+  const [metaDescription, setMetaDescription] = useState(
+    productDetails?.metaDescription || "",
+  );
+  const [metaKeywords, setMetaKeywords] = useState(
+    productDetails?.metaKeywords || "",
+  );
 
-  const handleSubmit = (e) => {
+  /* ---------------- DIMENSIONS ---------------- */
+  const [dimensions, setDimensions] = useState({
+    length: productDetails?.dimensions?.length || "",
+    width: productDetails?.dimensions?.width || "",
+    height: productDetails?.dimensions?.height || "",
+  });
+
+  /* ---------------- FLAGS ---------------- */
+  const [isFeatured, setIsFeatured] = useState(
+    productDetails?.isFeatured ?? false,
+  );
+  const [isPublished, setIsPublished] = useState(
+    productDetails?.isPublished ?? false,
+  );
+
+  /* ---------------- MEDIA ---------------- */
+  const [images, setImages] = useState(
+    productDetails?.images?.slice(0, 6) || [],
+  );
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  /* ---------------- SUBMIT ---------------- */
+  const toArray = (str) =>
+    str
+      .split(",")
+      .map((v) => v.trim())
+      .filter(Boolean);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Updated Product Data: ", productData);
-    dispatch(updateProduct({ productData, id: id }));
+
+    const payload = {
+      _id: productDetails._id,
+      name,
+      description,
+      originalPrice: Number(originalPrice),
+      price: Number(price),
+      stock: Number(stock),
+      tags: toArray(tags),
+      size: toArray(size),
+      color: toArray(color),
+      material: toArray(material),
+      brand: toArray(brand),
+      gender,
+      category,
+      weight,
+      metaTitle,
+      metaDescription,
+      metaKeywords,
+      dimensions: {
+        length: Number(dimensions.length) || 0,
+        width: Number(dimensions.width) || 0,
+        height: Number(dimensions.height) || 0,
+      },
+
+      isFeatured,
+      isPublished,
+      images,
+    };
+    const confirmUpdate = window.confirm(
+      "Are you sure you want to update this product?",
+    );
+
+    if (!confirmUpdate) return;
+
+    const { status } = await updateProductAction(payload);
+
+    if (status === 201 || status === 200) {
+      toast.success("Product updated successfully!");
+    } else {
+      toast.error("Failed updating product!");
+    }
   };
 
   return (
-    <div className="max-w-5xl mx-auto p-6 shadow-md rounded-md">
+    <div className="container mx-auto p-6">
       <h2 className="text-3xl font-bold mb-6">Edit Product</h2>
+
       <form onSubmit={handleSubmit}>
-        {/* Name */}
-        <div className="mb-6">
-          <label className="block font-semibold mb-2">Product Name</label>
-          <input
-            type="text"
-            name="name"
-            value={productData.name}
-            onChange={handleChange}
-            className="w-full border border-gray-300 rounded-md p-2"
+        <div className="grid lg:grid-cols-3 gap-8">
+          <SectionOne
+            images={images}
+            setImages={setImages}
+            activeIndex={activeIndex}
+            setActiveIndex={setActiveIndex}
+            tags={tags}
+            setTags={setTags}
+          />
+
+          <SectionTwo
+            name={name}
+            setName={setName}
+            description={description}
+            setDescription={setDescription}
+            originalPrice={originalPrice}
+            setOriginalPrice={setOriginalPrice}
+            price={price}
+            setPrice={setPrice}
+            stock={stock}
+            setStock={setStock}
+            size={size}
+            setSize={setSize}
+            color={color}
+            setColor={setColor}
+            material={material}
+            setMaterial={setMaterial}
+            brand={brand}
+            setBrand={setBrand}
+            gender={gender}
+            setGender={setGender}
+            category={category}
+            setCategory={setCategory}
+            weight={weight}
+            setWeight={setWeight}
+            metaTitle={metaTitle}
+            setMetaTitle={setMetaTitle}
+            metaDescription={metaDescription}
+            setMetaDescription={setMetaDescription}
+            metaKeywords={metaKeywords}
+            setMetaKeywords={setMetaKeywords}
+            dimensions={dimensions}
+            setDimensions={setDimensions}
+            isFeatured={isFeatured}
+            setIsFeatured={setIsFeatured}
+            isPublished={isPublished}
+            setIsPublished={setIsPublished}
           />
         </div>
-
-        {/* Description */}
-        <div className="mb-6">
-          <label className="block font-semibold mb-2">Description</label>
-          <textarea
-            name="description"
-            value={productData.description}
-            rows={4}
-            onChange={handleChange}
-            className="w-full border border-gray-300 rounded-md p-2"
-          />
-        </div>
-
-        {/* Original Price */}
-        <div className="mb-6">
-          <label className="block font-semibold mb-2">Original Price</label>
-          <input
-            type="number"
-            name="originalPrice"
-            value={productData.originalPrice}
-            onChange={handleChange}
-            className="w-full border border-gray-300 rounded-md p-2"
-          />
-        </div>
-
-        {/* Price */}
-        <div className="mb-6">
-          <label className="block font-semibold mb-2">Price</label>
-          <input
-            type="number"
-            name="price"
-            value={productData.price}
-            onChange={handleChange}
-            className="w-full border border-gray-300 rounded-md p-2"
-          />
-        </div>
-
-        {/* Count In Stock */}
-        <div className="mb-6">
-          <label className="block font-semibold mb-2">Count in Stock</label>
-          <input
-            type="number"
-            name="countInStock"
-            value={productData.countInStock}
-            onChange={handleChange}
-            className="w-full border border-gray-300 rounded-md p-2"
-          />
-        </div>
-
-        {/* SKU */}
-        <div className="mb-6">
-          <label className="block font-semibold mb-2">SKU</label>
-          <input
-            type="text"
-            name="sku"
-            value={productData.sku}
-            onChange={handleChange}
-            className="w-full border border-gray-300 rounded-md p-2"
-          />
-        </div>
-
-        {/* Size */}
-        <div className="mb-6">
-          <label className="block font-semibold mb-2">
-            Size (comma-separated)
-          </label>
-          <input
-            type="text"
-            name="size"
-            value={productData?.size?.join(", ") || ""}
-            onChange={(e) =>
-              setProductData({
-                ...productData,
-                size: e.target.value
-                  .split(",")
-                  .map((s) => s.trim().toUpperCase()),
-              })
-            }
-            className="w-full border border-gray-300 rounded-md p-2"
-          />
-        </div>
-
-        {/* Color */}
-        <div className="mb-6">
-          <label className="block font-semibold mb-2">
-            Color (comma-separated)
-          </label>
-          <input
-            type="text"
-            name="color"
-            value={productData?.color?.join(", ") || ""}
-            onChange={(e) =>
-              setProductData({
-                ...productData,
-                color: e.target.value
-                  .split(",")
-                  .map(
-                    (c) =>
-                      c.trim().charAt(0).toUpperCase() +
-                      c.trim().slice(1).toLowerCase(),
-                  ),
-              })
-            }
-            className="w-full border border-gray-300 rounded-md p-2"
-          />
-        </div>
-
-        {/* Image Upload */}
-        <div className="mb-6">
-          <label className="block font-semibold mb-2">Upload Image</label>
-          <div className="flex gap-4 mt-4 flex-col">
-            {productData.images.map((img, i) => (
-              <div key={i} className="w-full h-auto object-cover rounded-md">
-                <h4 className="font-medium text-lg text-[#ff4500]">
-                  Image {i + 1}
-                </h4>
-                <input
-                  type="text"
-                  value={img.url}
-                  onChange={(e) => {
-                    const updatedImages = [...productData.images];
-                    updatedImages[i] = {
-                      ...updatedImages[i],
-                      url: e.target.value,
-                    };
-                    setProductData({ ...productData, images: updatedImages });
-                  }}
-                  className="w-full mb-2 text-sm font-semibold border rounded-sm px-2 py-1 focus:ring-2 focus:shadow-lg focus:ring-[#ff4500] focus:outline-none"
-                />
-
-                <img src={img.url} alt="Preview" className="w-72 h-72" />
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <button
-          type="submit"
-          className="w-full bg-green-500 text-white py-2 rounded-md hover:bg-green-600"
-        >
-          Update Product
-        </button>
       </form>
     </div>
   );

@@ -3,6 +3,7 @@ import "./globals.css";
 import ReduxProvider from "@/components/redux/ReduxProvider";
 import { Toaster } from "sonner";
 import { Suspense } from "react";
+import { AuthProvider } from "./context/AuthContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -15,20 +16,30 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "Rabbit",
-  description: "Shopping Made Simple",
+  title: "Rabbit Admin",
+  description: "Admin Panel",
 };
 
-export default function RootLayout({ children }) {
+export default async function AdminLayout({ children }) {
+  // const { user, isLoggedIn } = await fetchAuthToken();
+
+  // Redirect if user is not admin
+  // if (user?.role !== "admin") {
+  //   redirect("/not-found");
+  // }
+
+  // Render the admin layout
   return (
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <Toaster position="top-right" richColors closeButton duration={1000} />
-        <Suspense>
-          <ReduxProvider>{children}</ReduxProvider>
-        </Suspense>
+        <AuthProvider>
+          <Suspense fallback={null}>
+            <ReduxProvider>{children}</ReduxProvider>
+          </Suspense>
+        </AuthProvider>
       </body>
     </html>
   );

@@ -164,7 +164,7 @@ const ProductDetails = ({ productId, productDetail }) => {
                 <div className="mb-4">
                   <p className="text-gray-700">Color:</p>
                   <div className="flex gap-2 mt-2">
-                    {productDetail?.color.map((color, index) => (
+                    {productDetail?.color?.map((color, index) => (
                       <button
                         key={index}
                         onClick={() => {
@@ -184,7 +184,7 @@ const ProductDetails = ({ productId, productDetail }) => {
                 <div className="mb-4">
                   <p className="text-gray-700">Size:</p>
                   <div className="flex gap-2 mb-2">
-                    {productDetail?.size.map((size, index) => (
+                    {productDetail?.size?.map((size, index) => (
                       <button
                         key={index}
                         onClick={() => {

@@ -6,17 +6,14 @@ module.exports.userRegisterController = async (req, res) => {
   let { name, email, password, role } = req.body;
   try {
     if (!name || !email || !password) {
-      return res.status(404).send("All field are required");
+      return res.status(404).json({ message: "All field are required" });
     }
     let existingUser = await userModel.findOne({ email });
     if (existingUser) {
-      return res.status(400).send("User already exists with this account");
+      return res
+        .status(400)
+        .json({ message: "User already exists with this account" });
     }
-
-    // const validRoles = ["admin", "customer"];
-    // if (!validRoles.includes(role)) {
-    //   return res.status(400).send("Role must be valid");
-    // }
 
     try {
       let saltRound = 10;
@@ -29,14 +26,15 @@ module.exports.userRegisterController = async (req, res) => {
         role,
       });
       if (createdUser) {
-        const authorization = generateToken({ email, role });
-        res.status(201).json({ user: createdUser, token: authorization });
+        res
+          .status(201)
+          .json({ message: "Account Created!", user: createdUser });
       }
     } catch (error) {
-      return res.status(500).send("Error creating account");
+      return res.status(500).json({ message: "Error creating account" });
     }
   } catch (error) {
-    return res.status(500).send(error.message);
+    return res.status(500).json({ message: error });
   }
 };
 
@@ -44,58 +42,82 @@ module.exports.userLoginController = async (req, res) => {
   const { email, password } = req.body;
 
   try {
+    /* ---------------- Validation ---------------- */
     if (!email || !password) {
       return res.status(400).json({ message: "All fields are required" });
     }
 
-    const user = await userModel.findOne({ email });
+    if (!email.endsWith("@gmail.com")) {
+      return res
+        .status(401)
+        .json({ message: "Please use your Gmail account!" });
+    }
+
+    /* ---------------- User lookup ---------------- */
+    const user = await userModel.findOne({ email }).select("+password");
+
     if (!user) {
-      return res.status(401).json({
-        message: "E-mail or Password do not match!",
-      });
+      return res
+        .status(401)
+        .json({ message: "Email or password do not match!" });
     }
 
     const isPasswordMatched = await bcrypt.compare(password, user.password);
     if (!isPasswordMatched) {
-      return res.status(401).json({
-        message: "E-mail or Password do not match!",
-      });
+      return res
+        .status(401)
+        .json({ message: "Email or password do not match!" });
     }
 
-    // 🔐 Generate token
-    const token = generateToken({
-      id: user._id,
-      email: user.email,
-      role: user.role,
-    });
+    /* ---------------- Role-based token expiry ---------------- */
+    let tokenExpiry;
+    switch (user.role) {
+      case "admin":
+        tokenExpiry = "12h";
+        break;
+      case "moderator":
+        tokenExpiry = "24h";
+        break;
+      case "customer":
+        tokenExpiry = "48h";
+        break;
+      default:
+        tokenExpiry = "48h"; // fallback
+    }
 
-    // // 🍪 Set cookie
-    // res.cookie("cUser", token, {
-    //   httpOnly: true,
-    //   secure: process.env.NODE_ENV === "production",
-    //   sameSite: "lax",
-    //   path: "/",
-    //   maxAge: 7 * 24 * 60 * 60 * 1000,
-    // });
+    const token = generateToken(user._id, tokenExpiry);
 
-    res.cookie("cUser", token, {
+    /* ---------------- Privilege check ---------------- */
+    const isPrivileged = user.role === "admin" || user.role === "moderator";
+
+    /* ---------------- Cookie config ---------------- */
+    const expiryMsMap = {
+      "12h": 12 * 60 * 60 * 1000,
+      "24h": 24 * 60 * 60 * 1000,
+      "48h": 48 * 60 * 60 * 1000,
+    };
+
+    const cookieOptions = {
       httpOnly: true,
-      secure: true, // MUST be true on Vercel
-      sameSite: "none", // REQUIRED for cross-site cookies
+      // secure: process.env.NODE_ENV === "production",
+      secure: false,
+      sameSite: isPrivileged ? "strict" : "lax",
       path: "/",
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-    });
+      maxAge: expiryMsMap[tokenExpiry] || 48 * 60 * 60 * 1000, // default to 48h
+    };
 
+    /* ---------------- Safe user object ---------------- */
     const { password: _, ...safeUser } = user.toObject();
 
-    return res.status(200).json({
-      message: "Login successful!",
-      token,
+    /* ---------------- Response ---------------- */
+    res.status(200).cookie("cUser", token, cookieOptions).json({
+      message: "Login successful",
       user: safeUser,
     });
   } catch (error) {
+    console.error("Login Error:", error);
     return res.status(500).json({
-      message: "Error occurred",
+      message: "Internal server error",
       error: error.message,
     });
   }
@@ -106,6 +128,6 @@ module.exports.userProfileController = async (req, res) => {
     res.json(req.user);
   } catch (error) {
     console.log("Error occured");
-    return res.status(500).send("Error fetching profile:", error);
+    return res.status(500).json({ message: "Error fetching profile:" }, error);
   }
 };

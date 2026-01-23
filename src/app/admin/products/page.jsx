@@ -1,47 +1,40 @@
-export const dynamic = "force-dynamic";
-
-import React from "react";
 import ProductManagement from "@/components/Admin/ProductManagement";
 import { cookies } from "next/headers";
 
 const page = async () => {
+  const cookieStore = await cookies();
+  const token = cookieStore.get("cUser")?.value;
+
+  if (!token) {
+    return <div className="text-red-500 p-4">Not authenticated</div>;
+  }
+
   try {
-    const cookieStore = await cookies(); // kept as requested
-    const token = cookieStore.get("cUser")?.value;
-
-    if (!token) {
-      throw new Error("No auth token found in cookies");
-    }
-
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/products`,
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/admin/products/all`,
       {
         method: "GET",
         headers: {
-          "Content-Type": "application/json",
-          Authorization: `${token}`,
+          Cookie: `cUser=${token}`,
         },
         cache: "no-store",
       },
     );
 
+    const data = await res.json();
+
     if (!res.ok) {
-      let message = "Failed to fetch products";
-      try {
-        const errorData = await res.json();
-        message = errorData?.message || message;
-      } catch (_) {}
-      throw new Error(message);
+      throw new Error(data?.message || "Failed to fetch products");
     }
 
-    const products = await res.json();
-    return <ProductManagement products={products} />;
+    if (!Array.isArray(data)) {
+      throw new Error("Invalid products response");
+    }
+
+    return <ProductManagement products={data} />;
   } catch (error) {
-    return (
-      <div className="text-red-500 p-4">
-        Error: {error.message || "Something went wrong"}
-      </div>
-    );
+    console.error("Admin products fetch error:", error);
+    return <div className="text-red-500 p-4">Error: {error.message}</div>;
   }
 };
 

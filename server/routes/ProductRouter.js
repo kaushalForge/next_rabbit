@@ -10,6 +10,7 @@ const { protect, admin } = require("../middleware/authMiddleware");
 
 // @/products/api
 // @desc fetch all the products
+
 router.get("/", async (req, res) => {
   try {
     const allProducts = await productModel.find();
@@ -200,8 +201,6 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-router.post("/create", protect, admin, createProductController);
-router.put("/update/:id", protect, admin, updateProduct);
-router.delete("/delete/:id", protect, admin, deleteProduct);
+
 
 module.exports = router;

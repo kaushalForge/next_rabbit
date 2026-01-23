@@ -126,7 +126,6 @@ const FilterSidebar = ({ onProductsUpdate }) => {
 
   return (
     <div className="p-4 z-70 space-y-6 fixed top-0 left-0 h-full w-full sm:w-80 bg-white overflow-y-auto shadow-md sm:relative sm:top-auto sm:left-auto sm:h-auto sm:w-auto sm:shadow-none">
-
       {/* "fixed top-0 right-0 h-full w-3/4 sm:w-1/2 md:w-[30rem] bg-white shadow-lg transform transition-transform duration-300 flex flex-col z-70" */}
       <h3 className="text-xl font-medium">Filters</h3>
 

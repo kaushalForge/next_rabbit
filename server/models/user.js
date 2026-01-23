@@ -16,16 +16,42 @@ const userSchema = new mongoose.Schema(
     },
     password: {
       type: String,
-      required: true,
+      required: function () {
+        // Password is required only for manual registration
+        return !this.googleId && !this.facebookId;
+      },
       minLength: 6,
     },
     role: {
       type: String,
-      enum: ["customer", "admin"],
+      enum: ["admin", "moderator", "customer"],
       default: "customer",
     },
+    avatar: {
+      type: String, // URL of profile picture
+      default: "",
+    },
+    googleId: {
+      type: String,
+      unique: true,
+      sparse: true, // allows null values
+    },
+    facebookId: {
+      type: String,
+      unique: true,
+      sparse: true,
+    },
+    authProvider: {
+      type: String,
+      enum: ["manual", "google", "facebook"],
+      default: "manual",
+    },
+    lastLogin: {
+      type: Date,
+      default: Date.now,
+    },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
-module.exports = mongoose.model("user", userSchema);
+module.exports = mongoose.model("User", userSchema);

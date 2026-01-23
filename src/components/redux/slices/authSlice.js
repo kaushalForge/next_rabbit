@@ -58,14 +58,12 @@ export const loginUser = createAsyncThunk(
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/login`,
         userData,
-        {
-          withCredentials: true,
-        },
+        { withCredentials: true },
       );
 
+      // ✅ Only store non-sensitive data
       if (typeof window !== "undefined") {
         localStorage.setItem("userInfo", JSON.stringify(response.data.user));
-        localStorage.setItem("userToken", response.data.token);
       }
 
       return response.data.user;
@@ -90,32 +88,6 @@ export const registerUser = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(
         error.response?.data || { message: error.message },
-      );
-    }
-  },
-);
-
-// Delete User
-export const deleteUser = createAsyncThunk(
-  "auth/deleteUser",
-  async (userId, { rejectWithValue }) => {
-    try {
-      const response = await axios.delete(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/delete`,
-        {
-          data: { userId },
-          headers: {
-            authorization:
-              typeof window !== "undefined"
-                ? localStorage.getItem("userToken")
-                : "",
-          },
-        },
-      );
-      return response.data;
-    } catch (error) {
-      return rejectWithValue(
-        error.response?.data || { message: "Error deleting user" },
       );
     }
   },
@@ -199,20 +171,6 @@ const authSlice = createSlice({
       .addCase(registerUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload?.message || "Registration failed";
-      })
-
-      // Delete User
-      .addCase(deleteUser.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(deleteUser.fulfilled, (state, action) => {
-        state.loading = false;
-        state.allUserData = action.payload;
-      })
-      .addCase(deleteUser.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload?.message || "Delete failed";
       })
 
       // Update Role

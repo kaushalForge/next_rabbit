@@ -1,47 +1,108 @@
 const jwt = require("jsonwebtoken");
 const userModel = require("../models/user");
 
-// Checks if the user have token or not for login info (The user may be customer or admin)
-module.exports.protect = async (req, res, next) => {
-  let token;
-  if (req.headers.authorization) {
-    try {
-      token = req.headers.authorization.trim();
-      if (!token) {
-        return res.status(401).json({ message: "Not authorized!" });
-      }
-      const decoded = jwt.decode(token);
-      // It is used to get the payload data only like the data assign with the token creation email and role in this case
-      if (!decoded || !decoded.email) {
-        return res.status(401).json({ message: "Invalid token structure" });
-      }
-      req.user = await userModel
-        .findOne({ email: decoded.email })
-        .select("-password");
-      // Here the main purpose of .select("-password") is to exclude the password field which should not be come to output even though it is hashed i will basically get the user details from "user" variable but after -password i will get all the fields excluing the password
+// Protect routes (user must be logged in)
+// module.exports.protect = async (req, res, next) => {
+//   try {
+//     const token = req.headers?.authorization;
+//     if (!token) {
+//       return res.status(401).json({
+//         success: false,
+//         message: "Not authorized. Please login first.",
+//       });
+//     }
 
-      if (!req.user) {
-        return res.status(401).json({ message: "User not found" });
-      }
-      next();
-    } catch (error) {
-      return res.status(401).json({ message: "Invalid or expired token" });
+//     // ✅ Verify token (NOT decode)
+//     const decoded = await jwt.verify(token, process.env.JWT_KEY);
+
+//     if (!decoded?.email) {
+//       return res.status(401).json({
+//         success: false,
+//         message: "Invalid authentication token.",
+//       });
+//     }
+
+//     // 🔍 Find user
+//     const user = await userModel
+//       .findOne({ email: decoded.email })
+//       .select("-password");
+
+//     if (!user) {
+//       return res.status(401).json({
+//         success: false,
+//         message: "User no longer exists.",
+//       });
+//     }
+//     req.user = user;
+//     next();
+//   } catch (error) {
+//     console.log(error);
+//     return res.status(401).json({
+//       success: false,
+//       message: "Session expired or token invalid.",
+//     });
+//   }
+// };
+
+// const jwt = require("jsonwebtoken");
+// const userModel = require("../models/user");
+
+module.exports.protect = async (req, res, next) => {
+  try {
+    const token = req.cookies?.cUser;
+    if (!token) {
+      return res.status(401).json({
+        success: false,
+        message: "Not authorized. Please login first.",
+      });
     }
-  } else {
-    return res.status(401).json({ message: "Not authorized!" });
+    const decoded = jwt.verify(token, process.env.JWT_KEY);
+
+    if (!decoded?.email) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid authentication token.",
+      });
+    }
+
+    // 🔍 Find user in database
+    const user = await userModel
+      .findOne({ email: decoded.email })
+      .select("-password");
+
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: "User no longer exists.",
+      });
+    }
+
+    // ✅ Attach user to request
+    req.user = user;
+    next();
+  } catch (error) {
+    console.log("Auth error:", error.message);
+    return res.status(401).json({
+      success: false,
+      message: "Session expired or token invalid.",
+    });
   }
 };
 
-// Checks if the user is admin or not if not admin then throws warning message
-module.exports.admin = async (req, res, next) => {
+// Admin-only access
+module.exports.admin = (req, res, next) => {
   try {
-    if (req.user.role !== "admin") {
-      return res.status(403).json({ message: "User not authorized!" });
-    } else {
-      next();
+    if (!req.user || req.user.role !== "admin") {
+      return res.status(403).json({
+        success: false,
+        message: "Access denied. Admin only.",
+      });
     }
+    next();
   } catch (error) {
-    console.log(error);
-    return res.status(500).send("Error", error);
+    return res.status(500).json({
+      success: false,
+      message: "Authorization error.",
+    });
   }
 };

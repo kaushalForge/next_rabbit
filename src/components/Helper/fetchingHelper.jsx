@@ -1,27 +1,34 @@
-import React from "react";
+"use server";
+
 import Product from "@/components/pages/Product";
+import { cookies } from "next/headers";
 
 const FetchingHelper = async ({ id }) => {
-  let productDetail = [];
+  const cookieStore = await cookies();
+  const token = cookieStore.get("cUser")?.value;
+  if (!token) console.log("Not authenticated");
 
-  try {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/products/${id}`,
-      {
-        cache: "no-store",
-      },
-    );
-
-    if (!res.ok) {
-      throw new Error(`Failed to fetch product (${res.status})`);
-    }
-
-    productDetail = await res.json();
-  } catch (err) {
-    console.error("Failed to fetch product details:", err);
+  if (!id) {
+    console.log(object)("Product ID is required");
   }
 
-  // return must be inside the function
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/products/${id}`,
+    {
+      method: "GET",
+      headers: {
+        Cookie: `cUser=${token}`,
+      },
+      cache: "no-store", // always fresh data
+    },
+  );
+
+  if (!res.ok) {
+    console.log(`Failed to fetch product (${res.status})`);
+  }
+
+  const productDetail = await res.json();
+
   return <Product productDetail={productDetail} productId={id} />;
 };
 

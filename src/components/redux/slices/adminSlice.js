@@ -1,7 +1,11 @@
-"use client";
-
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+
+// Axios instance
+const api = axios.create({
+  baseURL: process.env.NEXT_PUBLIC_BACKEND_URL,
+  withCredentials: true,
+});
 
 // ---------------------- Async Thunks ----------------------
 
@@ -10,20 +14,14 @@ export const fetchUsers = createAsyncThunk(
   "admin/fetchUsers",
   async (_, { rejectWithValue }) => {
     try {
-      const token = typeof window !== "undefined" ? localStorage.getItem("userToken") : null;
-
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users/api`, {
-        headers: {
-          authorization: token || "",
-        },
-      });
-
-      return response.data;
+      const { data } = await api.get("/api/admin/users/all");
+      return data;
     } catch (error) {
-      console.error("Error fetching users:", error);
-      return rejectWithValue(error.response?.data || { message: "Failed to fetch users" });
+      return rejectWithValue(
+        error.response?.data || { message: "Failed to fetch users" },
+      );
     }
-  }
+  },
 );
 
 // Fetch all products
@@ -31,45 +29,49 @@ export const fetchProducts = createAsyncThunk(
   "admin/fetchProducts",
   async (_, { rejectWithValue }) => {
     try {
-      const token = typeof window !== "undefined" ? localStorage.getItem("userToken") : null;
-
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/products/api`, {
-        headers: {
-          authorization: token || "",
-        },
-      });
-
-      return response.data;
+      const { data } = await api.get("/api/admin/products/all");
+      return data;
     } catch (error) {
-      console.error("Error fetching products:", error);
-      return rejectWithValue(error.response?.data || { message: "Failed to fetch products" });
+      return rejectWithValue(
+        error.response?.data || { message: "Failed to fetch products" },
+      );
     }
-  }
+  },
 );
 
-// Update a product (admin)
+// Update product
 export const updateProduct = createAsyncThunk(
   "admin/updateProduct",
   async ({ productData, id }, { rejectWithValue }) => {
     try {
-      const token = typeof window !== "undefined" ? localStorage.getItem("userToken") : null;
-
-      const response = await axios.put(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/admin/product/${id}`,
+      const { data } = await api.put(
+        `/api/admin/products/update/${id}`,
         productData,
-        {
-          headers: {
-            authorization: token || "",
-          },
-        }
       );
-
-      return response.data;
+      return data;
     } catch (error) {
-      console.error("Error updating product:", error);
-      return rejectWithValue(error.response?.data || { message: "Failed to update product" });
+      return rejectWithValue(
+        error.response?.data || { message: "Failed to update product" },
+      );
     }
-  }
+  },
+);
+
+// Delete user
+export const deleteUser = createAsyncThunk(
+  "admin/deleteUser",
+  async (userId, { rejectWithValue }) => {
+    try {
+      const { data } = await api.delete("/api/admin/users/delete", {
+        data: { userId },
+      });
+      return { data, userId };
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data || { message: "Error deleting user" },
+      );
+    }
+  },
 );
 
 // ---------------------- Slice ----------------------
@@ -88,56 +90,50 @@ const adminSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-      // fetch users
+      // USERS
       .addCase(fetchUsers.pending, (state) => {
         state.loading = true;
-        state.error = null;
       })
       .addCase(fetchUsers.fulfilled, (state, action) => {
         state.loading = false;
-        state.allUsersData = Array.isArray(action.payload) ? action.payload : [];
+        state.allUsersData = action.payload || [];
       })
       .addCase(fetchUsers.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload?.message || action.error?.message || "Error fetching users";
+        state.error = action.payload?.message;
       })
 
-      // fetch products
+      // PRODUCTS
       .addCase(fetchProducts.pending, (state) => {
         state.loading = true;
-        state.error = null;
       })
       .addCase(fetchProducts.fulfilled, (state, action) => {
         state.loading = false;
-        state.allProductsData = Array.isArray(action.payload) ? action.payload : [];
+        state.allProductsData = action.payload || [];
         state.totalProducts = state.allProductsData.length;
       })
       .addCase(fetchProducts.rejected, (state, action) => {
         state.loading = false;
-        state.error =
-          action.payload?.message || action.error?.message || "Error fetching products";
+        state.error = action.payload?.message;
       })
 
-      // update product
-      .addCase(updateProduct.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
+      // UPDATE PRODUCT → reload (if running client-side)
       .addCase(updateProduct.fulfilled, (state, action) => {
-        state.loading = false;
-        const updatedIndex = state.allProductsData.findIndex(
-          (prod) => prod._id === action.payload._id
+        const index = state.allProductsData.findIndex(
+          (p) => p._id === action.payload?._id,
         );
-        if (updatedIndex !== -1) {
-          state.allProductsData[updatedIndex] = action.payload;
+        if (index !== -1) {
+          state.allProductsData[index] = action.payload;
         }
       })
-      .addCase(updateProduct.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload?.message || action.error?.message || "Error updating product";
+
+      // DELETE USER → reload (if running client-side)
+      .addCase(deleteUser.fulfilled, (state, action) => {
+        state.allUsersData = state.allUsersData.filter(
+          (u) => u._id !== action.payload.userId,
+        );
       });
   },
 });
 
-// ---------------------- Exports ----------------------
 export default adminSlice.reducer;

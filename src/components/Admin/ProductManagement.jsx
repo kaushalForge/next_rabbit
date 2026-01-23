@@ -1,10 +1,12 @@
 "use client";
 
 import { useEffect } from "react";
-import { useDispatch } from "react-redux";
-import { fetchProducts } from "../redux/slices/adminSlice";
+// import { useDispatch } from "react-redux";
+// import { fetchProducts } from "../redux/slices/adminSlice";
 import Link from "next/link";
 import { FaStar } from "react-icons/fa";
+// import { deleteProductAction } from "@/actions/adminProducts";
+import { toast } from "sonner";
 
 const ProductManagement = ({ products = [] }) => {
   const totalProducts = products.length;
@@ -33,11 +35,29 @@ const ProductManagement = ({ products = [] }) => {
     },
   ];
 
-  const dispatch = useDispatch();
+  // const handleProductDelete = async (productId) => {
+  //   const confirmed = window.confirm(
+  //     "Are you sure you want to delete this product?",
+  //   );
+  //   if (!confirmed) return; // user cancelled
 
-  useEffect(() => {
-    dispatch(fetchProducts());
-  }, [dispatch]);
+  //   try {
+  //     const { status, message } = await deleteProductAction(productId);
+
+  //     if (status === 200) {
+  //       toast.success("Product deleted successfully");
+  //       // Optional: remove product from local state here for instant UI update
+  //       // setProducts(prev => prev.filter(p => p.id !== productId));
+  //     } else {
+  //       toast.error(message || "Failed to delete product");
+  //     }
+  //   } catch (err) {
+  //     console.error(err);
+  //     toast.error("Failed to delete product");
+  //   }
+  // };
+
+  const handleProductDelete = () => {};
 
   return (
     <div className="flex container mx-auto flex-col w-full h-full overflow-hidden">
@@ -50,7 +70,7 @@ const ProductManagement = ({ products = [] }) => {
           </p>
         </div>
         <button className="bg-black text-white px-5 py-2 rounded-full shadow hover:opacity-90 transition">
-          + New Product
+          <Link href="/admin/products/add-product"> + New Product</Link>
         </button>
       </div>
 
@@ -135,13 +155,13 @@ const ProductManagement = ({ products = [] }) => {
                     <td className="px-6 py-3 text-center">
                       <div className="flex items-center justify-end gap-3">
                         <Link
-                          href={`/edit/${product._id}`}
+                          href={`/admin/edit/${product._id}`}
                           className="px-3 py-1 bg-yellow-100 text-yellow-600 rounded-lg hover:bg-yellow-200 transition"
                         >
                           Edit
                         </Link>
                         <button
-                          onClick={() => console.log("Delete", product._id)}
+                          onClick={() => handleProductDelete(product._id)}
                           className="px-3 py-1 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition"
                         >
                           Delete
