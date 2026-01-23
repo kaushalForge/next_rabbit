@@ -14,14 +14,6 @@ const userSchema = new mongoose.Schema(
       trim: true,
       match: [/.+\@.+\..+/, "Please enter a valid email address"],
     },
-    password: {
-      type: String,
-      required: function () {
-        // Password is required only for manual registration
-        return !this.googleId && !this.facebookId;
-      },
-      minLength: 6,
-    },
     role: {
       type: String,
       enum: ["admin", "moderator", "customer"],

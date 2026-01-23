@@ -24,7 +24,7 @@ router.get("/get-user", async (req, res) => {
       });
     }
 
-    const user = await userModel.findOne({ email }).select("-password");
+    const user = await userModel.findOne({ email });
 
     if (!user) {
       return res.status(404).json({

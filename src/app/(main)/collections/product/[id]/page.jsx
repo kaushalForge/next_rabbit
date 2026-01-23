@@ -1,14 +1,23 @@
-import FetchingHelper from "@/components/Helper/fetchingHelper";
+import Product from "@/components/pages/Product";
 
-const ProductDetailsRouting = async ({ params }) => {
-  const resolvedParams = await params;
-  const id = resolvedParams?.id;
+const page = async ({ params }) => {
+  const { id } = await params;
 
-  if (!id) {
-    console.error("Product ID is missing from route params.");
-    throw new Error("Product ID is missing from route params.");
-  }
-  return <FetchingHelper id={id} />;
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/products/${id}`,
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      next: { revalidate: 60 },
+    },
+  );
+
+  const productDetails = await res.json();
+
+  return <Product productDetail={productDetails} productId={id} />;
 };
 
-export default ProductDetailsRouting;
+export default page;

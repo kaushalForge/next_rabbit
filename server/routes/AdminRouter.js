@@ -91,7 +91,7 @@ router.delete("/products/delete/:id", protect, admin, deleteProduct);
 // All Users
 router.get("/users/all", protect, admin, async (req, res) => {
   try {
-    const allUsers = await userModel.find().select("-password");
+    const allUsers = await userModel.find();
     if (allUsers) {
       res.status(201).json(allUsers);
     } else {

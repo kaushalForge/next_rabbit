@@ -9,8 +9,8 @@ const {
   userProfileController,
 } = require("../controllers/userController");
 
-router.get("/profile", protect, userProfileController);
-router.post("/register", userRegisterController);
-router.post("/login", userLoginController);
+// router.get("/profile", protect, userProfileController);
+// router.post("/register", userRegisterController);
+// router.post("/login", userLoginController);
 
 module.exports = router;

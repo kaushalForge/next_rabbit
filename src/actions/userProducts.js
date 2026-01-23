@@ -1,27 +1,20 @@
 "use server";
-
-import { cookies } from "next/headers";
+import CollectionPage from "@/components/pages/Collections/CollectionPage";
 
 export async function fetchAllProductsAction(query) {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("cUser")?.value;
-  if (!token) throw new Error("Not authenticated");
+  const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/products/search?${query}`;
 
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/products/search?${query.toString()}`,
-    {
-      method: "GET",
-      headers: {
-        Cookie: `cUser=${token}`,
-      },
-      cache: "no-store",
+  const res = await fetch(url, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
     },
-  );
+    credentials: "include",
+    cache: "no-store",
+  });
 
-  if (!res.ok) {
-    throw new Error("Failed to fetch product details");
-  }
+  const products = await res.json();
+  // return <CollectionPage products={products} />;
 
-  const productDetail = await res.json();
-  return productDetail;
+  return products;
 }

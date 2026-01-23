@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 
@@ -12,14 +12,16 @@ const Login = () => {
     const message = searchParams.get("message");
     const error = searchParams.get("error");
 
-    if (message) toast.success(message);
-    if (error) toast.error(error);
-
-    if (message || error) {
-      const url = window.location.origin + window.location.pathname;
-      window.history.replaceState({}, "", url);
+    if (message) {
+      toast.success(message); // ✅ show success toast
+      router.replace("/"); // optionally redirect after showing toast
     }
-  }, [searchParams]);
+
+    if (error) {
+      toast.error(error); // ✅ show error toast
+      router.replace("/login"); // optional
+    }
+  }, [searchParams, router]);
 
   return (
     <div className="container mx-auto flex items-center justify-center bg-gray-100 h-screen">

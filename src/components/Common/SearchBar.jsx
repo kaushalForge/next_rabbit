@@ -27,15 +27,18 @@ const SearchBar = () => {
 
   const handleSearch = (e) => {
     e.preventDefault();
-    const normalizedSearch = searchTerm.trim().replace(/\s+/g, " ");
-    if (!normalizedSearch) return;
 
-    router.push(
-      `/collections/all?search=${encodeURIComponent(normalizedSearch)}`,
-      {
-        scroll: false,
-      },
-    );
+    // Normalize input: trim and collapse spaces
+    const normalizedSearch = searchTerm.trim().replace(/\s+/g, " ");
+
+    // If input is empty, use "nothing"
+    const finalSearch = normalizedSearch;
+
+    // Update URL with search param
+    router.push(`/collections/all?search=${encodeURIComponent(finalSearch)}`, {
+      scroll: false,
+    });
+
     setIsOpen(false);
   };
 

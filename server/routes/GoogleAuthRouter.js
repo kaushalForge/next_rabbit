@@ -70,7 +70,7 @@ router.get(
 router.get(
   "/callback",
   passport.authenticate("google", {
-    failureRedirect: `${process.env.FRONTEND_URL}/login`,
+    failureRedirect: `${process.env.FRONTEND_URL}/login?error=Login failed!`,
   }),
   (req, res) => {
     // If user creation needs confirmation
@@ -103,7 +103,7 @@ router.get(
     });
 
     // ✅ Redirect (OAuth correct flow)
-    res.redirect(`${process.env.FRONTEND_URL}`);
+    res.redirect(`${process.env.FRONTEND_URL}/login?message=Login successful!`);
   },
 );
 
@@ -115,15 +115,9 @@ router.post("/create", async (req, res) => {
     let user = await User.findOne({ email });
     if (user) return res.status(400).json({ message: "User already exists" });
 
-    const hashedPassword = await bcrypt.hash(
-      Math.random().toString(36).slice(-8),
-      10,
-    );
-
     user = await User.create({
       name,
       email,
-      password: hashedPassword,
       role: "customer",
       avatar,
       googleId,
