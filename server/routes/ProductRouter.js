@@ -47,8 +47,11 @@ router.get("/search", async (req, res) => {
       query.collections = collection;
     }
     if (category && category.toLowerCase() !== "all") {
-      query.category = category;
+      query.category = {
+        $in: category.split(","),
+      };
     }
+
     if (material && material.toLowerCase() !== "all") {
       query.material = { $in: material.split(",") };
     }
@@ -56,14 +59,21 @@ router.get("/search", async (req, res) => {
       query.brand = { $in: brand.split(",") };
     }
     if (size) {
-      query.size = { $in: [size] };
+      query.size = { $in: size.split(",") };
+    }
+
+    if (category && category.toLowerCase() !== "all") {
+      query.category = {
+        $in: category.split(","),
+      };
     }
     if (color) {
-      query.color = { $in: [color] };
+      query.color = { $in: color.split(",") };
     }
     if (gender) {
-      query.gender = gender;
+      query.gender = { $regex: gender, $options: "i" };
     }
+
     if (minPrice || maxPrice) {
       query.price = {};
       if (minPrice) query.price.$gte = Number(minPrice);
@@ -73,6 +83,9 @@ router.get("/search", async (req, res) => {
       query.$or = [
         { name: { $regex: search, $options: "i" } },
         { description: { $regex: search, $options: "i" } },
+        { metaTitle: { $regex: search, $options: "i" } },
+        { metaDescription: { $regex: search, $options: "i" } },
+        { metaKeywords: { $regex: search, $options: "i" } },
       ];
     }
 
@@ -89,6 +102,10 @@ router.get("/search", async (req, res) => {
 
         case "popularity":
           sort = { rating: -1 };
+          break;
+
+        case "newest":
+          sort = { createdAt: -1 };
           break;
 
         default:
@@ -123,7 +140,9 @@ router.get("/best-seller", async (req, res) => {
 
 router.get("/women-collection", async (req, res) => {
   try {
-    const womenProducts = await productModel.find({ gender: "Female" });
+    const womenProducts = await productModel
+      .find({ gender: "female" })
+      .limit(8);
     if (womenProducts && womenProducts.length > 0) {
       res.status(200).json(womenProducts);
     } else {
@@ -138,7 +157,7 @@ router.get("/women-collection", async (req, res) => {
 // Men's Collection Route
 router.get("/men-collection", async (req, res) => {
   try {
-    const menProducts = await productModel.find({ gender: "Male" });
+    const menProducts = await productModel.find({ gender: "male" }).limit(8);
     if (menProducts && menProducts.length > 0) {
       res.status(200).json(menProducts);
     } else {

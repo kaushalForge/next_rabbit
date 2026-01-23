@@ -135,9 +135,14 @@ const ProductDetails = ({ productId, productDetail }) => {
                   productDetail.images.map((image, index) => (
                     <img
                       key={index}
-                      src={activeImage.image}
-                      alt={activeImage.altText}
-                      onClick={() => setActiveImage(image.url)}
+                      src={image.url}
+                      alt={image.altText || "Product Image"}
+                      onClick={() => {
+                        setActiveImage({
+                          imageURL: image.url,
+                          altText: image.altText,
+                        });
+                      }}
                       className={`h-20 w-20 rounded-lg object-cover cursor-pointer border-2 ${
                         activeImage === image.url
                           ? "border-black"

@@ -1,14 +1,30 @@
-"use client";
-
-import React from "react";
 import ProductDetails from "../Layout/ProductDetails";
 
-const Product = ({ productDetail, productId }) => {
-  return (
-    <>
-      <ProductDetails productId={productId} productDetail={productDetail} />
-    </>
+const fetchDetails = async (id) => {
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/products/${id}`,
+    {
+      method: "GET",
+      credentials: "include",
+      cache: "no-store",
+    },
   );
+
+  if (!res.ok) {
+    throw new Error("Failed to fetch product details");
+  }
+
+  return res.json();
+};
+
+const Product = async ({ productId, productDetail }) => {
+  let finalProduct = productDetail;
+
+  if (!finalProduct && productId) {
+    finalProduct = await fetchDetails(productId);
+  }
+
+  return <ProductDetails productId={productId} productDetail={finalProduct} />;
 };
 
 export default Product;

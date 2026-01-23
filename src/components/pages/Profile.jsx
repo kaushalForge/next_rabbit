@@ -8,7 +8,7 @@ import { useAuth } from "@/app/context/AuthContext";
 const Profile = () => {
   const router = useRouter();
   const { user, loading, logout } = useAuth();
-
+  console.log(user, "from profile");
   const handleLogout = async () => {
     const { result, status } = await logout();
     if (status === 200 || status === 201) {

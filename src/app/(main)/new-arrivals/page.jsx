@@ -6,11 +6,13 @@ const NewArrivalRouting = async () => {
   try {
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/products/new-arrivals`,
+      {
+        method: "GET",
+        credentials: "include",
+        cache: "force-cache",
+      },
     );
 
-    if (!res.ok) {
-      throw new Error("Failed to fetch products");
-    }
     newArrivals = await res.json();
   } catch (err) {
     console.error("Failed to fetch products:", err);

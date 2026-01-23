@@ -1,5 +1,3 @@
-"use client";
-
 import ProductGrid from "../Common/ProductGrid";
 
 const WomenCollection = ({ products }) => {

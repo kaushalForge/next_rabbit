@@ -4,7 +4,11 @@ const WomenCollectionRouting = async () => {
   try {
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/products/women-collection`,
-      { cache: "no-store", credentials: "include" },
+      {
+        method: "GET",
+        credentials: "include",
+        cache: "default",
+      },
     );
 
     const womenCollection = await res.json();

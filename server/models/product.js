@@ -20,6 +20,10 @@ const productSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
+    offerPrice: {
+      type: Number,
+      required: true,
+    },
     stock: {
       type: Number,
       required: false,
@@ -29,6 +33,8 @@ const productSchema = new mongoose.Schema(
     },
     rating: {
       type: Number,
+      min: 1,
+      max: 5,
       default: 0,
     },
     size: {

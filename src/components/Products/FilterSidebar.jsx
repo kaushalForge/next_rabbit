@@ -9,7 +9,7 @@ const FilterSidebar = () => {
   const pathname = usePathname();
 
   const [filters, setFilters] = useState({
-    category: "",
+    category: [],
     gender: "",
     color: [],
     size: [],
@@ -20,7 +20,7 @@ const FilterSidebar = () => {
   });
 
   const categoryOptions = ["Top Wear", "Bottom Wear"];
-  const genderOptions = ["Male", "Female","Unisex"];
+  const genderOptions = ["Male", "Female", "Unisex"];
   const colorOptions = [
     "Red",
     "Blue",
@@ -34,7 +34,7 @@ const FilterSidebar = () => {
   const brandOptions = ["Urban Threads", "Modern Fit"];
   useEffect(() => {
     setFilters({
-      category: searchParams.get("category") || "",
+      category: searchParams.get("category")?.split(",").filter(Boolean) || [],
       gender: searchParams.get("gender") || "",
       color: searchParams.get("color")?.split(",").filter(Boolean) || [],
       size: searchParams.get("size")?.split(",").filter(Boolean) || [],
@@ -111,10 +111,9 @@ const FilterSidebar = () => {
         {categoryOptions.map((c) => (
           <label key={c} className="flex items-center gap-2">
             <input
-              type="radio"
-              checked={filters.category === c}
-              onClick={() => toggleSingle("category", c)}
-              readOnly
+              type="checkbox"
+              checked={filters.category.includes(c)}
+              onChange={() => toggleMulti("category", c)}
             />
             {c}
           </label>

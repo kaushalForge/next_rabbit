@@ -1,8 +1,37 @@
 "use client";
 
+import { useRef } from "react";
 import Link from "next/link";
 
 const NewArrivals = ({ newArrivals }) => {
+  const scrollRef = useRef(null);
+
+  let isDown = false;
+  let startX;
+  let scrollLeft;
+
+  const onMouseDown = (e) => {
+    isDown = true;
+    startX = e.pageX - scrollRef.current.offsetLeft;
+    scrollLeft = scrollRef.current.scrollLeft;
+  };
+
+  const onMouseLeave = () => {
+    isDown = false;
+  };
+
+  const onMouseUp = () => {
+    isDown = false;
+  };
+
+  const onMouseMove = (e) => {
+    if (!isDown) return;
+    e.preventDefault();
+    const x = e.pageX - scrollRef.current.offsetLeft;
+    const walk = (x - startX) * 1.2; // scroll speed
+    scrollRef.current.scrollLeft = scrollLeft - walk;
+  };
+
   return (
     <>
       {newArrivals?.length > 0 && (
@@ -14,22 +43,30 @@ const NewArrivals = ({ newArrivals }) => {
               to keep your wardrobe on the cutting edge of fashion.
             </p>
           </div>
-          {/* Scrollable Content */}
-          <div className="hide-scrollbar container mx-auto overflow-x-scroll flex space-x-6 relative mb-12">
-            {newArrivals?.map((product) => (
+
+          {/* Drag Scroll Container */}
+          <div
+            ref={scrollRef}
+            className="hide-scrollbar container mx-auto overflow-x-scroll flex space-x-6 relative mb-12 cursor-grab active:cursor-grabbing"
+            onMouseDown={onMouseDown}
+            onMouseLeave={onMouseLeave}
+            onMouseUp={onMouseUp}
+            onMouseMove={onMouseMove}
+          >
+            {newArrivals.map((product) => (
               <div
                 key={product._id}
-                className="min-w-[100%] sm:min-w-[50%] lg:min-w-[30%] relative"
+                className="min-w-[100%] sm:min-w-[50%] lg:min-w-[30%] relative select-none"
               >
                 <img
-                  src={product.images[0].url}
-                  alt={product.images[0]?.altText}
-                  className="w-full h-[500px] object-cover rounded-lg"
+                  src={product.images?.[0]?.url}
+                  alt={product.images?.[0]?.altText || product.name}
+                  className="w-full h-[500px] object-cover rounded-lg pointer-events-none"
                 />
                 <div className="absolute bottom-0 left-0 right-0 bg-opacity-50 backdrop-blur-md text-white p-4 rounded-b-lg">
                   <Link
                     href={`/collections/product/${product._id}`}
-                    className="block"
+                    className="block pointer-events-auto"
                   >
                     <h4 className="font-medium">{product.name}</h4>
                     <p className="mt-1">{product.price}</p>

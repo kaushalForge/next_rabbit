@@ -11,12 +11,11 @@ const page = async ({ params }) => {
         "Content-Type": "application/json",
       },
       credentials: "include",
-      next: { revalidate: 60 },
+      cache: "force-cache",
     },
   );
 
   const productDetails = await res.json();
-
   return <Product productDetail={productDetails} productId={id} />;
 };
 
