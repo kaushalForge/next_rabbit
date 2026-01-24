@@ -1,5 +1,6 @@
 import CollectionPage from "@/components/pages/Collections/CollectionPage";
 import { fetchAllProductsAction } from "@/actions/userProducts";
+export const dynamic = "force-dynamic";
 
 const AllCollections = async (props) => {
   const query = await props.searchParams;

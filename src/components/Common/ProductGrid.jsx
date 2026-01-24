@@ -1,17 +1,9 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 
 const ProductGrid = ({ products = [] }) => {
-  const TAG_COLORS = [
-    "text-orange-700 bg-orange-500/20 border-orange-200",
-    "text-blue-700 bg-blue-500/20 border-blue-200",
-    "text-emerald-700 bg-emerald-500/20 border-emerald-200",
-    "text-violet-700 bg-violet-500/20 border-violet-200",
-    "text-red-700 bg-red-500/20 border-red-200",
-  ];
   const searchParams = useSearchParams();
   const category = searchParams.get("category")
     ? searchParams.get("category").split(",").join(", ")

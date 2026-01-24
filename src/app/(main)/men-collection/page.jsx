@@ -1,4 +1,5 @@
 import MenCollection from "@/components/Layout/MenCollection";
+export const dynamic = "force-dynamic";
 
 const MenCollectionRouting = async () => {
   try {

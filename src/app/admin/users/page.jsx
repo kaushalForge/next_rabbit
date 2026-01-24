@@ -1,5 +1,6 @@
 import UserManagement from "@/components/Admin/UserManagement";
 import { cookies } from "next/headers";
+export const dynamic = "force-dynamic";
 
 const page = async () => {
   try {
