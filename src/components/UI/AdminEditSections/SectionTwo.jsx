@@ -42,6 +42,19 @@ const SectionTwo = ({
   isPublished,
   setIsPublished,
 }) => {
+  // Convert array to comma-separated string for input
+  const metaKeywordsString = metaKeywords.join(", ");
+
+  // Handler to convert input string to array
+  const handleMetaKeywordsChange = (e) => {
+    const value = e.target.value;
+    const keywordsArray = value
+      .split(",") // Split by comma
+      .map((kw) => kw.trim()) // Trim whitespace
+      .filter((kw) => kw); // Remove empty strings
+    setMetaKeywords(keywordsArray);
+  };
+
   return (
     <section className="lg:col-span-2 space-y-6">
       {/* Product Name */}
@@ -94,18 +107,28 @@ const SectionTwo = ({
         {[
           ["Size", size, setSize],
           ["Color", color, setColor],
-        ].map(([label, value, setter]) => (
-          <div key={label} className="relative">
-            <label className="absolute -top-3 left-3 bg-gray-100 px-1 text-sm text-gray-600">
-              {label}
-            </label>
-            <input
-              value={value}
-              onChange={(e) => setter(e.target.value)}
-              className="w-full border rounded-xl p-3"
-            />
-          </div>
-        ))}
+        ].map(([label, value, setter]) => {
+          const handleChange = (e) => {
+            let input = e.target.value;
+            let parts = input.split(",").map((v) => v.trim().toUpperCase());
+            let formatted = parts.join(", ");
+            setter(formatted);
+          };
+
+          return (
+            <div key={label} className="relative">
+              <label className="absolute -top-3 left-3 bg-gray-100 px-1 text-sm text-gray-600">
+                {label}
+              </label>
+              <input
+                value={value}
+                onChange={handleChange} // ✅ works perfectly
+                className="w-full border rounded-xl p-3"
+                placeholder={label === "Color" ? "RED, ORANGE, BLUE" : ""}
+              />
+            </div>
+          );
+        })}
       </div>
 
       {/* Material, Brand */}
@@ -221,9 +244,10 @@ const SectionTwo = ({
           Meta Keywords
         </label>
         <input
-          value={metaKeywords}
-          onChange={(e) => setMetaKeywords(e.target.value)}
+          value={metaKeywordsString}
+          onChange={handleMetaKeywordsChange}
           className="w-full border rounded-xl p-3"
+          placeholder="e.g. cotton, summer, men"
         />
       </div>
 

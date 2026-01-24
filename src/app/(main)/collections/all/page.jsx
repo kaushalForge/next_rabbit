@@ -4,9 +4,7 @@ import { fetchAllProductsAction } from "@/actions/userProducts";
 const AllCollections = async (props) => {
   const query = await props.searchParams;
   query.collection = "all";
-  console.log(query);
   let products = [];
-  console.log("final Query", query);
   try {
     const res = await fetchAllProductsAction(query);
     products = res;

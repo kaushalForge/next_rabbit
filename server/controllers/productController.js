@@ -133,15 +133,12 @@ module.exports.updateProduct = async (req, res) => {
       weight,
       category,
       images,
-
-      // ✅ META
       metaTitle,
       metaDescription,
       metaKeywords,
     } = req.body;
 
     const product = await productModel.findById(req.params.id);
-
     if (!product) {
       return res.status(404).json({ message: "Product not found!" });
     }

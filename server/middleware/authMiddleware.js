@@ -1,52 +1,6 @@
 const jwt = require("jsonwebtoken");
 const userModel = require("../models/user");
 
-// Protect routes (user must be logged in)
-// module.exports.protect = async (req, res, next) => {
-//   try {
-//     const token = req.headers?.authorization;
-//     if (!token) {
-//       return res.status(401).json({
-//         success: false,
-//         message: "Not authorized. Please login first.",
-//       });
-//     }
-
-//     // ✅ Verify token (NOT decode)
-//     const decoded = await jwt.verify(token, process.env.JWT_KEY);
-
-//     if (!decoded?.email) {
-//       return res.status(401).json({
-//         success: false,
-//         message: "Invalid authentication token.",
-//       });
-//     }
-
-//     // 🔍 Find user
-//     const user = await userModel
-//       .findOne({ email: decoded.email })
-//       .select("-password");
-
-//     if (!user) {
-//       return res.status(401).json({
-//         success: false,
-//         message: "User no longer exists.",
-//       });
-//     }
-//     req.user = user;
-//     next();
-//   } catch (error) {
-//     console.log(error);
-//     return res.status(401).json({
-//       success: false,
-//       message: "Session expired or token invalid.",
-//     });
-//   }
-// };
-
-// const jwt = require("jsonwebtoken");
-// const userModel = require("../models/user");
-
 module.exports.protect = async (req, res, next) => {
   try {
     const token = req.cookies?.cUser;
@@ -58,7 +12,7 @@ module.exports.protect = async (req, res, next) => {
     }
     const decoded = jwt.verify(token, process.env.JWT_KEY);
 
-    if (!decoded?.email) {
+    if (!decoded?.id?.email) {
       return res.status(401).json({
         success: false,
         message: "Invalid authentication token.",
@@ -66,9 +20,7 @@ module.exports.protect = async (req, res, next) => {
     }
 
     // 🔍 Find user in database
-    const user = await userModel
-      .findOne({ email: decoded.email })
-      .select("-password");
+    const user = await userModel.findOne({ email: decoded?.id?.email });
 
     if (!user) {
       return res.status(401).json({
@@ -77,7 +29,6 @@ module.exports.protect = async (req, res, next) => {
       });
     }
 
-    // ✅ Attach user to request
     req.user = user;
     next();
   } catch (error) {
@@ -89,13 +40,29 @@ module.exports.protect = async (req, res, next) => {
   }
 };
 
-// Admin-only access
 module.exports.admin = (req, res, next) => {
   try {
     if (!req.user || req.user.role !== "admin") {
       return res.status(403).json({
         success: false,
         message: "Access denied. Admin only.",
+      });
+    }
+    next();
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Authorization error.",
+    });
+  }
+};
+
+module.exports.moderator = (req, res, next) => {
+  try {
+    if (!req.user || req.user.role !== "moderator") {
+      return res.status(403).json({
+        success: false,
+        message: "Access denied. Moderator only.",
       });
     }
     next();

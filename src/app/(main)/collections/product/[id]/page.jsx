@@ -11,7 +11,7 @@ const page = async ({ params }) => {
         "Content-Type": "application/json",
       },
       credentials: "include",
-      cache: "force-cache",
+      cache: "no-store",
     },
   );
 

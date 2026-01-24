@@ -27,25 +27,33 @@ export async function createProductAction(productData) {
 export async function updateProductAction(productData) {
   const cookieStore = await cookies();
   const token = cookieStore.get("cUser")?.value;
-  if (!token) throw new Error("Not authenticated");
 
   const { _id, ...body } = productData;
+  const formData = new FormData();
+
+  // Append all fields to FormData
+  for (const key in body) {
+    const value = body[key];
+    if (Array.isArray(value)) {
+      value.forEach((v) => formData.append(key, v));
+    } else if (value !== undefined && value !== null) {
+      formData.append(key, value);
+    }
+  }
 
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/admin/products/update/${_id}`,
     {
       method: "PUT",
       headers: {
-        "Content-Type": "application/json",
         Cookie: `cUser=${token}`,
+        "Content-Type": "application/json",
       },
+      credentials: "include",
       body: JSON.stringify(body),
     },
   );
-
-  if (!res.ok) {
-    throw new Error("Failed to update product");
-  }
+  console.log(await res.json(), "test");
 
   revalidatePath("/admin/edit");
   revalidatePath(`/admin/edit/${_id}`);

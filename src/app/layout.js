@@ -32,7 +32,7 @@ export default async function AdminLayout({ children }) {
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable}`}
       >
         <Toaster position="top-right" richColors closeButton duration={1000} />
         <AuthProvider>
