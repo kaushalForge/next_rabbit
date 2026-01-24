@@ -1,4 +1,5 @@
 import NewArrivals from "@/components/Products/NewArrivals";
+export const dynamic = "force-dynamic";
 
 const NewArrivalRouting = async () => {
   let newArrivals = [];
@@ -9,7 +10,7 @@ const NewArrivalRouting = async () => {
       {
         method: "GET",
         credentials: "include",
-        cache: "force-cache",
+        cache: "no-store",
       },
     );
 

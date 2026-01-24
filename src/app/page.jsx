@@ -21,7 +21,7 @@ const page = () => {
       <NewArrivalRouting />
       <WomenCollectionRouting />
       {/* <MenCollectionRouting /> */}
-      <Product productId="6971f2c11255aee9c3431572" />
+      <Product productId="6974f19d87a8af9ee3aa6b5f" />
       <ProductDetails />
       <FeaturedCollection />
       <FeaturedSection />
