@@ -8,6 +8,7 @@ const options = [
   { label: "Price: Low to High", value: "priceAsc" },
   { label: "Price: High to Low", value: "priceDesc" },
   { label: "Popularity", value: "popularity" },
+  { label: "Newest", value: "newest" },
 ];
 
 const SortOptions = () => {

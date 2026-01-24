@@ -1,21 +1,22 @@
 "use client";
 
 import { useEffect } from "react";
-// import { useDispatch } from "react-redux";
-// import { fetchProducts } from "../redux/slices/adminSlice";
 import Link from "next/link";
 import { FaStar } from "react-icons/fa";
-// import { deleteProductAction } from "@/actions/adminProducts";
+import { deleteProductAction } from "@/actions/adminProducts";
 import { toast } from "sonner";
 
 const ProductManagement = ({ products = [] }) => {
-  const totalProducts = products.length;
-  const lowStockProducts = products.filter(
-    (p) => p.stock && p.stock < 10,
-  ).length;
-  const outOfStockProducts = products.filter((p) => p.stock === 0).length;
-  const topRatedProducts = products.filter((p) => p.rating >= 4.5).length;
-
+  let totalProducts = 0;
+  let lowStockProducts = 0;
+  let outOfStockProducts = 0;
+  let topRatedProducts = 0;
+  if (products.length > 0) {
+    totalProducts = products.length;
+    lowStockProducts = products.filter((p) => p.stock && p.stock < 10).length;
+    outOfStockProducts = products.filter((p) => p.stock === 0).length;
+    topRatedProducts = products.filter((p) => p.rating >= 4.5).length;
+  }
   const stats = [
     { title: "Total Products", value: totalProducts, color: "text-green-600" },
     {
@@ -35,30 +36,27 @@ const ProductManagement = ({ products = [] }) => {
     },
   ];
 
-  // const handleProductDelete = async (productId) => {
-  //   const confirmed = window.confirm(
-  //     "Are you sure you want to delete this product?",
-  //   );
-  //   if (!confirmed) return; // user cancelled
+  const handleProductDelete = async (productId) => {
+    // Ask for confirmation first
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this product?",
+    );
+    if (!confirmDelete) return;
 
-  //   try {
-  //     const { status, message } = await deleteProductAction(productId);
+    try {
+      const { status, message } = await deleteProductAction(productId);
 
-  //     if (status === 200) {
-  //       toast.success("Product deleted successfully");
-  //       // Optional: remove product from local state here for instant UI update
-  //       // setProducts(prev => prev.filter(p => p.id !== productId));
-  //     } else {
-  //       toast.error(message || "Failed to delete product");
-  //     }
-  //   } catch (err) {
-  //     console.error(err);
-  //     toast.error("Failed to delete product");
-  //   }
-  // };
-
-  const handleProductDelete = () => {};
-
+      // Show toast based on status
+      if (status === 200 || status === 201) {
+        toast.success(message || "Product deleted successfully!");
+      } else {
+        toast.error(message || "Failed to delete product");
+      }
+    } catch (err) {
+      console.error("Delete product failed:", err);
+      toast.error("An error occurred while deleting the product");
+    }
+  };
   return (
     <div className="flex container mx-auto flex-col w-full h-full overflow-hidden">
       {/* Header */}

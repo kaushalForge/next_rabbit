@@ -40,51 +40,11 @@ router.post(
 // Update Product
 router.put(
   "/products/update/:id",
-  upload.single("image"),
   protect,
   admin,
+  upload.array("images", 6),
   updateProduct,
 );
-
-// ------------------- Unsed route --------------------- //
-// router.put(
-//   "/products/testofdjofds/product/:id",
-//   upload.single("image"),
-//   protect,
-//   admin,
-//   async (req, res) => {
-//     const { id } = req.params;
-//     const productData = req.body;
-
-//     try {
-//       const updateProduct = await productModel.findOneAndUpdate(
-//         { _id: id },
-//         {
-//           name: productData.name,
-//           description: productData.description,
-//           originalPrice: productData.originalPrice,
-//           price: productData.price,
-//           images: productData.images,
-//           category: productData.category,
-//           stock: productData.stock,
-//           size: productData.size,
-//           color: productData.color,
-//           material: productData.material,
-//         },
-//       );
-//       await updateProduct.save();
-
-//       if (!updateProduct) {
-//         return res.status(404).json({ message: "Product not found" });
-//       } else {
-//         res.status(200).json({ message: "Product updated successfully!" });
-//       }
-//     } catch (error) {
-//       console.error("Error updating product:", error);
-//       return res.status(500).json({ message: "Internal server error" });
-//     }
-//   },
-// );
 
 // Delete Product
 router.delete("/products/delete/:id", protect, admin, deleteProduct);

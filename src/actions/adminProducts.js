@@ -24,66 +24,70 @@ export async function createProductAction(productData) {
   return { status: res.status, message: data.message };
 }
 
-export async function updateProductAction(productData) {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("cUser")?.value;
+export async function updateProductAction(formData) {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get("cUser")?.value;
 
-  const { _id, ...body } = productData;
-  const formData = new FormData();
+    const id = formData.get("id");
 
-  // Append all fields to FormData
-  for (const key in body) {
-    const value = body[key];
-    if (Array.isArray(value)) {
-      value.forEach((v) => formData.append(key, v));
-    } else if (value !== undefined && value !== null) {
-      formData.append(key, value);
+    if (!id) {
+      return { status: 400, error: "Product ID missing" };
     }
-  }
 
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/admin/products/update/${_id}`,
-    {
-      method: "PUT",
-      headers: {
-        Cookie: `cUser=${token}`,
-        "Content-Type": "application/json",
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/admin/products/update/${id}`,
+      {
+        method: "PUT",
+        headers: {
+          Cookie: `cUser=${token}`,
+        },
+        body: formData,
       },
-      credentials: "include",
-      body: JSON.stringify(body),
-    },
-  );
-  console.log(await res.json(), "test");
+    );
 
-  revalidatePath("/admin/edit");
-  revalidatePath(`/admin/edit/${_id}`);
-  return { status: res.status };
+    const data = await res.json();
+
+    /* ---------------- REVALIDATION ---------------- */
+    revalidatePath("/admin/products");
+    revalidatePath(`/admin/edit/${id}`);
+
+    return {
+      status: res.status,
+      data,
+    };
+  } catch (error) {
+    console.error("Update product error:", error);
+    return {
+      status: 500,
+      error: "Internal server error",
+    };
+  }
 }
 
-// export async function deleteProductAction(productId) {
-//   const cookieStore = await cookies();
-//   const token = cookieStore.get("cUser")?.value;
-//   if (!token) throw new Error("Not authenticated");
+export async function deleteProductAction(productId) {
+  const cookieStore = await cookies();
+  const token = cookieStore.get("cUser")?.value;
+  if (!token) throw new Error("Not authenticated");
 
-//   const res = await fetch(
-//     `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/admin/products/delete/${productId}`,
-//     {
-//       method: "DELETE",
-//       headers: {
-//         "Content-Type": "application/json",
-//         Cookie: `cUser=${token}`,
-//       },
-//     },
-//   );
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/admin/products/delete/${productId}`,
+    {
+      method: "DELETE",
+      headers: {
+        Cookie: `cUser=${token}`,
+      },
+    },
+  );
 
-//   let data;
-//   try {
-//     data = await res.json();
-//   } catch {
-//     data = { message: "Server returned invalid JSON" };
-//   }
+  let data;
+  try {
+    data = await res.json();
+  } catch {
+    data = { message: "Server returned invalid JSON" };
+  }
 
-//   revalidatePath("/admin/products");
+  revalidatePath("/admin/products");
 
-//   return { status: res.status, message: data.message || "" };
-// }
+  return { status: res.status, message: data.message || "" };
+}

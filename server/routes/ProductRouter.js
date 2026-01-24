@@ -114,9 +114,10 @@ router.get("/search", async (req, res) => {
     }
 
     let products = await productModel
-      .find(query)
+      .find({ ...query, isPublished: true }) // merge your existing query with isPublished filter
       .sort(sort)
       .limit(Number(limit) || 0);
+
     res.json(products);
   } catch (error) {
     console.error(error);

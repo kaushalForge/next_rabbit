@@ -11,7 +11,7 @@ const navItems = [
   { href: "/admin/users", icon: <FaUser />, label: "Users" },
   { href: "/admin/products", icon: <FaBoxOpen />, label: "Products" },
   { href: "/admin/orders", icon: <FaClipboardList />, label: "Orders" },
-  { href: "/", icon: <FaStore />, label: "Shop" },
+  { href: "/collections/all", icon: <FaStore />, label: "Shop" },
 ];
 
 export default function AdminSidebar({ collapsed, toggleCollapse }) {
@@ -69,12 +69,6 @@ export default function AdminSidebar({ collapsed, toggleCollapse }) {
             );
           })}
         </nav>
-
-        {/* Logout */}
-        <button className="mt-4 flex items-center gap-3 p-3 bg-red-500 text-white rounded-lg hover:bg-red-600 transition">
-          <MdLogout className="w-5 h-5" />
-          {!collapsed && <span>Logout</span>}
-        </button>
       </aside>
 
       {/* Mobile Sidebar (sm/md) */}
@@ -103,11 +97,6 @@ export default function AdminSidebar({ collapsed, toggleCollapse }) {
             );
           })}
         </nav>
-
-        {/* Logout */}
-        <button className="flex items-center justify-center p-3 bg-red-500 text-white rounded-lg hover:bg-red-600 transition m-2">
-          <MdLogout className="w-5 h-5" />
-        </button>
       </aside>
     </div>
   );

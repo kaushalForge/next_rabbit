@@ -1,10 +1,10 @@
 const productModel = require("../models/product");
-const { uploadMultipleToCloudinary } = require("../lib/cloudinary");
+const {
+  uploadMultipleToCloudinary,
+  deleteMultipleFromCloudinary,
+} = require("../lib/cloudinary");
+const cloudinary = require("../lib/cloudinary");
 
-/**
- * Create Product Controller
- * Handles 0-6 images uploaded via multer
- */
 module.exports.createProductController = async (req, res) => {
   try {
     const {
@@ -25,6 +25,24 @@ module.exports.createProductController = async (req, res) => {
       category,
     } = req.body;
 
+    console.log(
+      name,
+      description,
+      originalPrice,
+      price,
+      color,
+      size,
+      material,
+      brand,
+      gender,
+      tags,
+      dimension,
+      isPublished,
+      isFeatured,
+      weight,
+      category,
+      "description",
+    );
     // ---------------- MANDATORY FIELDS ----------------
     if (
       !name ||
@@ -52,12 +70,10 @@ module.exports.createProductController = async (req, res) => {
 
     if (req.files) {
       if (Array.isArray(req.files)) {
-        // multer.array() -> array of files
         for (const file of req.files) {
           if (file.buffer) imageBuffers.push(file.buffer);
         }
       } else if (typeof req.files === "object") {
-        // multer.fields() -> object of arrays
         for (const key in req.files) {
           if (req.files[key][0]?.buffer)
             imageBuffers.push(req.files[key][0].buffer);
@@ -116,73 +132,73 @@ module.exports.createProductController = async (req, res) => {
 module.exports.updateProduct = async (req, res) => {
   try {
     const {
-      name,
-      description,
-      originalPrice,
-      price,
-      color,
-      size,
-      material,
-      brand,
-      gender,
-      tags,
-      dimensions,
-      isPublished,
-      stock,
-      isFeatured,
-      weight,
-      category,
-      images,
-      metaTitle,
-      metaDescription,
-      metaKeywords,
+      existingImages = [], // URLs frontend wants to keep
+      ...restFields // other fields from body
     } = req.body;
 
     const product = await productModel.findById(req.params.id);
-    if (!product) {
+    if (!product)
       return res.status(404).json({ message: "Product not found!" });
+
+    // ---------------- HANDLE IMAGE REMOVAL ----------------
+    const imagesToDelete = product.images
+      .filter((img) => !existingImages.includes(img.url))
+      .map((img) => img.url);
+
+    if (imagesToDelete.length > 0) {
+      await deleteMultipleFromCloudinary(imagesToDelete); // parallel deletion
     }
 
+    // ---------------- HANDLE NEW IMAGES ----------------
+    let imageBuffers = [];
+    if (req.files) {
+      if (Array.isArray(req.files)) {
+        req.files.forEach(
+          (file) => file.buffer && imageBuffers.push(file.buffer),
+        );
+      } else {
+        Object.values(req.files).forEach((arr) => {
+          if (arr[0]?.buffer) imageBuffers.push(arr[0].buffer);
+        });
+      }
+    }
+
+    let uploadedUrls = [];
+    if (imageBuffers.length > 0) {
+      uploadedUrls = await Promise.all(
+        imageBuffers.map((buffer) =>
+          uploadMultipleToCloudinary([buffer], "Rabbit"),
+        ),
+      );
+      uploadedUrls = uploadedUrls.flat();
+    }
+
+    // ---------------- FINAL IMAGES ----------------
+    const finalImages = [
+      ...product.images.filter((img) => existingImages.includes(img.url)),
+      ...uploadedUrls.map((url) => ({
+        url,
+        altText: restFields.name || "Product Image",
+      })),
+    ].slice(0, 6);
+
+    // ---------------- BUILD UPDATE OBJECT ----------------
+    const updateData = {};
+
+    // Add only changed fields from request body
+    Object.keys(restFields).forEach((key) => {
+      if (restFields[key] !== undefined) {
+        updateData[key] = restFields[key];
+      }
+    });
+
+    // Always update images
+    updateData.images = finalImages;
+
+    // ---------------- UPDATE PRODUCT ----------------
     const updatedProduct = await productModel.findByIdAndUpdate(
       req.params.id,
-      {
-        /* ---------------- BASIC ---------------- */
-        name: name ?? product.name,
-        description: description ?? product.description,
-        originalPrice: originalPrice ?? product.originalPrice,
-        price: price ?? product.price,
-        stock: stock ?? product.stock,
-
-        /* ---------------- ARRAYS ---------------- */
-        color: color ?? product.color,
-        size: size ?? product.size,
-        tags: tags ?? product.tags,
-        material: material ?? product.material,
-        brand: brand ?? product.brand,
-
-        /* ---------------- SELECT ---------------- */
-        gender: gender ?? product.gender,
-        category: category ?? product.category,
-
-        /* ---------------- META ---------------- */
-        metaTitle: metaTitle ?? product.metaTitle,
-        metaDescription: metaDescription ?? product.metaDescription,
-        metaKeywords: metaKeywords ?? product.metaKeywords,
-
-        /* ---------------- DIMENSIONS ---------------- */
-        dimensions: dimensions ?? product.dimensions,
-
-        /* ---------------- FLAGS ---------------- */
-        isPublished:
-          typeof isPublished === "boolean" ? isPublished : product.isPublished,
-
-        isFeatured:
-          typeof isFeatured === "boolean" ? isFeatured : product.isFeatured,
-
-        /* ---------------- EXTRA ---------------- */
-        weight: weight ?? product.weight,
-        images: images ?? product.images,
-      },
+      updateData,
       { new: true },
     );
 
@@ -192,21 +208,38 @@ module.exports.updateProduct = async (req, res) => {
     });
   } catch (error) {
     console.error("Update Product Error:", error);
-    return res.status(500).json({ message: "Server Error" });
+    return res
+      .status(500)
+      .json({ message: "Server Error", error: error.message });
   }
 };
 
 module.exports.deleteProduct = async (req, res) => {
   try {
     const id = req.params.id;
-    const deleteProduct = await productModel.deleteOne({ _id: id });
-    if (deleteProduct) {
-      res.status(201).json({ message: "Product Deleted", deleteProduct });
-    } else {
+
+    // Find the product first
+    const product = await productModel.findById(id);
+    if (!product) {
       return res.status(404).json({ message: "Product Not Found" });
     }
+
+    // Delete images from Cloudinary if any
+    if (product.images && product.images.length > 0) {
+      for (const img of product.images) {
+        if (img.public_id) {
+          // make sure we have public_id stored
+          await cloudinary.uploader.destroy(img.public_id);
+        }
+      }
+    }
+
+    // Delete the product from DB
+    const deleteProduct = await productModel.deleteOne({ _id: id });
+
+    return res.status(201).json({ message: "Product Deleted", deleteProduct });
   } catch (error) {
     console.log(error);
-    return res.status(500).send("Server Error", error);
+    return res.status(500).json({ message: "Server Error", error });
   }
 };

@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 
-const ProductGrid = ({ products }) => {
+const ProductGrid = ({ products = [] }) => {
   const TAG_COLORS = [
     "text-orange-700 bg-orange-500/20 border-orange-200",
     "text-blue-700 bg-blue-500/20 border-blue-200",
@@ -28,18 +28,15 @@ const ProductGrid = ({ products }) => {
             </h2>
           </div>
         </div>
-        {products?.length === 0 ? (
-          <p className="mt-8 text-left text-gray-500">No products found.</p>
-        ) : (
+        {Array.isArray(products) && products.length > 0 ? (
           <div className="mb-4 grid gap-4 sm:grid-cols-2 md:mb-8 lg:grid-cols-3 xl:grid-cols-4">
             {/* 1number */}
 
             {products.map((product, index) => (
               <div
-                key={product._id}
+                key={index}
                 className="rounded-lg border border-gray-200 bg-gray-100/40 p-6 shadow-sm"
               >
-                {console.log(product)}
                 <div className="h-56 w-full">
                   <Link href={`/collections/product/${product?._id}`}>
                     <img
@@ -50,14 +47,16 @@ const ProductGrid = ({ products }) => {
                   </Link>
                 </div>
 
-                <div className="pt-6 space-y-4">
-                  <Link
-                    href={`/collections/product/${product?._id}`}
-                    className="text-lg font-semibold leading-tight text-gray-900 hover:underline"
-                  >
-                    {product?.name}
-                  </Link>
-                  <p className="pt-4 h-20 text-sm leading-relaxed text-gray-600 font-medium text-left tracking-normal">
+                <div className="pt-6 space-y-2">
+                  <button className="h-12 w-full">
+                    <Link
+                      href={`/collections/product/${product?._id}`}
+                      className="text-lg font-semibold leading-tight text-gray-900 hover:underline"
+                    >
+                      {product?.name}
+                    </Link>
+                  </button>
+                  <p className="pt-2 h-20 text-sm leading-relaxed text-gray-600 font-medium text-left tracking-normal">
                     {(() => {
                       const text = product?.description || "";
                       const limit = 70;
@@ -194,6 +193,8 @@ const ProductGrid = ({ products }) => {
               </div>
             ))}
           </div>
+        ) : (
+          <p className="mt-8 text-left text-gray-500">No products found.</p>
         )}
         <div className="w-full text-center">
           <button

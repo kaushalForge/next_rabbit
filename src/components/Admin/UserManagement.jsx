@@ -1,210 +1,139 @@
 "use client";
 
-import { useState } from "react";
-import { FaUserPlus, FaTrash, FaUserShield, FaUser } from "react-icons/fa";
-import {
-  createUserAction,
-  updateUserRoleAction,
-  deleteUserAction,
-} from "@/actions/adminUsers";
+import { FaTrash } from "react-icons/fa";
+import { updateUserRoleAction, deleteUserAction } from "@/actions/adminUsers";
 import { toast } from "sonner";
 
-const UserManagement = ({ allUsersData }) => {
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    password: "",
-    role: "customer",
-  });
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [role, setRole] = useState("customer");
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      // console.log(name, email, password, role);
-      const { status } = await createUserAction({
-        name,
-        email,
-        password,
-        role,
-      });
-      setName("");
-      setEmail("");
-      setPassword("");
-      setRole("customer");
-      if (status === 201) {
-        toast.success("User Added successfully!");
-      }
-    } catch (err) {
-      console.error("Failed to create user:", err);
-    }
-  };
-
+const UserManagement = ({ allUsersData = [] }) => {
   const handleRoleChange = async (userId, role) => {
     try {
       const { status, newRole } = await updateUserRoleAction({ userId, role });
-      if (status === 201) {
-        toast.success(`User role Updated to ${newRole}`);
-      }
+      if (status === 201) toast.success(`User role updated to ${newRole}`);
     } catch (err) {
       console.error("Failed to update role:", err);
     }
   };
 
   const handleDeleteUser = async (userId) => {
-    // Show a confirmation dialog
-    const confirmDelete = window.confirm(
-      "Are you sure you want to delete this user?",
-    );
-
-    if (!confirmDelete) return; // Exit if user cancels
+    if (!window.confirm("Are you sure you want to delete this user?")) return;
 
     try {
       const { status } = await deleteUserAction(userId);
-      if (status === 201) {
-        toast.success("User deleted successfully!");
-      }
+      if (status === 201) toast.success("User deleted successfully!");
     } catch (err) {
       console.error("Failed to delete user:", err);
       toast.error("Failed to delete user");
     }
   };
 
-  return (
-    <div className="container mx-auto px-6 py-8 space-y-10">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">User Management</h1>
-          <p className="text-gray-500 mt-1">Manage users, roles and access</p>
-        </div>
-        <FaUserShield size={24} className="text-blue-600" />
-      </div>
-
-      {/* Add User */}
-      <div className="bg-white rounded-2xl shadow-sm border p-6">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="w-11 h-11 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center">
-            <FaUserPlus />
-          </div>
-          <h2 className="text-lg font-semibold text-gray-800">Add New User</h2>
-        </div>
-
-        <form
-          onSubmit={handleSubmit}
-          className="grid grid-cols-1 md:grid-cols-2 gap-5"
+  let groupedUsers;
+  if (allUsersData.length > 0) {
+    groupedUsers = {
+      admin: allUsersData.filter((user) => user.role === "admin"),
+      moderator: allUsersData.filter((user) => user.role === "moderator"),
+      customer: allUsersData.filter((user) => user.role === "customer"),
+    };
+  }
+  const renderUsers = (users) =>
+    users.length ? (
+      users.map((user) => (
+        <div
+          key={user._id}
+          className="flex items-center justify-between bg-white rounded-xl shadow p-4 hover:shadow-lg transition"
         >
-          <input
-            type="text"
-            name="name"
-            placeholder="Full Name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="rounded-xl border px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none"
-            required
-          />
-          <input
-            type="email"
-            name="email"
-            placeholder="Email Address"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="rounded-xl border px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none"
-            required
-          />
-          <input
-            type="password"
-            name="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="rounded-xl border px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none"
-            required
-          />
-          <select
-            name="role"
-            value={role}
-            onChange={(e) => setRole(e.target.value)}
-            className="rounded-xl border px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none"
-          >
-            <option value="customer">Customer</option>
-            <option value="admin">Admin</option>
-          </select>
+          <div className="flex items-center gap-4">
+            <img
+              src={user.avatar || "/images/Avatar.png"}
+              alt={user.name}
+              className="w-12 h-12 rounded-full object-cover border border-gray-200"
+              referrerPolicy="no-referrer"
+            />
+            <div>
+              <div className="font-semibold text-gray-800">{user.name}</div>
+              <div className="text-gray-500 text-sm">{user.email}</div>
+            </div>
+          </div>
 
-          <div className="md:col-span-2">
-            <button
-              type="submit"
-              className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl transition"
+          <div className="flex items-center gap-4">
+            {/* <span
+              className={`px-3 py-1 rounded-full text-sm font-medium ${ROLE_COLORS[user.role]}`}
             >
-              <FaUserPlus /> Create User
+              {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
+            </span> */}
+
+            <select
+              value={user.role}
+              onChange={(e) => handleRoleChange(user._id, e.target.value)}
+              className="rounded-lg border px-3 py-1 text-gray-700 focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="customer">Customer</option>
+              <option value="moderator">Moderator</option>
+              <option value="admin">Admin</option>
+            </select>
+
+            <button
+              onClick={() => handleDeleteUser(user._id)}
+              className="text-red-600 hover:text-red-700"
+            >
+              <FaTrash />
             </button>
           </div>
-        </form>
-      </div>
+        </div>
+      ))
+    ) : (
+      <div className="text-center text-gray-400 py-6">No users found!</div>
+    );
 
-      {/* Users Table */}
-      <div className="bg-white rounded-2xl shadow-sm border overflow-hidden">
-        <table className="w-full text-sm">
-          <thead className="bg-gray-50 text-gray-600">
-            <tr>
-              <th className="px-6 py-4 text-left">User</th>
-              <th className="px-6 py-4 text-left">Email</th>
-              <th className="px-6 py-4 text-left">Role</th>
-              <th className="px-6 py-4 text-right">Actions</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {allUsersData?.length ? (
-              allUsersData.map((user) => (
-                <tr
-                  key={user._id}
-                  className="border-t hover:bg-gray-50 transition"
-                >
-                  <td className="px-6 py-4 flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center">
-                      <FaUser className="text-gray-500" />
-                    </div>
-                    <span className="font-medium text-gray-800">
-                      {user.name}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-gray-600">{user.email}</td>
-                  <td className="px-6 py-4">
-                    <select
-                      value={user.role}
-                      onChange={(e) =>
-                        handleRoleChange(user._id, e.target.value)
-                      }
-                      className="rounded-lg border px-3 py-1.5 text-gray-700 focus:ring-2 focus:ring-blue-500"
-                    >
-                      <option value="customer">Customer</option>
-                      <option value="admin">Admin</option>
-                    </select>
-                  </td>
-                  <td className="px-6 py-4 text-right">
-                    <button
-                      onClick={() => handleDeleteUser(user._id)}
-                      className="inline-flex items-center gap-2 text-red-600 hover:text-red-700"
-                    >
-                      <FaTrash />
-                    </button>
-                  </td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan={4} className="py-10 text-center text-gray-400">
-                  No users found
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+  return (
+    <div className="container mx-auto px-6 py-8 space-y-10">
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-3xl font-bold text-gray-900">User Management</h1>
       </div>
+      <div className="w-full border-b border-[#bababa]"></div>
+
+      {allUsersData.length === 0 ? (
+        <div className="text-center text-gray-400 py-10 text-lg">
+          No users found!
+        </div>
+      ) : (
+        <>
+          {/* Admin Section */}
+          {groupedUsers?.admin.length > 0 && (
+            <div className="space-y-4">
+              <span className="bg-black text-white text-sm font-semibold px-2 py-1 rounded-lg mb-2 inline-block">
+                Admins
+              </span>
+              <div className="grid md:grid-cols-1 gap-4">
+                {renderUsers(groupedUsers.admin)}
+              </div>
+            </div>
+          )}
+
+          {/* Moderator Section */}
+          {groupedUsers?.moderator.length > 0 && (
+            <div className="space-y-4">
+              <span className="bg-[#ff4500] text-white text-sm font-semibold px-2 py-1 rounded-lg mb-2 inline-block">
+                Moderators
+              </span>
+              <div className="grid md:grid-cols-1 gap-4">
+                {renderUsers(groupedUsers.moderator)}
+              </div>
+            </div>
+          )}
+
+          {/* Customer Section */}
+          {groupedUsers?.customer.length > 0 && (
+            <div className="space-y-4">
+              <span className="bg-green-700 text-white text-sm font-semibold px-2 py-1 rounded-lg mb-2 inline-block">
+                Customers
+              </span>
+              <div className="grid md:grid-cols-1 gap-4">
+                {renderUsers(groupedUsers.customer)}
+              </div>
+            </div>
+          )}
+        </>
+      )}
     </div>
   );
 };

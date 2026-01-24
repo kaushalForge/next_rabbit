@@ -33,6 +33,7 @@ const AddNewProduct = () => {
 
   const [isFeatured, setIsFeatured] = useState(false);
   const [isPublished, setIsPublished] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   // ---------------- MEDIA ----------------
   const fileInputRef = useRef(null);
@@ -40,8 +41,10 @@ const AddNewProduct = () => {
   // ---------------- SUBMIT ----------------
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
 
     if (!name || !description || !price) {
+      setLoading(false);
       return toast.error("Required fields missing");
     }
 
@@ -79,80 +82,90 @@ const AddNewProduct = () => {
       }
     });
 
-    // Append each image individually
     images.forEach((file) => {
       formData.append("images", file);
     });
 
     try {
       const { status, message } = await createProductAction(formData);
-
       if (status === 201 || status === 200) {
         toast.success("Product created successfully");
       } else {
         toast.error(message || "Failed to create product");
       }
+      setLoading(false);
     } catch (err) {
+      setLoading(false);
       console.error(err);
       toast.error("Failed to create product");
     }
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      encType="multipart/form-data"
-      className="container mx-auto p-6 space-y-8"
-    >
-      <h2 className="text-3xl font-bold">Add New Product</h2>
+    <div className="relative">
+      {/* Loading Overlay */}
+      {loading && (
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center">
+          <div className="w-16 h-16 border-4 border-t-indigo-500 border-gray-200 rounded-full animate-spin"></div>
+        </div>
+      )}
 
-      <SectionOne
-        name={name}
-        setName={setName}
-        description={description}
-        setDescription={setDescription}
-        originalPrice={originalPrice}
-        setOriginalPrice={setOriginalPrice}
-        price={price}
-        setPrice={setPrice}
-        stock={stock}
-        setStock={setStock}
-        size={size}
-        setSize={setSize}
-        color={color}
-        setColor={setColor}
-        material={material}
-        setMaterial={setMaterial}
-        brand={brand}
-        setBrand={setBrand}
-        tags={tags}
-        setTags={setTags}
-        gender={gender}
-        setGender={setGender}
-        category={category}
-        setCategory={setCategory}
-        weight={weight}
-        setWeight={setWeight}
-        metaTitle={metaTitle}
-        setMetaTitle={setMetaTitle}
-        metaDescription={metaDescription}
-        setMetaDescription={setMetaDescription}
-        metaKeywords={metaKeywords}
-        setMetaKeywords={setMetaKeywords}
-        dimensions={dimensions}
-        setDimensions={setDimensions}
-        isFeatured={isFeatured}
-        setIsFeatured={setIsFeatured}
-        isPublished={isPublished}
-        setIsPublished={setIsPublished}
-      />
+      {/* Form */}
+      <form
+        onSubmit={handleSubmit}
+        encType="multipart/form-data"
+        className="container mx-auto p-6 space-y-8"
+      >
+        <h2 className="text-3xl font-bold">Add New Product</h2>
 
-      <SectionTwo
-        images={images}
-        setImages={setImages}
-        fileInputRef={fileInputRef}
-      />
-    </form>
+        <SectionOne
+          name={name}
+          setName={setName}
+          description={description}
+          setDescription={setDescription}
+          originalPrice={originalPrice}
+          setOriginalPrice={setOriginalPrice}
+          price={price}
+          setPrice={setPrice}
+          stock={stock}
+          setStock={setStock}
+          size={size}
+          setSize={setSize}
+          color={color}
+          setColor={setColor}
+          material={material}
+          setMaterial={setMaterial}
+          brand={brand}
+          setBrand={setBrand}
+          tags={tags}
+          setTags={setTags}
+          gender={gender}
+          setGender={setGender}
+          category={category}
+          setCategory={setCategory}
+          weight={weight}
+          setWeight={setWeight}
+          metaTitle={metaTitle}
+          setMetaTitle={setMetaTitle}
+          metaDescription={metaDescription}
+          setMetaDescription={setMetaDescription}
+          metaKeywords={metaKeywords}
+          setMetaKeywords={setMetaKeywords}
+          dimensions={dimensions}
+          setDimensions={setDimensions}
+          isFeatured={isFeatured}
+          setIsFeatured={setIsFeatured}
+          isPublished={isPublished}
+          setIsPublished={setIsPublished}
+        />
+
+        <SectionTwo
+          images={images}
+          setImages={setImages}
+          fileInputRef={fileInputRef}
+        />
+      </form>
+    </div>
   );
 };
 

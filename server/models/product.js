@@ -22,7 +22,6 @@ const productSchema = new mongoose.Schema(
     },
     offerPrice: {
       type: Number,
-      required: true,
     },
     stock: {
       type: Number,
@@ -33,7 +32,7 @@ const productSchema = new mongoose.Schema(
     },
     rating: {
       type: Number,
-      min: 1,
+      min: 0,
       max: 5,
       default: 0,
     },

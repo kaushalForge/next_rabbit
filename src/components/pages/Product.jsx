@@ -10,10 +10,6 @@ const fetchDetails = async (id) => {
     },
   );
 
-  if (!res.ok) {
-    throw new Error("Failed to fetch product details");
-  }
-
   return res.json();
 };
 

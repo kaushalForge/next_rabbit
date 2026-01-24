@@ -185,6 +185,7 @@
   },
   "scripts": {
     "start": "nodemon index.js",
+    "seed": "node seed/seedProducts.js",
     "dev": "nodemon index.js"
   },
   "keywords": [],

@@ -23,14 +23,6 @@ const page = async () => {
 
     const data = await res.json();
 
-    if (!res.ok) {
-      throw new Error(data?.message || "Failed to fetch products");
-    }
-
-    if (!Array.isArray(data)) {
-      throw new Error("Invalid products response");
-    }
-
     return <ProductManagement products={data} />;
   } catch (error) {
     console.error("Admin products fetch error:", error);

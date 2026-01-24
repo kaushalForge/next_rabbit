@@ -9,24 +9,22 @@ const SectionTwo = ({ images, setImages, fileInputRef }) => {
   const [replaceIndex, setReplaceIndex] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
 
-  // Effect: when a file is selected, handle add or replace
   useEffect(() => {
     if (!selectedFile) return;
-
     setImages((prev) => {
       const updated = [...prev];
 
       if (replaceIndex !== null) {
-        updated[replaceIndex] = selectedFile; // replace
+        updated[replaceIndex] = selectedFile;
       } else if (prev.length < MAX_IMAGES) {
-        updated.push(selectedFile); // add
+        updated.push(selectedFile);
       }
 
       return updated;
     });
 
-    setReplaceIndex(null); // reset replace index
-    setSelectedFile(null); // reset selected file
+    setReplaceIndex(null);
+    setSelectedFile(null);
   }, [selectedFile, replaceIndex, setImages]);
 
   // Handle file input change

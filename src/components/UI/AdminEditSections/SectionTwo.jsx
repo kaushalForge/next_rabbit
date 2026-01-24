@@ -3,6 +3,7 @@
 import { FaSave } from "react-icons/fa";
 
 const SectionTwo = ({
+  // PRODUCT CORE
   name,
   setName,
   description,
@@ -13,15 +14,18 @@ const SectionTwo = ({
   setPrice,
   stock,
   setStock,
+
+  // ARRAYS / CSV FIELDS
   size,
   setSize,
   color,
   setColor,
-
   material,
   setMaterial,
   brand,
   setBrand,
+
+  // SELECT / TEXT
   gender,
   setGender,
   category,
@@ -29,35 +33,43 @@ const SectionTwo = ({
   weight,
   setWeight,
 
+  // SEO META
   metaTitle,
   setMetaTitle,
   metaDescription,
   setMetaDescription,
   metaKeywords,
   setMetaKeywords,
+
+  // DIMENSIONS
   dimensions,
   setDimensions,
+
+  // FLAGS
   isFeatured,
   setIsFeatured,
   isPublished,
   setIsPublished,
 }) => {
-  // Convert array to comma-separated string for input
-  const metaKeywordsString = metaKeywords.join(", ");
+  // Helper function to handle CSV input
+  const handleCsvChange = (label, value, setter) => {
+    let parts = value
+      .split(",")
+      .map((v) => {
+        v = v.trim();
+        if (label === "Size" || label === "Color") return v.toUpperCase();
+        return v;
+      })
+      .filter(Boolean);
 
-  // Handler to convert input string to array
-  const handleMetaKeywordsChange = (e) => {
-    const value = e.target.value;
-    const keywordsArray = value
-      .split(",") // Split by comma
-      .map((kw) => kw.trim()) // Trim whitespace
-      .filter((kw) => kw); // Remove empty strings
-    setMetaKeywords(keywordsArray);
+    let formatted = parts.join(", ");
+    if (value[value.length - 1] === ",") formatted += ", ";
+    setter(formatted);
   };
 
   return (
     <section className="lg:col-span-2 space-y-6">
-      {/* Product Name */}
+      {/* ---------------- PRODUCT NAME ---------------- */}
       <div className="relative">
         <label className="absolute -top-3 left-3 bg-gray-100 px-1 text-sm text-gray-600">
           Product Name
@@ -69,7 +81,7 @@ const SectionTwo = ({
         />
       </div>
 
-      {/* Description */}
+      {/* ---------------- DESCRIPTION ---------------- */}
       <div className="relative">
         <label className="absolute -top-3 left-3 bg-gray-100 px-1 text-sm text-gray-600">
           Description
@@ -81,7 +93,7 @@ const SectionTwo = ({
         />
       </div>
 
-      {/* Pricing & Stock */}
+      {/* ---------------- PRICING & STOCK ---------------- */}
       <div className="grid md:grid-cols-3 gap-4">
         {[
           ["Original Price", originalPrice, setOriginalPrice],
@@ -102,36 +114,34 @@ const SectionTwo = ({
         ))}
       </div>
 
-      {/* Size & Color */}
+      {/* ---------------- SIZE, COLOR, META KEYWORDS ---------------- */}
       <div className="grid md:grid-cols-2 gap-4">
         {[
           ["Size", size, setSize],
           ["Color", color, setColor],
-        ].map(([label, value, setter]) => {
-          const handleChange = (e) => {
-            let input = e.target.value;
-            let parts = input.split(",").map((v) => v.trim().toUpperCase());
-            let formatted = parts.join(", ");
-            setter(formatted);
-          };
-
-          return (
-            <div key={label} className="relative">
-              <label className="absolute -top-3 left-3 bg-gray-100 px-1 text-sm text-gray-600">
-                {label}
-              </label>
-              <input
-                value={value}
-                onChange={handleChange} // ✅ works perfectly
-                className="w-full border rounded-xl p-3"
-                placeholder={label === "Color" ? "RED, ORANGE, BLUE" : ""}
-              />
-            </div>
-          );
-        })}
+          ["Meta Keywords", metaKeywords, setMetaKeywords],
+        ].map(([label, value, setter]) => (
+          <div key={label} className="relative">
+            <label className="absolute -top-3 left-3 bg-gray-100 px-1 text-sm text-gray-600">
+              {label}
+            </label>
+            <input
+              value={value}
+              onChange={(e) => handleCsvChange(label, e.target.value, setter)}
+              className="w-full border rounded-xl p-3"
+              placeholder={
+                label === "Color"
+                  ? "RED, ORANGE, BLUE"
+                  : label === "Meta Keywords"
+                  ? "Keywords"
+                  : ""
+              }
+            />
+          </div>
+        ))}
       </div>
 
-      {/* Material, Brand */}
+      {/* ---------------- MATERIAL, BRAND ---------------- */}
       <div className="grid md:grid-cols-2 gap-4">
         {[
           ["Material", material, setMaterial],
@@ -150,14 +160,13 @@ const SectionTwo = ({
         ))}
       </div>
 
-      {/* Gender, Category */}
+      {/* ---------------- GENDER, CATEGORY ---------------- */}
       <div className="grid md:grid-cols-2 gap-4">
         {/* GENDER SELECT */}
         <div className="relative">
           <label className="absolute -top-3 left-3 bg-gray-100 px-1 text-sm text-gray-600">
             Gender
           </label>
-
           <select
             value={gender}
             onChange={(e) => setGender(e.target.value)}
@@ -175,7 +184,6 @@ const SectionTwo = ({
           <label className="absolute -top-3 left-3 bg-gray-100 px-1 text-sm text-gray-600">
             Category
           </label>
-
           <input
             value={category}
             onChange={(e) => setCategory(e.target.value)}
@@ -185,7 +193,7 @@ const SectionTwo = ({
         </div>
       </div>
 
-      {/* Weight */}
+      {/* ---------------- WEIGHT ---------------- */}
       <div className="relative">
         <label className="absolute -top-3 left-3 bg-gray-100 px-1 text-sm text-gray-600">
           Weight
@@ -197,7 +205,7 @@ const SectionTwo = ({
         />
       </div>
 
-      {/* Dimensions */}
+      {/* ---------------- DIMENSIONS ---------------- */}
       <div className="grid md:grid-cols-3 gap-4">
         {["length", "width", "height"].map((dim) => (
           <div key={dim} className="relative">
@@ -216,7 +224,7 @@ const SectionTwo = ({
         ))}
       </div>
 
-      {/* SEO */}
+      {/* ---------------- META TITLE & DESCRIPTION ---------------- */}
       <div className="relative">
         <label className="absolute -top-3 left-3 bg-gray-100 px-1 text-sm text-gray-600">
           Meta Title
@@ -239,19 +247,7 @@ const SectionTwo = ({
         />
       </div>
 
-      <div className="relative">
-        <label className="absolute -top-3 left-3 bg-gray-100 px-1 text-sm text-gray-600">
-          Meta Keywords
-        </label>
-        <input
-          value={metaKeywordsString}
-          onChange={handleMetaKeywordsChange}
-          className="w-full border rounded-xl p-3"
-          placeholder="e.g. cotton, summer, men"
-        />
-      </div>
-
-      {/* Flags */}
+      {/* ---------------- FLAGS ---------------- */}
       <div className="flex gap-6">
         <label className="flex items-center gap-2">
           <input
@@ -271,7 +267,7 @@ const SectionTwo = ({
         </label>
       </div>
 
-      {/* Submit */}
+      {/* ---------------- SUBMIT BUTTON ---------------- */}
       <button
         type="submit"
         className="w-full flex items-center justify-center gap-3 bg-indigo-600 text-white py-4 rounded-xl font-semibold"

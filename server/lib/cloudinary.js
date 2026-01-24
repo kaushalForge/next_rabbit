@@ -1,4 +1,3 @@
-// lib/cloudinary.js
 const { v2: cloudinary } = require("cloudinary");
 
 cloudinary.config({
@@ -8,12 +7,6 @@ cloudinary.config({
   secure: true,
 });
 
-/**
- * Upload a single buffer to Cloudinary
- * @param {Buffer} buffer
- * @param {string} folder
- * @returns {Promise<string>} - secure URL
- */
 const uploadToCloudinary = (buffer, folder = "Rabbit") => {
   return new Promise((resolve, reject) => {
     cloudinary.uploader
@@ -25,12 +18,6 @@ const uploadToCloudinary = (buffer, folder = "Rabbit") => {
   });
 };
 
-/**
- * Upload multiple buffers to Cloudinary (max 6 images)
- * @param {Buffer[]} buffers
- * @param {string} folder
- * @returns {Promise<string[]>} - array of secure URLs
- */
 const uploadMultipleToCloudinary = async (buffers = [], folder = "Rabbit") => {
   const urls = [];
   for (const buffer of buffers.slice(0, 6)) {
@@ -45,35 +32,35 @@ const uploadMultipleToCloudinary = async (buffers = [], folder = "Rabbit") => {
 };
 
 /**
- * Get Cloudinary public ID from image URL
- * @param {string} url
- * @returns {string|null} - public ID
+ * Extract public ID from Cloudinary URL reliably
  */
 const getPublicIdFromUrl = (url) => {
   if (!url) return null;
   const parts = url.split("/");
-  const folderParts = parts.slice(parts.indexOf("Rabbit"));
-  return folderParts.join("/").split(".")[0];
+  const folderIndex = parts.indexOf("Rabbit");
+  if (folderIndex === -1) return null;
+  const publicIdWithExt = parts.slice(folderIndex).join("/");
+  return publicIdWithExt.split(".")[0];
 };
 
 /**
- * Delete single image from Cloudinary by URL
- * @param {string} url
+ * Delete a single image by URL
  */
 const deleteFromCloudinary = async (url) => {
   const publicId = getPublicIdFromUrl(url);
   if (!publicId) return;
-  await cloudinary.uploader.destroy(publicId);
+  try {
+    await cloudinary.uploader.destroy(publicId);
+  } catch (err) {
+    console.error("Cloudinary delete error:", err);
+  }
 };
 
 /**
- * Delete multiple images from Cloudinary by URLs
- * @param {string[]} urls
+ * Delete multiple images by URLs
  */
 const deleteMultipleFromCloudinary = async (urls = []) => {
-  for (const url of urls) {
-    await deleteFromCloudinary(url);
-  }
+  await Promise.all(urls.map((url) => deleteFromCloudinary(url)));
 };
 
 module.exports = {

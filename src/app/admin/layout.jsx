@@ -6,10 +6,16 @@ import AdminSidebar from "@/components/Admin/AdminSidebar";
 export default function AdminLayout({ children }) {
   const [collapsed, setCollapsed] = useState(false);
 
+  // Sidebar width when expanded/collapsed
+  const sidebarWidth = collapsed ? "80px" : "250px";
+
   return (
     <div className="flex bg-gray-100">
       {/* Sidebar */}
-      <div className="min-h-screen">
+      <div
+        className="fixed top-0 left-0 h-screen z-20"
+        style={{ width: sidebarWidth }}
+      >
         <AdminSidebar
           collapsed={collapsed}
           toggleCollapse={() => setCollapsed(!collapsed)}
@@ -18,10 +24,8 @@ export default function AdminLayout({ children }) {
 
       {/* Main Content */}
       <main
-        className={`
-          flex-1 p-2
-          transition-all w-full duration-300
-        `}
+        className="flex-1 p-2 min-h-screen transition-all duration-300"
+        style={{ marginLeft: sidebarWidth }}
       >
         {children}
       </main>
