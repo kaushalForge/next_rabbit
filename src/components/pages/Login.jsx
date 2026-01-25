@@ -23,6 +23,10 @@ const Login = () => {
     }
   }, [searchParams, router]);
 
+  const backendUrl =
+    process.env.NEXT_PUBLIC_BACKEND_URL ||
+    "https://next-rabbit-server.vercel.app";
+
   return (
     <div className="container mx-auto flex items-center justify-center bg-gray-100 h-screen">
       <div className="rounded-3xl shadow-xl p-8 bg-white">
@@ -43,7 +47,7 @@ const Login = () => {
 
         {/* Google OAuth Button */}
         <a
-          href={`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/google`}
+          href={`${backendUrl}/api/auth/google`}
           className="flex items-center justify-center w-full py-3 px-4 rounded-xl border shadow-md hover:shadow-lg transition-all bg-white text-gray-700 font-medium hover:bg-gray-50"
         >
           <img
