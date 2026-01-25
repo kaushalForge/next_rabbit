@@ -6,17 +6,11 @@ const User = require("../models/user");
 
 const router = express.Router();
 
-/* ======================================================
-   PASSPORT GOOGLE STRATEGY
-====================================================== */
-
 passport.use(
   new GoogleStrategy(
     {
       clientID: process.env.GOOGLE_AUTH_CLIENT_ID,
       clientSecret: process.env.GOOGLE_AUTH_CLIENT_SECRET,
-
-      // ✅ FULL CALLBACK URL FOR PRODUCTION
       callbackURL:
         process.env.NODE_ENV === "production"
           ? `${process.env.BACKEND_URL}/api/auth/google/callback`
@@ -55,10 +49,6 @@ passport.use(
   ),
 );
 
-/* ======================================================
-   SERIALIZE / DESERIALIZE
-====================================================== */
-
 passport.serializeUser((user, done) => done(null, user.id));
 
 passport.deserializeUser(async (id, done) => {
@@ -69,10 +59,6 @@ passport.deserializeUser(async (id, done) => {
     done(err, null);
   }
 });
-
-/* ======================================================
-   ROUTES
-====================================================== */
 
 // STEP 1 → Redirect to Google
 router.get(
@@ -88,10 +74,9 @@ router.get(
   "/callback",
   passport.authenticate("google", {
     session: false,
-    failureRedirect: `${process.env.FRONTEND_URL}/login?error=login_failed`,
+    failureRedirect: `${process.env.FRONTEND_URL}/login?error=Login failed!`,
   }),
   (req, res) => {
-    // 🟡 User not found → confirmation page
     if (!req.user && res.req.authInfo?.message) {
       return res.redirect(
         `${process.env.FRONTEND_URL}${res.req.authInfo.message}`,
@@ -121,7 +106,7 @@ router.get(
 
     // ✅ Redirect back to frontend
     return res.redirect(
-      `${process.env.FRONTEND_URL}/login?message=login_success`,
+      `${process.env.FRONTEND_URL}/login?message=Login Successful!`,
     );
   },
 );

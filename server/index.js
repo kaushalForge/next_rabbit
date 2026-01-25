@@ -13,9 +13,6 @@ const cartRouter = require("./routes/CartRouter");
 const adminRouter = require("./routes/AdminRouter");
 const googleAuthRouter = require("./routes/GoogleAuthRouter");
 const verifyRouter = require("./routes/verifyRouter");
-// Passport + Google OAuth
-const passport = require("passport");
-require("./config/passport"); // <-- your GoogleStrategy file
 
 const frontendURL = process.env.FRONTEND_URL;
 
@@ -29,7 +26,6 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-// ----------- Passport session setup -----------
 app.use(
   require("express-session")({
     secret: process.env.SESSION_SECRET || "some-secret", // put in .env for prod
@@ -37,10 +33,6 @@ app.use(
     saveUninitialized: false,
   }),
 );
-
-app.use(passport.initialize());
-app.use(passport.session());
-// ---------------------------------------------
 
 databaseConnection();
 
