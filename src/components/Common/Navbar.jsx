@@ -1,4 +1,4 @@
-// "use client";
+"use client";
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
@@ -20,9 +20,10 @@ const Navbar = () => {
   const [mounted, setMounted] = useState(false);
 
   const { user, loading, refreshAuth } = useAuth();
+
   useEffect(() => {
     setMounted(true);
-  }, []);
+  }, [user]);
 
   const isLoggedIn = !!user;
   const role = user?.role;

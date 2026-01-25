@@ -96,7 +96,8 @@ router.get(
     // ✅ Set cookie
     res.cookie("cUser", token, {
       httpOnly: true,
-      secure: false, // production → true
+      secure: process.env.NODE_ENV === "production",
+      // secure: false,
       sameSite,
       path: "/",
       maxAge,
@@ -136,8 +137,8 @@ router.post("/create", async (req, res) => {
 
     res.cookie("cUser", token, {
       httpOnly: true,
-      // secure: process.env.NODE_ENV === "production",
-      secure: false,
+      secure: process.env.NODE_ENV === "production",
+      // secure: false,
       sameSite,
       path: "/",
       maxAge,

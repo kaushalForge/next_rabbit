@@ -13,13 +13,13 @@ const Login = () => {
     const error = searchParams.get("error");
 
     if (message) {
-      toast.success(message); // ✅ show success toast
-      router.replace("/"); // optionally redirect after showing toast
+      toast.success(message);
+      router.replace("/");
     }
 
     if (error) {
-      toast.error(error); // ✅ show error toast
-      router.replace("/login"); // optional
+      toast.error(error);
+      router.replace("/login");
     }
   }, [searchParams, router]);
 

@@ -16,8 +16,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "Rabbit Admin",
-  description: "Admin Panel",
+  title: "Rabbit",
+  description:
+    "Rabbit is Nepal's premier online shopping destination for fashion, accessories, and lifestyle products. Discover top-quality Nepali products, latest trends, and enjoy fast, reliable delivery across Nepal.",
 };
 
 export default async function AdminLayout({ children }) {
@@ -31,9 +32,7 @@ export default async function AdminLayout({ children }) {
   // Render the admin layout
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable}`}
-      >
+      <body className={`${geistSans.variable} ${geistMono.variable}`}>
         <Toaster position="top-right" richColors closeButton duration={1000} />
         <AuthProvider>
           <Suspense fallback={null}>

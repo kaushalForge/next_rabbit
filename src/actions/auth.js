@@ -41,7 +41,7 @@ export async function handleLogoutAction() {
       result,
     };
   } catch (err) {
-    console.error("❌ Logout error:", err.message);
+    console.error("Logout error:", err.message);
     return {
       status: 500,
       message: "Logout failed",
