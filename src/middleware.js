@@ -1,19 +1,32 @@
 import { NextResponse } from "next/server";
 
-export function middleware(request) {
-  const token = request.cookies.get("cUser")?.value;
+export async function middleware(request) {
   const { pathname } = request.nextUrl;
 
-  // Protect admin routes
-  if (pathname.startsWith("/admin")) {
-    if (!token) {
-      return NextResponse.redirect(new URL("/login", request.url));
-    }
-  }
+  if (pathname.startsWith("/admin") || pathname.startsWith("/checkout")) {
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/cookie/get-user`,
+        {
+          method: "GET",
+          credentials: "include",
+          headers: {
+            cookie: request.headers.get("cookie") || "",
+          },
+        },
+      );
 
-  // Protect checkout route
-  if (pathname.startsWith("/checkout")) {
-    if (!token) {
+      if (!res.ok) {
+        return NextResponse.redirect(new URL("/login", request.url));
+      }
+
+      const data = await res.json();
+
+      // 🔐 Admin-only guard
+      if (pathname.startsWith("/admin") && data.user.role !== "admin") {
+        return NextResponse.redirect(new URL("/", request.url));
+      }
+    } catch (err) {
       return NextResponse.redirect(new URL("/login", request.url));
     }
   }
