@@ -19,17 +19,12 @@ export const metadata = {
   title: "Rabbit",
   description:
     "Rabbit is Nepal's premier online shopping destination for fashion, accessories, and lifestyle products. Discover top-quality Nepali products, latest trends, and enjoy fast, reliable delivery across Nepal.",
+  icons: {
+    icon: "/images/Logo.png",
+  },
 };
 
 export default async function AdminLayout({ children }) {
-  // const { user, isLoggedIn } = await fetchAuthToken();
-
-  // Redirect if user is not admin
-  // if (user?.role !== "admin") {
-  //   redirect("/not-found");
-  // }
-
-  // Render the admin layout
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>

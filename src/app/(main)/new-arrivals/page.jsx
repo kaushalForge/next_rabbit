@@ -2,23 +2,16 @@ import NewArrivals from "@/components/Products/NewArrivals";
 export const dynamic = "force-dynamic";
 
 const NewArrivalRouting = async () => {
-  let newArrivals = [];
-
   try {
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/products/new-arrivals`,
-      {
-        method: "GET",
-        credentials: "include",
-        cache: "no-store",
-      },
+      { cache: "no-store" },
     );
 
-    newArrivals = await res.json();
+    const newArrivals = await res.json();
+    return <NewArrivals newArrivals={newArrivals} />;
   } catch (err) {
     console.error("Failed to fetch products:", err);
   }
-
-  return <NewArrivals newArrivals={newArrivals} />;
 };
 export default NewArrivalRouting;

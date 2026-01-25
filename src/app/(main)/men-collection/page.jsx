@@ -8,10 +8,6 @@ const MenCollectionRouting = async () => {
       { cache: "no-store" },
     );
 
-    if (!res.ok) {
-      throw new Error("Failed to fetch products");
-    }
-
     const menCollection = await res.json();
     return <MenCollection products={menCollection} />;
   } catch (error) {
