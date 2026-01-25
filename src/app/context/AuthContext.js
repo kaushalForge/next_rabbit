@@ -12,8 +12,7 @@ export function AuthProvider({ children }) {
   const refreshAuth = async () => {
     try {
       setLoading(true);
-      const { status, result } = await fetchCurrentUser();
-
+      const result = await fetchCurrentUser();
       if (result?.isLoggedIn && result.user) {
         setUser(result.user);
       } else {

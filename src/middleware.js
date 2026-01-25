@@ -1,6 +1,11 @@
+"use server";
+
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
 
 export async function middleware(request) {
+  const cookieStore = await cookies();
+  const token = cookieStore.get("cUser")?.value;
   const { pathname } = request.nextUrl;
 
   if (pathname.startsWith("/admin") || pathname.startsWith("/checkout")) {
@@ -9,13 +14,14 @@ export async function middleware(request) {
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/cookie/get-user`,
         {
           method: "GET",
-          credentials: "include",
+          headers: {
+            Cookie: `cUser=${token}`,
+          },
           cache: "no-store",
         },
       );
       const result = await res.json();
-
-      if (pathname.startsWith("/admin") && result.user.role !== "admin") {
+      if (pathname.startsWith("/admin") && result?.user?.role !== "admin") {
         return NextResponse.redirect(new URL("/", request.url));
       }
     } catch (err) {

@@ -7,16 +7,20 @@ const userModel = require("../models/user");
 router.get("/get-user", async (req, res) => {
   try {
     const token = req.cookies?.cUser;
+
     if (!token) {
       return res.status(401).json({
         isLoggedIn: false,
         message: "Login required",
       });
     }
-    // Verify token
+
+    // ✅ Verify token
     const decoded = jwt.verify(token, process.env.JWT_KEY);
 
     const email = decoded?.id?.email;
+    const roleFromToken = decoded?.id?.role;
+
     if (!email) {
       return res.status(401).json({
         isLoggedIn: false,
@@ -24,7 +28,10 @@ router.get("/get-user", async (req, res) => {
       });
     }
 
-    const user = await userModel.findOne({ email });
+    // ✅ Optional DB check (recommended)
+    const user = await userModel
+      .findOne({ email })
+      .select("_id name email role avatar");
 
     if (!user) {
       return res.status(404).json({
@@ -34,12 +41,19 @@ router.get("/get-user", async (req, res) => {
     }
 
     return res.status(200).json({
-      user,
       isLoggedIn: true,
       message: "User authenticated!",
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        avatar: user.avatar,
+      },
+      tokenRole: roleFromToken,
     });
   } catch (err) {
-    console.error("❌ JWT auth error:", err.message);
+    console.error("JWT auth error:", err.message);
     return res.status(401).json({
       isLoggedIn: false,
       message: "Authentication failed",

@@ -1,18 +1,23 @@
+"use server";
+import { cookies } from "next/headers";
+
 export async function fetchCurrentUser() {
+  const cookieStore = await cookies();
+  const token = cookieStore.get("cUser")?.value;
+
   try {
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/cookie/get-user`,
       {
         method: "GET",
-        credentials: "include",
+        headers: {
+          Cookie: `cUser=${token}`,
+        },
         cache: "no-store",
       },
     );
     const result = await res.json();
-    return {
-      status: res.status,
-      result,
-    };
+    return result;
   } catch (err) {
     console.error(err.message);
     return {
