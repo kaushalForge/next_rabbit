@@ -121,6 +121,7 @@ router.post("/create", async (req, res) => {
       return res.status(400).json({ message: "User already exists" });
     }
 
+    // ✅ Create user
     user = await User.create({
       name,
       email,
@@ -130,10 +131,19 @@ router.post("/create", async (req, res) => {
       authProvider: "google",
     });
 
-    const maxAge = 48 * 60 * 60 * 1000;
+    // ✅ Token expiry based on ROLE
+    const tokenExpiryMap = {
+      admin: 12 * 60 * 60 * 1000,
+      moderator: 24 * 60 * 60 * 1000,
+      customer: 48 * 60 * 60 * 1000,
+    };
 
+    const maxAge = tokenExpiryMap[user.role] || 48 * 60 * 60 * 1000;
+
+    // ✅ Generate token AFTER role exists
     const token = generateToken({ email: user.email, role: user.role }, maxAge);
 
+    // ✅ SET COOKIE FIRST
     res.cookie("cUser", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
@@ -142,6 +152,7 @@ router.post("/create", async (req, res) => {
       maxAge,
     });
 
+    // ✅ THEN RESPOND
     return res.status(201).json({
       message: "Account created successfully",
       user,
