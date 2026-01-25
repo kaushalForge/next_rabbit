@@ -10,20 +10,12 @@ export async function middleware(request) {
         {
           method: "GET",
           credentials: "include",
-          headers: {
-            cookie: request.headers.get("cookie") || "",
-          },
+          cache: "no-store",
         },
       );
+      const result = await res.json();
 
-      if (!res.ok) {
-        return NextResponse.redirect(new URL("/login", request.url));
-      }
-
-      const data = await res.json();
-
-      // 🔐 Admin-only guard
-      if (pathname.startsWith("/admin") && data.user.role !== "admin") {
+      if (pathname.startsWith("/admin") && result.user.role !== "admin") {
         return NextResponse.redirect(new URL("/", request.url));
       }
     } catch (err) {
