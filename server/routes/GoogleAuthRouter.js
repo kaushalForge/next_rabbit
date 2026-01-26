@@ -25,6 +25,7 @@ const getCookieOptions = (maxAge) => ({
   secure: isProd ? "true" : "false",
   sameSite: "none",
   path: "/",
+  domain: process.env.FRONTEND_URL,
   maxAge,
 });
 
