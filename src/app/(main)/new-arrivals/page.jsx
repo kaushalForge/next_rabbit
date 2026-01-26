@@ -6,7 +6,7 @@ const NewArrivalRouting = async () => {
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/products/new-arrivals`,
       {
-        next: { revalidate: 60 },
+        credentials: "include",
       },
     );
 

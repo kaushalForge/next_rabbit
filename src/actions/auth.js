@@ -14,6 +14,7 @@ export async function fetchCurrentUser() {
         headers: {
           Cookie: `cUser=${token}`,
         },
+        credentials: "include",
         cache: "no-store",
       },
     );

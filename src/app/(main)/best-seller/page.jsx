@@ -6,6 +6,7 @@ export default async function ProductsPage() {
   try {
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/products/best-seller`,
+      { credentials: "include" },
     );
     bestSeller = await res.json();
   } catch (err) {

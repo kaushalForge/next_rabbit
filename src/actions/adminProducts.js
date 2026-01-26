@@ -15,6 +15,7 @@ export async function createProductAction(productData) {
       headers: {
         Cookie: `cUser=${token}`,
       },
+      credentials: "include",
       body: productData,
     },
   );
@@ -42,6 +43,7 @@ export async function updateProductAction(formData) {
         headers: {
           Cookie: `cUser=${token}`,
         },
+        credentials: "include",
         body: formData,
       },
     );
@@ -76,6 +78,7 @@ export async function deleteProductAction(productId) {
       headers: {
         Cookie: `cUser=${token}`,
       },
+      credentials: "include",
     },
   );
 

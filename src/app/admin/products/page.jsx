@@ -17,6 +17,7 @@ const page = async () => {
         headers: {
           Cookie: `cUser=${token}`,
         },
+        credentials: "include",
         cache: "no-store",
       },
     );

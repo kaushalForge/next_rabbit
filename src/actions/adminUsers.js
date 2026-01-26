@@ -15,6 +15,7 @@ export async function createUserAction(userData) {
         "Content-Type": "application/json",
         Cookie: `cUser=${token}`,
       },
+      credentials: "include",
       body: JSON.stringify(userData),
     },
   );
@@ -35,6 +36,7 @@ export async function updateUserRoleAction(userData) {
         "Content-Type": "application/json",
         Cookie: `cUser=${token}`,
       },
+      credentials: "include",
       body: JSON.stringify(userData),
     },
   );
@@ -57,6 +59,7 @@ export async function deleteUserAction(userId) {
         "Content-Type": "application/json",
         Cookie: `cUser=${token}`,
       },
+      credentials: "include",
     },
   );
 
