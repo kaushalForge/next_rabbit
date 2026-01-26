@@ -1,52 +1,46 @@
+// backend/routes/auth/google.js
 const express = require("express");
 const passport = require("passport");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
-const User = require("../models/user");
 const { generateToken } = require("../utils/GenerateToken");
-
+const User = require("../models/user");
 const router = express.Router();
 
-const isProd = process.env.NODE_ENV === "production";
+const FRONTEND_URL =
+  process.env.NODE_ENV === "production"
+    ? "https://next-rabbit.vercel.app"
+    : "http://localhost:3000";
 
-/* ===============================
-   TOKEN EXPIRY CONFIG
-================================ */
-const TOKEN_EXPIRY = {
-  admin: 12 * 60 * 60 * 1000,
-  moderator: 24 * 60 * 60 * 1000,
-  customer: 48 * 60 * 60 * 1000,
+const cookieOptions = () => {
+  const isProd = process.env.NODE_ENV === "production";
+  return {
+    httpOnly: true,
+    secure: isProd,
+    sameSite: isProd ? "none" : "lax",
+    path: "/",
+    domain: isProd ? ".next-rabbit.vercel.app" : undefined, // subdomain for production
+  };
 };
 
-/* ===============================
-   COOKIE CONFIG (DEPLOYMENT SAFE)
-================================ */
-const getCookieOptions = (maxAge) => ({
-  httpOnly: true,
-  secure: isProd ? "true" : "false",
-  sameSite: "none",
-  path: "/",
-  domain: ".next-rabbit.vercel.app",
-  maxAge,
-});
-
-/* ===============================
-   GOOGLE STRATEGY
-================================ */
+// Passport Google Strategy
 passport.use(
   new GoogleStrategy(
     {
       clientID: process.env.GOOGLE_AUTH_CLIENT_ID,
       clientSecret: process.env.GOOGLE_AUTH_CLIENT_SECRET,
-      callbackURL: `${process.env.BACKEND_URL}/api/auth/google/callback`,
+      callbackURL:
+        process.env.NODE_ENV === "production"
+          ? `${process.env.BACKEND_URL}/api/auth/google/callback`
+          : "/api/auth/google/callback",
     },
-    async (_, __, profile, done) => {
+    async (accessToken, refreshToken, profile, done) => {
       try {
         const email = profile.emails?.[0]?.value;
         if (!email) return done(null, false);
 
         let user = await User.findOne({ email });
 
-        // User does not exist → redirect to confirm page
+        // User not found → redirect to frontend confirmation page
         if (!user) {
           const params = new URLSearchParams({
             email,
@@ -60,104 +54,85 @@ passport.use(
           });
         }
 
+        // Update last login
         user.lastLogin = new Date();
         await user.save();
 
         return done(null, user);
-      } catch (err) {
-        return done(err, null);
+      } catch (error) {
+        return done(error, null);
       }
-    },
-  ),
+    }
+  )
 );
 
-/* ===============================
-   SERIALIZATION (OPTIONAL)
-================================ */
-passport.serializeUser((user, done) => done(null, user.id));
-
-passport.deserializeUser(async (id, done) => {
-  try {
-    const user = await User.findById(id);
-    done(null, user);
-  } catch (err) {
-    done(err, null);
-  }
-});
-
-/* ===============================
-   STEP 1 → GOOGLE REDIRECT
-================================ */
+// STEP 1 → Redirect to Google
 router.get(
   "/",
   passport.authenticate("google", {
     scope: ["profile", "email"],
-    prompt: "select_account",
-  }),
+    prompt: "select_account consent",
+  })
 );
 
-/* ===============================
-   STEP 2 → GOOGLE CALLBACK
-================================ */
+// STEP 2 → Google Callback
 router.get(
   "/callback",
-  passport.authenticate("google", {
-    session: false,
-    failureRedirect: `${process.env.FRONTEND_URL}/login?error=Login failed`,
-  }),
+  passport.authenticate("google", { session: false, failureRedirect: `${FRONTEND_URL}/login?error=Login failed!` }),
   (req, res) => {
     if (!req.user && res.req.authInfo?.message) {
-      return res.redirect(
-        `${process.env.FRONTEND_URL}${res.req.authInfo.message}`,
-      );
+      return res.redirect(`${FRONTEND_URL}${res.req.authInfo.message}`);
     }
 
     const { email, role } = req.user;
-    const maxAge = TOKEN_EXPIRY[role] || TOKEN_EXPIRY.customer;
+
+    // Set token expiry by role
+    const tokenExpiryMap = {
+      admin: 12 * 60 * 60 * 1000,
+      moderator: 24 * 60 * 60 * 1000,
+      customer: 48 * 60 * 60 * 1000,
+    };
+    const maxAge = tokenExpiryMap[role] || 48 * 60 * 60 * 1000;
 
     const token = generateToken({ email, role }, maxAge);
 
-    res.cookie("cUser", token, getCookieOptions(maxAge));
+    res.cookie("cUser", token, { ...cookieOptions(), maxAge });
 
-    return res.redirect(`${process.env.FRONTEND_URL}/`);
-  },
+    return res.redirect(`${FRONTEND_URL}/login?message=Login Successful!`);
+  }
 );
 
-/* ===============================
-   STEP 3 → CREATE USER AFTER CONFIRM
-================================ */
+// STEP 3 → Create new user (if needed)
 router.post("/create", async (req, res) => {
   try {
     const { email, name, avatar, googleId } = req.body;
 
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return res.status(400).json({ message: "User already exists" });
-    }
+    let user = await User.findOne({ email });
+    if (user) return res.status(400).json({ message: "User already exists" });
 
-    const user = await User.create({
+    user = await User.create({
       name,
       email,
+      role: "customer",
       avatar,
       googleId,
-      role: "customer",
       authProvider: "google",
     });
 
-    const maxAge = TOKEN_EXPIRY.customer;
+    const tokenExpiryMap = {
+      admin: 12 * 60 * 60 * 1000,
+      moderator: 24 * 60 * 60 * 1000,
+      customer: 48 * 60 * 60 * 1000,
+    };
+    const maxAge = tokenExpiryMap[user.role] || 48 * 60 * 60 * 1000;
     const token = generateToken({ email: user.email, role: user.role }, maxAge);
 
-    res.cookie("cUser", token, getCookieOptions(maxAge));
+    res.cookie("cUser", token, { ...cookieOptions(), maxAge });
 
-    return res.status(201).json({
-      message: "Account created successfully",
-      user,
-    });
+    return res.status(201).json({ message: "Account created successfully", user });
   } catch (err) {
-    console.error("Google create user error:", err);
-    return res.status(500).json({
-      message: "Internal server error",
-    });
+    console.error(err);
+    return res.status(500).json({ message: "Internal server error" });
   }
 });
 
