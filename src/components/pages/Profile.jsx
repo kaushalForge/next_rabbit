@@ -1,21 +1,38 @@
 "use client";
 
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import MyOrders from "./MyOrders";
 import { toast } from "sonner";
+import MyOrders from "./MyOrders";
 import { useAuth } from "@/app/context/AuthContext";
 
 const Profile = () => {
   const router = useRouter();
-  const { user, loading, logout } = useAuth();
-  console.log(user, "from profile");
+  const { user, loading, refreshAuth } = useAuth();
+
   const handleLogout = async () => {
-    const { result, status } = await logout();
-    if (status === 200 || status === 201) {
-      toast.success(result?.message);
-      router.push("/login");
-    } else {
-      toast.message(result?.message);
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/cookie/logout`,
+        {
+          method: "POST",
+          credentials: "include",
+          cache: "no-store",
+        },
+      );
+
+      const result = await res.json();
+
+      if (res.ok) {
+        toast.success(result.message || "Logged out");
+        refreshAuth();
+        router.replace("/login");
+      } else {
+        toast.error(result.message || "Logout failed");
+      }
+    } catch (err) {
+      console.error("❌ Logout error:", err);
+      toast.error("Logout failed");
     }
   };
 
@@ -27,10 +44,7 @@ const Profile = () => {
     );
   }
 
-  if (!user) {
-    router.replace("/login");
-    return null;
-  }
+  if (!user) return null;
 
   return (
     <div className="min-h-screen flex flex-col">

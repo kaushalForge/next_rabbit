@@ -7,7 +7,6 @@ const userModel = require("../models/user");
 router.get("/get-user", async (req, res) => {
   try {
     const token = req.cookies?.cUser;
-
     if (!token) {
       return res.status(401).json({
         isLoggedIn: false,
@@ -15,7 +14,6 @@ router.get("/get-user", async (req, res) => {
       });
     }
 
-    // ✅ Verify token
     const decoded = jwt.verify(token, process.env.JWT_KEY);
 
     const email = decoded?.id?.email;
@@ -63,33 +61,33 @@ router.get("/get-user", async (req, res) => {
 
 // logout
 router.post("/logout", (req, res) => {
+  console.log("⚡ /logout route called");
+
   try {
-    const token = req.cookies?.cUser;
+    // Log cookies received in the request
+    // console.log("Cookies received from frontend:", req.cookies);
+    console.log(req.cookies.cUser);
 
-    if (!token) {
-      return res.status(401).json({
-        message: "User not logged in",
-        isLoggedIn: false,
-      });
-    }
+    // Clear the cookie
+    res.clearCookie("cUser", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+      path: "/",
+    });
+    console.log("✅ cUser cookie cleared successfully");
 
-    return res
-      .status(200)
-      .clearCookie("cUser", {
-        httpOnly: true,
-        secure: false,
-        sameSite: "lax",
-        path: "/",
-      })
-      .json({
-        message: "Logged out!",
-        isLoggedIn: false,
-      });
-  } catch (err) {
-    console.error("Logout error:", err.message);
-    return res.status(500).json({
-      message: "Logout failed",
-      isLoggedIn: false,
+    // Respond to frontend
+    return res.status(200).json({
+      message: "Logged out successfully",
+      isLoggedIn: false, 
+    });
+  } catch (error) {
+    console.error("❌ Error in logout route:", error);
+
+    return res.status(400).json({
+      message: "Error Logging out!",
+      isLoggedIn: true,
     });
   }
 });

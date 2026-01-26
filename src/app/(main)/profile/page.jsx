@@ -1,11 +1,7 @@
-import React from "react";
-import Profile from "@/components/pages/Profile";
-const page = () => {
-  return (
-    <div>
-      <Profile />
-    </div>
-  );
-};
+"use client";
 
-export default page;
+import Profile from "@/components/pages/Profile";
+
+export default function Page() {
+  return <Profile />;
+}

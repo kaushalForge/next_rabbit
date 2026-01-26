@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState } from "react";
-import { fetchCurrentUser, handleLogoutAction } from "@/actions/auth";
+import { fetchCurrentUser } from "@/actions/auth";
 
 const AuthContext = createContext(null);
 
@@ -26,26 +26,6 @@ export function AuthProvider({ children }) {
     }
   };
 
-  // ---------------- LOGOUT ----------------
-  const logout = async () => {
-    try {
-      setLoading(true);
-      const { result, status } = await handleLogoutAction();
-      setUser(null);
-      console.log("logout result", result);
-      return { result, status };
-    } catch (err) {
-      console.error("❌ Logout failed:", err);
-      setUser(null);
-      return {
-        message: "Logout failed",
-        isLoggedIn: false,
-      };
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
     refreshAuth();
   }, []);
@@ -56,7 +36,6 @@ export function AuthProvider({ children }) {
         user,
         loading,
         refreshAuth,
-        logout,
       }}
     >
       {children}

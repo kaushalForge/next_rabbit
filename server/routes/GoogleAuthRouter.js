@@ -95,7 +95,6 @@ router.get(
 
     const token = generateToken({ email, role }, maxAge);
 
-    // ✅ COOKIE (PRODUCTION SAFE)
     res.cookie("cUser", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",

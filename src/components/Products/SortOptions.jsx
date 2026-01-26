@@ -50,7 +50,7 @@ const SortOptions = () => {
     options.find((o) => o.value === sortBy)?.label || "Default";
 
   return (
-    <div className="mb-4 flex justify-end" ref={dropdownRef}>
+    <div className="flex justify-end" ref={dropdownRef}>
       <div className="relative w-60">
         {/* Button */}
         <button

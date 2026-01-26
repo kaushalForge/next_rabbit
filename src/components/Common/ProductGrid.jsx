@@ -4,22 +4,10 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 
 const ProductGrid = ({ products = [] }) => {
-  const searchParams = useSearchParams();
-  const category = searchParams.get("category")
-    ? searchParams.get("category").split(",").join(", ")
-    : "All";
 
   return (
-    <section className="border-t border-l border-[#f1f1f1] rounded-ss-2xl py-8 p-12">
-      <div className="mx-auto max-w-screen-xl px-4 2xl:px-0">
-        <div className="mb-6">
-          {/* Top bar */}
-          <div className="flex items-center justify-between gap-4">
-            <h2 className="text-xl font-semibold text-gray-900 sm:text-2xl">
-              {category}
-            </h2>
-          </div>
-        </div>
+    <section className="border-[#f1f1f1] rounded-ss-2xl">
+      <div className="mx-auto max-w-screen-xl px-4">
         {Array.isArray(products) && products.length > 0 ? (
           <div className="mb-4 grid gap-4 sm:grid-cols-2 md:mb-8 lg:grid-cols-3 xl:grid-cols-4">
             {/* 1number */}

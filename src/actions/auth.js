@@ -1,4 +1,5 @@
 "use server";
+
 import { cookies } from "next/headers";
 
 export async function fetchCurrentUser() {
@@ -40,7 +41,9 @@ export async function handleLogoutAction() {
         cache: "no-store",
       },
     );
+
     const result = await res.json();
+
     return {
       status: res.status,
       result,

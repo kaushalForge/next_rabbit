@@ -27,7 +27,10 @@ export const metadata = {
 export default async function AdminLayout({ children }) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable}`}>
+      <body
+        suppressHydrationWarning //prevents hydration mismatch error to display on console
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+      >
         <Toaster position="top-right" richColors closeButton duration={1000} />
         <AuthProvider>
           <Suspense fallback={null}>

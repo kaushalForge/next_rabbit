@@ -76,7 +76,7 @@ const SearchBar = () => {
           <div className="absolute left-4 flex items-center">
             <Link href="/" className="text-xl font-bold">
               <img
-                src="/images/logo2.png"
+                src="/images/Logo.png"
                 alt="Logo"
                 className="h-32 w-32 object-cover select-none"
               />

@@ -1,6 +1,5 @@
 "use client";
-
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import {
   HiOutlineUser,
@@ -18,18 +17,39 @@ const Navbar = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [navDrawerOpen, setNavDrawerOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
-
   const { user, loading, refreshAuth } = useAuth();
+
+  const navDrawerRef = useRef(null); // <-- ref for nav drawer
 
   useEffect(() => {
     setMounted(true);
   }, [user]);
 
+  // Close nav drawer when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        navDrawerRef.current &&
+        !navDrawerRef.current.contains(event.target)
+      ) {
+        setNavDrawerOpen(false);
+      }
+    };
+
+    if (navDrawerOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [navDrawerOpen]);
+
   const isLoggedIn = !!user;
   const role = user?.role;
-
   const { items } = useSelector((state) => state.cart);
-
   const cartItemCount =
     items?.products?.reduce((total, product) => total + product.quantity, 0) ||
     0;
@@ -64,7 +84,6 @@ const Navbar = () => {
           <div className="flex items-center space-x-4">
             {mounted && !loading && (
               <>
-                {/* Role-based links */}
                 {isLoggedIn && role === "admin" && (
                   <Link
                     href="/admin"
@@ -73,7 +92,6 @@ const Navbar = () => {
                     Admin
                   </Link>
                 )}
-
                 {isLoggedIn && role === "moderator" && (
                   <Link
                     href="/moderator"
@@ -82,8 +100,6 @@ const Navbar = () => {
                     Moderator
                   </Link>
                 )}
-
-                {/* Login */}
                 {!isLoggedIn && (
                   <Link
                     href="/login"
@@ -93,8 +109,6 @@ const Navbar = () => {
                     <span className="text-sm whitespace-nowrap">Log In</span>
                   </Link>
                 )}
-
-                {/* Profile */}
                 {isLoggedIn && (
                   <Link href="/profile">
                     <HiOutlineUser className="h-6 w-6" />
@@ -102,8 +116,6 @@ const Navbar = () => {
                 )}
               </>
             )}
-
-            {/* Cart */}
             <button onClick={toggleCartDrawer} className="relative">
               <HiOutlineShoppingBag className="h-6 w-6" />
               {cartItemCount > 0 && (
@@ -112,11 +124,7 @@ const Navbar = () => {
                 </span>
               )}
             </button>
-
-            {/* Search */}
             <SearchBar />
-
-            {/* Mobile Menu */}
             <button onClick={toggleNavDrawer} className="lg:hidden">
               <HiBars3BottomRight className="h-6 w-6" />
             </button>
@@ -128,17 +136,18 @@ const Navbar = () => {
 
       {/* Mobile Nav */}
       <div
-        className={`fixed top-0 left-0 w-3/4 h-full bg-white transition-transform duration-300 z-40 ${
+        ref={navDrawerRef} // <-- attach ref
+        className={`fixed top-0 left-0 w-1/2 h-full bg-white transition-transform duration-300 z-50 ${
           navDrawerOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        <div className="flex justify-end p-4">
+        <div className="flex justify-end p-4 border-b">
           <button onClick={toggleNavDrawer}>
-            <IoMdClose className="h-6 w-6" />
+            <IoMdClose className="h-6 w-6 text-gray-700" />
           </button>
         </div>
 
-        <div className="p-4 space-y-4">
+        <div className="p-4 flex flex-col space-y-4 text-gray-800 font-medium">
           <Link href="/collections/all?gender=Male" onClick={toggleNavDrawer}>
             Men
           </Link>

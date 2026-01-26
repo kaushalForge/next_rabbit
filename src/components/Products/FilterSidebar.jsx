@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 
 const FilterSidebar = () => {
@@ -19,6 +19,9 @@ const FilterSidebar = () => {
     maxPrice: undefined,
   });
 
+  const minPriceRef = useRef(null);
+  const maxPriceRef = useRef(null);
+
   const categoryOptions = ["Top Wear", "Bottom Wear"];
   const genderOptions = ["Male", "Female", "Unisex"];
   const colorOptions = [
@@ -32,6 +35,7 @@ const FilterSidebar = () => {
   ];
   const sizeOptions = ["XS", "S", "M", "L", "XL"];
   const brandOptions = ["Urban Threads", "Modern Fit"];
+
   useEffect(() => {
     setFilters({
       category: searchParams.get("category")?.split(",").filter(Boolean) || [],
@@ -42,15 +46,15 @@ const FilterSidebar = () => {
       material: searchParams.get("material")?.split(",").filter(Boolean) || [],
       minPrice: searchParams.get("minPrice")
         ? Number(searchParams.get("minPrice"))
-        : undefined,
+        : 0,
       maxPrice: searchParams.get("maxPrice")
         ? Number(searchParams.get("maxPrice"))
-        : undefined,
+        : 100,
     });
   }, [searchParams]);
 
   /* =====================================
-     WRITE URL (this triggers server refetch)
+     WRITE URL (triggers server refetch)
   ===================================== */
   const writeURL = (next) => {
     const params = new URLSearchParams();
@@ -93,12 +97,17 @@ const FilterSidebar = () => {
     });
   };
 
-  const handlePrice = (max) => {
-    writeURL(
-      max === 100
-        ? { ...filters, minPrice: undefined, maxPrice: undefined }
-        : { ...filters, minPrice: 0, maxPrice: max },
-    );
+  /* =====================================
+     PRICE HANDLERS
+  ===================================== */
+  const handleMinPrice = (value) => {
+    const min = Math.min(value, filters.maxPrice ?? 100);
+    writeURL({ ...filters, minPrice: min });
+  };
+
+  const handleMaxPrice = (value) => {
+    const max = Math.max(value, filters.minPrice ?? 0);
+    writeURL({ ...filters, maxPrice: max });
   };
 
   return (
@@ -186,16 +195,51 @@ const FilterSidebar = () => {
       {/* Price */}
       <div>
         <p className="font-medium mb-2">Price</p>
-        <input
-          type="range"
-          min={0}
-          max={100}
-          value={filters.maxPrice ?? 100}
-          onChange={(e) => handlePrice(Number(e.target.value))}
-          className="w-full"
-        />
-        <div className="flex justify-between text-sm">
-          <span>$0</span>
+        <div className="flex gap-2 mb-2">
+          <input
+            ref={minPriceRef}
+            type="number"
+            min={0}
+            max={filters.maxPrice ?? 100}
+            value={filters.minPrice ?? 0}
+            onChange={(e) => handleMinPrice(Number(e.target.value))}
+            className="w-1/2 border rounded px-2 py-1"
+          />
+          <input
+            ref={maxPriceRef}
+            type="number"
+            min={filters.minPrice ?? 0}
+            max={100}
+            value={filters.maxPrice ?? 100}
+            onChange={(e) => handleMaxPrice(Number(e.target.value))}
+            className="w-1/2 border rounded px-2 py-1"
+          />
+        </div>
+
+        <div className="relative h-6">
+          {/* Min slider */}
+          <input
+            type="range"
+            min={0}
+            max={100}
+            value={filters.minPrice ?? 0}
+            onChange={(e) => handleMinPrice(Number(e.target.value))}
+            className="absolute w-full pointer-events-none appearance-none h-1 bg-gray-300 rounded"
+            style={{ zIndex: 2 }}
+          />
+          {/* Max slider */}
+          <input
+            type="range"
+            min={0}
+            max={100}
+            value={filters.maxPrice ?? 100}
+            onChange={(e) => handleMaxPrice(Number(e.target.value))}
+            className="absolute w-full appearance-none h-1 bg-blue-500 rounded pointer-events-none"
+            style={{ zIndex: 3 }}
+          />
+        </div>
+        <div className="flex justify-between text-sm mt-1">
+          <span>${filters.minPrice ?? 0}</span>
           <span>${filters.maxPrice ?? 100}</span>
         </div>
       </div>
