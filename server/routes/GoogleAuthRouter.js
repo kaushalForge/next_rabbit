@@ -23,7 +23,7 @@ const TOKEN_EXPIRY = {
 const getCookieOptions = (maxAge) => ({
   httpOnly: true,
   secure: isProd ? "true" : "false",
-  sameSite: isProd ? "none" : "lax",
+  sameSite: "none",
   path: "/",
   maxAge,
 });
