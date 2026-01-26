@@ -22,12 +22,10 @@ const TOKEN_EXPIRY = {
 ================================ */
 const getCookieOptions = (maxAge) => ({
   httpOnly: true,
-  secure: isProd, // HTTPS required in prod
+  secure: isProd ? "true" : "false",
   sameSite: isProd ? "none" : "lax",
   path: "/",
   maxAge,
-  ...(isProd && { domain: process.env.COOKIE_DOMAIN }), 
-  // example: ".yourdomain.com"
 });
 
 /* ===============================
@@ -146,10 +144,7 @@ router.post("/create", async (req, res) => {
     });
 
     const maxAge = TOKEN_EXPIRY.customer;
-    const token = generateToken(
-      { email: user.email, role: user.role },
-      maxAge,
-    );
+    const token = generateToken({ email: user.email, role: user.role }, maxAge);
 
     res.cookie("cUser", token, getCookieOptions(maxAge));
 

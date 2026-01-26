@@ -3,38 +3,38 @@
 import { useState, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import AdminSidebar from "@/components/Admin/AdminSidebar";
-import { fetchCurrentUser } from "@/actions/auth";
+// import { fetchCurrentUser } from "@/actions/auth";
 
 export default function AdminLayout({ children }) {
   const [collapsed, setCollapsed] = useState(false);
-  const [loading, setLoading] = useState(true);
+  // const [loading, setLoading] = useState(true);
 
-  const router = useRouter();
-  const pathname = usePathname();
+  // const router = useRouter();
+  // const pathname = usePathname();
 
   const sidebarWidth = collapsed ? "80px" : "250px";
 
-  useEffect(() => {
-    const checkAuth = async () => {
-      const result = await fetchCurrentUser();
+  // useEffect(() => {
+  //   const checkAuth = async () => {
+  //     const result = await fetchCurrentUser();
 
-      if (!result?.isLoggedIn) {
-        router.replace("/login");
-        return;
-      }
+  //     if (!result?.isLoggedIn) {
+  //       router.replace("/login");
+  //       return;
+  //     }
 
-      if (result.user?.role !== "admin") {
-        router.replace(document.referrer || "/404");
-        return;
-      }
+  //     if (result.user?.role !== "admin") {
+  //       router.replace(document.referrer || "/404");
+  //       return;
+  //     }
 
-      setLoading(false);
-    };
+  //     setLoading(false);
+  //   };
 
-    checkAuth();
-  }, [router]);
+  //   checkAuth();
+  // }, [router]);
 
-  if (loading) return null;
+  // if (loading) return null;
 
   return (
     <div className="flex bg-gray-100">
