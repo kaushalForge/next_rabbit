@@ -61,7 +61,6 @@ router.get("/get-user", async (req, res) => {
 
 // logout
 router.post("/logout", (req, res) => {
-  console.log("⚡ /logout route called");
 
   try {
     // Log cookies received in the request
@@ -75,7 +74,6 @@ router.post("/logout", (req, res) => {
       sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
       path: "/",
     });
-    console.log("✅ cUser cookie cleared successfully");
 
     // Respond to frontend
     return res.status(200).json({
@@ -83,7 +81,7 @@ router.post("/logout", (req, res) => {
       isLoggedIn: false, 
     });
   } catch (error) {
-    console.error("❌ Error in logout route:", error);
+    console.error("Error in logout route:", error);
 
     return res.status(400).json({
       message: "Error Logging out!",

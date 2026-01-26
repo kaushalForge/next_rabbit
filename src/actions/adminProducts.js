@@ -48,7 +48,6 @@ export async function updateProductAction(formData) {
 
     const data = await res.json();
 
-    /* ---------------- REVALIDATION ---------------- */
     revalidatePath("/admin/products");
     revalidatePath(`/admin/edit/${id}`);
 
@@ -88,6 +87,5 @@ export async function deleteProductAction(productId) {
   }
 
   revalidatePath("/admin/products");
-
   return { status: res.status, message: data.message || "" };
 }
