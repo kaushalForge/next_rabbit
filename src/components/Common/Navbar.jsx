@@ -1,6 +1,8 @@
 "use client";
-import { useEffect, useState, useRef } from "react";
+
+import React, { useEffect, useState, useRef } from "react";
 import Link from "next/link";
+import { useSelector } from "react-redux";
 import {
   HiOutlineUser,
   HiOutlineShoppingBag,
@@ -8,59 +10,54 @@ import {
 } from "react-icons/hi2";
 import { IoMdClose } from "react-icons/io";
 import { MdLogin } from "react-icons/md";
-import { useSelector } from "react-redux";
 import SearchBar from "./SearchBar";
 import CartDrawer from "../Layout/CartDrawer";
 import { useAuth } from "@/app/context/AuthContext";
 
 const Navbar = () => {
+  // ✅ State
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [navDrawerOpen, setNavDrawerOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const { user, loading, refreshAuth } = useAuth();
 
-  const navDrawerRef = useRef(null); // <-- ref for nav drawer
+  // ✅ Get user from context
+  const { currentUser, refreshCurrentUser, loading } = useAuth();
 
-  useEffect(() => {
-    setMounted(true);
-  }, [user]);
-
-  // Close nav drawer when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (
-        navDrawerRef.current &&
-        !navDrawerRef.current.contains(event.target)
-      ) {
-        setNavDrawerOpen(false);
-      }
-    };
-
-    if (navDrawerOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-    } else {
-      document.removeEventListener("mousedown", handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [navDrawerOpen]);
-
-  const isLoggedIn = !!user;
-  const role = user?.role;
+  const navDrawerRef = useRef(null);
   const { items } = useSelector((state) => state.cart);
+
   const cartItemCount =
     items?.products?.reduce((total, product) => total + product.quantity, 0) ||
     0;
 
+  // ✅ Mounted flag
+  useEffect(() => setMounted(true), []);
+
+  // ✅ Close nav drawer when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (navDrawerRef.current && !navDrawerRef.current.contains(e.target)) {
+        setNavDrawerOpen(false);
+      }
+    };
+    if (navDrawerOpen)
+      document.addEventListener("mousedown", handleClickOutside);
+    else document.removeEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [navDrawerOpen]);
+
+  // ✅ Toggle functions
   const toggleCartDrawer = () => setDrawerOpen((prev) => !prev);
   const toggleNavDrawer = () => setNavDrawerOpen((prev) => !prev);
 
+  // ✅ User info
+  const isLoggedIn = !!currentUser;
+  const role = currentUser?.role;
+
   return (
     <>
-      <nav className="sticky top-0 z-50 backdrop-blur-md">
-        <div className="flex items-center justify-between p-4 h-12 w-full">
+      <nav className="sticky top-0 z-50 backdrop-blur-md bg-white/90 shadow-sm">
+        <div className="flex items-center justify-between container p-4 h-12 w-full mx-auto">
           {/* Logo */}
           <Link href="/" className="text-xl font-bold">
             <img
@@ -71,7 +68,7 @@ const Navbar = () => {
           </Link>
 
           {/* Desktop Menu */}
-          <div className="hidden md:flex items-center space-x-2 text-sm font-semibold">
+          <div className="hidden md:flex items-center space-x-4 text-sm font-semibold">
             <Link href="/collections/all?gender=Male">Men</Link>
             <Link href="/collections/all?gender=Female">Women</Link>
             <Link href="/collections/all?category=Top Wear">Top Wear</Link>
@@ -84,6 +81,7 @@ const Navbar = () => {
           <div className="flex items-center space-x-4">
             {mounted && !loading && (
               <>
+                {/* Role-based Links */}
                 {isLoggedIn && role === "admin" && (
                   <Link
                     href="/admin"
@@ -100,10 +98,12 @@ const Navbar = () => {
                     Moderator
                   </Link>
                 )}
+
+                {/* Login / User */}
                 {!isLoggedIn && (
                   <Link
                     href="/login"
-                    className="flex items-center gap-1 border-2 p-1 rounded-md"
+                    className="flex items-center gap-1 border-2 p-1 rounded-md hover:bg-gray-50 transition"
                   >
                     <MdLogin className="h-6 w-6" />
                     <span className="text-sm whitespace-nowrap">Log In</span>
@@ -116,6 +116,8 @@ const Navbar = () => {
                 )}
               </>
             )}
+
+            {/* Cart */}
             <button onClick={toggleCartDrawer} className="relative">
               <HiOutlineShoppingBag className="h-6 w-6" />
               {cartItemCount > 0 && (
@@ -124,7 +126,11 @@ const Navbar = () => {
                 </span>
               )}
             </button>
+
+            {/* Search */}
             <SearchBar />
+
+            {/* Mobile menu button */}
             <button onClick={toggleNavDrawer} className="lg:hidden">
               <HiBars3BottomRight className="h-6 w-6" />
             </button>
@@ -132,12 +138,13 @@ const Navbar = () => {
         </div>
       </nav>
 
+      {/* Cart Drawer */}
       <CartDrawer drawerOpen={drawerOpen} toggleCartDrawer={toggleCartDrawer} />
 
       {/* Mobile Nav */}
       <div
-        ref={navDrawerRef} // <-- attach ref
-        className={`fixed top-0 left-0 w-1/2 h-full bg-white transition-transform duration-300 z-50 ${
+        ref={navDrawerRef}
+        className={`fixed top-0 left-0 w-64 h-full bg-white shadow-lg transition-transform duration-300 z-50 ${
           navDrawerOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >

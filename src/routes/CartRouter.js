@@ -2,7 +2,7 @@ const express = require("express");
 const cartModel = require("../models/cart");
 const userModel = require("../models/user");
 const productModel = require("../models/product");
-const { protect } = require("../protect/authMiddleware");
+const { protect } = require("../middleware/authMiddleware");
 const router = express.Router();
 
 // Helper function to get a cart created by either userId or guestId

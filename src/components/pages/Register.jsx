@@ -1,70 +1,71 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import {
-  MdVerified,
-  MdRocketLaunch,
-  MdLock,
-  MdTrackChanges,
-} from "react-icons/md";
+import { toast } from "sonner";
+import { useAuth } from "@/app/context/AuthContext";
 
 const Register = () => {
   const router = useRouter();
+  const { refreshCurrentUser } = useAuth();
+
+  useEffect(() => {
+    const script = document.createElement("script");
+    script.src = "https://accounts.google.com/gsi/client";
+    script.async = true;
+    script.defer = true;
+    document.body.appendChild(script);
+
+    script.onload = () => {
+      google.accounts.id.initialize({
+        client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
+        callback: async (response) => {
+          try {
+            const res = await fetch("/api/auth/register", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ idToken: response.credential }),
+              credentials: "include",
+            });
+
+            const data = await res.json();
+
+            // Show API message exactly
+            toast.success(data.message || "Action successful");
+            await refreshCurrentUser();
+            if (res.status === 201 || res.status === 200) {
+              router.push("/");
+            }
+          } catch (err) {
+            toast.error("Server error");
+            await refreshCurrentUser();
+          }
+        },
+      });
+
+      google.accounts.id.renderButton(
+        document.getElementById("google-register-btn"),
+        { theme: "outline", size: "large", width: "100%" },
+      );
+    };
+
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, [router, refreshCurrentUser]);
 
   return (
     <div className="container mx-auto flex items-center justify-center bg-gray-100 h-screen">
-      <div className="rounded-3xl shadow-xl p-8 bg-white">
-        {/* Header */}
-        <h1 className="text-3xl md:text-3xl font-medium text-gray-900 mb-3 text-center leading-snug">
+      <div className="rounded-3xl shadow-xl p-8 bg-white w-full max-w-md">
+        <h1 className="text-3xl font-medium text-gray-900 mb-3 text-center leading-snug">
           Welcome to Rabbit 🐇
         </h1>
         <p className="text-gray-600 mb-6 text-center">
-          Sign up securely using your Google account. Verified login ensures
-          your email is valid.
+          Sign up securely using your Google account.
         </p>
 
-        {/* Feature Highlights */}
-        <div className="grid grid-cols-1 gap-3 mb-6 text-left">
-          {[
-            {
-              icon: <MdVerified className="text-blue-500 text-2xl" />,
-              text: "Verified Google login",
-            },
-            {
-              icon: <MdRocketLaunch className="text-purple-500 text-2xl" />,
-              text: "Instant access without passwords",
-            },
-            {
-              icon: <MdLock className="text-red-500 text-2xl" />,
-              text: "Secure and trusted authentication",
-            },
-            {
-              icon: <MdTrackChanges className="text-green-500 text-2xl" />,
-              text: "Focus on what matters most",
-            },
-          ].map((feature, idx) => (
-            <div key={idx} className="flex items-center gap-3">
-              <span className="text-blue-500 text-xl">{feature.icon}</span>
-              <p className="text-gray-700 text-sm">{feature.text}</p>
-            </div>
-          ))}
-        </div>
+        <div id="google-register-btn" className="mb-6" />
 
-        {/* Google OAuth Button */}
-        <a
-          href={`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/google`}
-          className="flex items-center justify-center w-full py-3 px-4 rounded-xl border shadow-md hover:shadow-lg transition-all bg-white text-gray-700 font-medium hover:bg-gray-50"
-        >
-          <img
-            src="https://developers.google.com/identity/images/g-logo.png"
-            alt="Google Logo"
-            className="h-5 w-5 mr-3"
-          />
-          Sign up with Google
-        </a>
-
-        {/* Footer */}
         <p className="mt-6 text-center text-gray-500 text-sm">
           By continuing, you agree to our{" "}
           <span className="text-blue-500 underline cursor-pointer">

@@ -1,66 +1,75 @@
 "use client";
 
 import React, { useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { useAuth } from "@/app/context/AuthContext";
 
 const Login = () => {
   const router = useRouter();
-  const searchParams = useSearchParams();
+  const { refreshCurrentUser } = useAuth();
 
   useEffect(() => {
-    const message = searchParams.get("message");
-    const error = searchParams.get("error");
+    // Load Google Identity Services script
+    const script = document.createElement("script");
+    script.src = "https://accounts.google.com/gsi/client";
+    script.async = true;
+    script.defer = true;
+    document.body.appendChild(script);
 
-    if (message) {
-      toast.success(message);
-      router.replace("/");
-    }
+    script.onload = () => {
+      google.accounts.id.initialize({
+        client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
+        callback: async (response) => {
+          try {
+            const res = await fetch("/api/auth/login", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ idToken: response.credential }),
+              credentials: "include",
+            });
+            const data = await res.json();
 
-    if (error) {
-      toast.error(error);
-      router.replace("/login");
-    }
-  }, [searchParams, router]);
+            if (data.success) {
+              toast.success("Login successful!");
+              await refreshCurrentUser();
+              router.push("/");
+            } else {
+              toast.error(data.message || "Login failed");
+              await refreshCurrentUser();
+            }
+          } catch (err) {
+            toast.error("Server error");
+            await refreshCurrentUser();
+          }
+        },
+      });
 
-  const backendUrl =
-    process.env.NEXT_PUBLIC_BACKEND_URL ||
-    "https://next-rabbit-server.vercel.app";
+      google.accounts.id.renderButton(
+        document.getElementById("google-signin-btn"),
+        { theme: "outline", size: "large", width: "100%" },
+      );
+    };
+
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, [router, refreshCurrentUser]);
 
   return (
     <div className="container mx-auto flex items-center justify-center bg-gray-100 h-screen">
-      <div className="rounded-3xl shadow-xl p-8 bg-white">
-        {/* Header */}
-        <h1 className="text-3xl md:text-3xl font-medium text-gray-900 mb-3 text-center leading-snug">
+      <div className="rounded-3xl shadow-xl p-8 bg-white w-full max-w-md">
+        <h1 className="text-3xl font-medium text-gray-900 mb-3 text-center leading-snug">
           Welcome to Rabbit 🐇
         </h1>
         <p className="text-gray-600 mb-6 text-center">
           Sign in securely using your Google account or your registered email.
         </p>
 
-        {/* Divider */}
-        <div className="flex items-center gap-2 mb-6">
-          <hr className="flex-1 border-gray-300" />
-          <span className="text-gray-500 text-sm">Rabbit</span>
-          <hr className="flex-1 border-gray-300" />
-        </div>
+        <div id="google-signin-btn" className="mb-6" />
 
-        {/* Google OAuth Button */}
-        <a
-          href={`${backendUrl}/api/auth/google`}
-          className="flex items-center justify-center w-full py-3 px-4 rounded-xl border shadow-md hover:shadow-lg transition-all bg-white text-gray-700 font-medium hover:bg-gray-50"
-        >
-          <img
-            src="/images/GoogleLogo.png"
-            alt="Google Logo"
-            className="h-5 w-5 mr-3"
-          />
-          Continue with Google
-        </a>
-
-        {/* Footer */}
         <p className="mt-6 text-center text-gray-500 text-sm">
-          By continuing, you agree to our
+          By continuing, you agree to our{" "}
           <span className="text-blue-500 underline cursor-pointer">
             Terms of Service
           </span>{" "}

@@ -1,71 +1,77 @@
 "use client";
 
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import {
+  MdEmail,
+  MdPerson,
+  MdAdminPanelSettings,
+  MdLogout,
+} from "react-icons/md";
 import MyOrders from "./MyOrders";
 import { useAuth } from "@/app/context/AuthContext";
 
 const Profile = () => {
   const router = useRouter();
-  const { user, loading, refreshAuth } = useAuth();
+  const { currentUser, refreshCurrentUser, loading, loggingOut, logout } =
+    useAuth();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
-  const handleLogout = async () => {
-    try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/cookie/logout`,
-        {
-          method: "POST",
-          credentials: "include",
-          cache: "no-store",
-        },
-      );
-
-      const result = await res.json();
-
-      if (res.ok) {
-        toast.success(result.message || "Logged out");
-        refreshAuth();
-        router.replace("/login");
-      } else {
-        toast.error(result.message || "Logout failed");
-      }
-    } catch (err) {
-      console.error("❌ Logout error:", err);
-      toast.error("Logout failed");
+  // Redirect if not logged in
+  useEffect(() => {
+    if (!loading && !currentUser) {
+      router.replace("/login");
     }
-  };
+  }, [loading, currentUser, router]);
 
-  if (loading) {
+  if (loading || !currentUser) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        Loading...
+      <div className="min-h-screen flex items-center justify-center bg-gray-100 text-gray-700 font-medium">
+        Loading profile...
       </div>
     );
   }
 
-  if (!user) return null;
+  const { email, role, name, avatar } = currentUser;
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <div className="flex-grow container mx-auto p-6">
-        <div className="flex flex-col md:flex-row gap-6">
-          {/* User Info */}
-          <div className="w-full md:w-1/3 shadow-md rounded-lg p-6">
-            <h1 className="text-2xl font-bold mb-2">Profile</h1>
-            <p className="text-gray-700 mb-2">{user.email}</p>
-            <p className="text-sm text-gray-500 mb-4">Role: {user.role}</p>
+    <div className="min-h-screen bg-gradient-to-b from-gray-100 via-white to-gray-50 flex flex-col">
+      <div className="container mx-auto p-6 flex flex-col md:flex-row gap-6">
+        {/* User Card */}
+        <div className="w-full md:w-1/3 bg-white/60 backdrop-blur-md shadow-lg rounded-2xl p-6 flex flex-col items-center">
+          <img
+            src={avatar || "/images/default-avatar.png"}
+            alt={name || "User Avatar"}
+            className="h-28 w-28 ring-1 ring-[#dadada] rounded-full object-cover border-2 border-white shadow-sm mb-4"
+          />
 
-            <button
-              onClick={handleLogout}
-              className="w-full bg-red-500 text-white py-2 rounded-lg hover:bg-red-600"
-            >
-              Logout
-            </button>
-          </div>
+          <h2 className="text-2xl font-semibold mb-2 flex items-center gap-2">
+            <MdPerson className="text-blue-500" /> {name || "User"}
+          </h2>
 
-          {/* Orders */}
-          <div className="w-full md:w-2/3">
+          <p className="flex items-center gap-2 text-gray-700 mb-2">
+            <MdEmail className="text-purple-500" /> {email}
+          </p>
+
+          <span className="flex items-center gap-1 text-white font-medium bg-black/70 px-3 py-1 rounded-full mb-4">
+            <MdAdminPanelSettings className="text-white" /> {role}
+          </span>
+
+          <button
+            onClick={logout}
+            disabled={loggingOut}
+            className="flex items-center justify-center gap-2 w-full bg-red-500
+            hover:bg-red-600 text-white py-2 rounded-xl font-medium
+            transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <MdLogout /> {loggingOut ? "Logging out..." : "Logout"}
+          </button>
+        </div>
+
+        {/* Orders Section */}
+        <div className="w-full md:w-2/3">
+          <div className="bg-white/60 backdrop-blur-md shadow-lg rounded-2xl p-6 h-full">
             <MyOrders />
           </div>
         </div>

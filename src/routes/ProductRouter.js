@@ -6,7 +6,7 @@ const {
   updateProduct,
   deleteProduct,
 } = require("../controllers/productController");
-const { protect, admin } = require("../protect/authMiddleware");
+const { protect, admin } = require("../middleware/authMiddleware");
 
 // @/products/api
 // @desc fetch all the products

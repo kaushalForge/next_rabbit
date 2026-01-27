@@ -1,13 +1,16 @@
 import { NextResponse } from "next/server";
+export function middleware(request) {
+  const pathname = request.nextUrl.pathname;
 
-export function middleware(req) {
-  const cookie = req.cookies.get("cUser")?.value;
+  // Only protect /admin routes
+  if (!pathname.startsWith("/admin")) return NextResponse.next();
 
-  if (!cookie && req.nextUrl.pathname.startsWith("/admin")) {
-    return NextResponse.redirect(new URL("/login", req.url));
-  }
+  const token = request.cookies.get("cUser")?.value;
+  if (!token) return NextResponse.redirect(new URL("/404", request.url));
 
   return NextResponse.next();
 }
 
-export const config = { matcher: ["/admin/:path*"] };
+export const config = {
+  matcher: ["/admin/:path*"],
+};

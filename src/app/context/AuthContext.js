@@ -1,49 +1,88 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
-import { fetchCurrentUser } from "@/actions/auth";
+import { createContext, useContext, useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
-const AuthContext = createContext(null);
+// Create context
+const AuthContext = createContext();
 
-export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
+export const AuthProvider = ({ children }) => {
+  const router = useRouter();
+  const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [loggingOut, setLoggingOut] = useState(false);
 
-  const refreshAuth = async () => {
+  // Fetch current user from backend
+  const fetchCurrentUser = async () => {
+    setLoading(true);
     try {
-      setLoading(true);
-      const result = await fetchCurrentUser();
-      if (result?.isLoggedIn && result.user) {
-        setUser(result.user);
-      } else {
-        setUser(null);
-      }
+      const res = await fetch("/api/auth/currentUser", {
+        method: "GET",
+        cache: "no-store",
+        credentials: "include",
+      });
+
+      const data = await res.json();
+      setCurrentUser(data.user || null);
     } catch (err) {
-      console.error("Auth refresh failed:", err);
-      setUser(null);
+      console.error("Auth fetch error:", err);
+      setCurrentUser(null);
     } finally {
       setLoading(false);
     }
   };
 
+  // Refresh user data
+  const refreshCurrentUser = () => fetchCurrentUser();
+
+  // Logout function
+  const logout = async () => {
+    setLoggingOut(true);
+    try {
+      const res = await fetch("/api/auth/logout", {
+        method: "POST",
+        credentials: "include",
+        cache: "no-store",
+        headers: { "Content-Type": "application/json" },
+      });
+
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        toast.success(data.message || "Logged out successfully");
+        setCurrentUser(null); // update context
+        router.replace("/login");
+      } else {
+        toast.error(data.message || "Logout failed");
+      }
+    } catch (err) {
+      console.error("Logout error:", err);
+      toast.error("Logout failed due to server error");
+    } finally {
+      setLoggingOut(false);
+    }
+  };
+
+  // Fetch user on mount
   useEffect(() => {
-    refreshAuth();
+    fetchCurrentUser();
   }, []);
 
   return (
     <AuthContext.Provider
       value={{
-        user,
+        currentUser,
+        refreshCurrentUser,
+        logout,
         loading,
-        refreshAuth,
+        loggingOut,
       }}
     >
       {children}
     </AuthContext.Provider>
   );
-}
-
-export const useAuth = () => {
-  const ctx = useContext(AuthContext);
-  return ctx;
 };
+
+// Hook to access context
+export const useAuth = () => useContext(AuthContext);
