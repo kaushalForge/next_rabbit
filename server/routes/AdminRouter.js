@@ -31,8 +31,8 @@ router.get("/products/all", async (req, res) => {
 // Add product
 router.post(
   "/products/add",
-  protect,
-  admin,
+  // protect,
+  // admin,
   upload.array("images", 6),
   createProductController,
 );

@@ -1,8 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { toast } from "sonner";
+import { useEffect, useState } from "react";
 import {
   MdEmail,
   MdPerson,
@@ -12,28 +10,17 @@ import {
 import MyOrders from "./MyOrders";
 import { useAuth } from "@/app/context/AuthContext";
 
-const Profile = () => {
-  const router = useRouter();
-  const { currentUser, refreshCurrentUser, loading, loggingOut, logout } =
-    useAuth();
-  const [isLoggingOut, setIsLoggingOut] = useState(false);
-
-  // Redirect if not logged in
+const Profile = ({ currentUser }) => {
+  const [mounted, setMounted] = useState(false);
+  const { logout, loggingOut } = useAuth();
   useEffect(() => {
-    if (!loading && !currentUser) {
-      router.replace("/login");
-    }
-  }, [loading, currentUser, router]);
+    setMounted(true);
+  }, []);
 
-  if (loading || !currentUser) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-100 text-gray-700 font-medium">
-        Loading profile...
-      </div>
-    );
-  }
+  // ✅ prevents hydration mismatch
+  if (!mounted || !currentUser) return null;
 
-  const { email, role, name, avatar } = currentUser;
+  const { avatar, name, email, role } = currentUser;
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-100 via-white to-gray-50 flex flex-col">
@@ -41,8 +28,9 @@ const Profile = () => {
         {/* User Card */}
         <div className="w-full md:w-1/3 bg-white/60 backdrop-blur-md shadow-lg rounded-2xl p-6 flex flex-col items-center">
           <img
-            src={avatar || "/images/default-avatar.png"}
+            src={avatar}
             alt={name || "User Avatar"}
+            referrerPolicy="no-referrer"
             className="h-28 w-28 ring-1 ring-[#dadada] rounded-full object-cover border-2 border-white shadow-sm mb-4"
           />
 

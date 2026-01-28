@@ -1,42 +1,41 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { FaUpload, FaSave, FaEdit, FaTimes } from "react-icons/fa";
 
 const MAX_IMAGES = 6;
 
 const SectionTwo = ({ images, setImages, fileInputRef }) => {
   const [replaceIndex, setReplaceIndex] = useState(null);
-  const [selectedFile, setSelectedFile] = useState(null);
 
-  useEffect(() => {
-    if (!selectedFile) return;
+  // Handle file input change (MULTIPLE SUPPORT)
+  const handleFileSelect = (e) => {
+    const files = Array.from(e.target.files || []);
+    if (!files.length) return;
+
     setImages((prev) => {
-      const updated = [...prev];
+      let updated = [...prev];
 
+      // 🔁 REPLACE MODE → only first selected image replaces
       if (replaceIndex !== null) {
-        updated[replaceIndex] = selectedFile;
-      } else if (prev.length < MAX_IMAGES) {
-        updated.push(selectedFile);
+        updated[replaceIndex] = files[0];
+      }
+      // ➕ ADD MODE → add multiple until MAX_IMAGES
+      else {
+        for (const file of files) {
+          if (updated.length >= MAX_IMAGES) break;
+          updated.push(file);
+        }
       }
 
       return updated;
     });
 
     setReplaceIndex(null);
-    setSelectedFile(null);
-  }, [selectedFile, replaceIndex, setImages]);
-
-  // Handle file input change
-  const handleFileSelect = (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    setSelectedFile(file);
-    e.target.value = ""; // allow reselecting same file
+    e.target.value = ""; // allow reselect same files
   };
 
-  // Open file input for adding new image
+  // Open file input for adding new images
   const openAdd = () => {
     setReplaceIndex(null);
     fileInputRef.current.click();
@@ -72,7 +71,7 @@ const SectionTwo = ({ images, setImages, fileInputRef }) => {
               className="w-full h-full object-cover"
             />
 
-            {/* Overlay with Replace + Remove */}
+            {/* Overlay */}
             <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition flex flex-col items-center justify-center gap-2 text-white text-sm font-medium">
               <button
                 type="button"
@@ -105,12 +104,12 @@ const SectionTwo = ({ images, setImages, fileInputRef }) => {
         )}
       </div>
 
-      {/* Hidden file input */}
+      {/* Hidden file input (MULTIPLE ENABLED) */}
       <input
         ref={fileInputRef}
         type="file"
         hidden
-        name="images"
+        multiple
         accept="image/*"
         onChange={handleFileSelect}
       />

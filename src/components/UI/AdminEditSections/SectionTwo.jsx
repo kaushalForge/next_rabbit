@@ -119,6 +119,8 @@ const SectionTwo = ({
         {[
           ["Size", size, setSize],
           ["Color", color, setColor],
+          ["Material", material, setMaterial],
+          ["Brand", brand, setBrand],
           ["Meta Keywords", metaKeywords, setMetaKeywords],
         ].map(([label, value, setter]) => (
           <div key={label} className="relative">
@@ -133,28 +135,9 @@ const SectionTwo = ({
                 label === "Color"
                   ? "RED, ORANGE, BLUE"
                   : label === "Meta Keywords"
-                  ? "Keywords"
-                  : ""
+                    ? "Keywords"
+                    : ""
               }
-            />
-          </div>
-        ))}
-      </div>
-
-      {/* ---------------- MATERIAL, BRAND ---------------- */}
-      <div className="grid md:grid-cols-2 gap-4">
-        {[
-          ["Material", material, setMaterial],
-          ["Brand", brand, setBrand],
-        ].map(([label, value, setter]) => (
-          <div key={label} className="relative">
-            <label className="absolute -top-3 left-3 bg-gray-100 px-1 text-sm text-gray-600">
-              {label}
-            </label>
-            <input
-              value={value}
-              onChange={(e) => setter(e.target.value)}
-              className="w-full border rounded-xl p-3"
             />
           </div>
         ))}

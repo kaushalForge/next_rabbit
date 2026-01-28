@@ -14,45 +14,52 @@ const SectionOne = ({
   tags,
   setTags,
 }) => {
-  /* ---------------- IMAGE STATE ---------------- */
   const [replaceTarget, setReplaceTarget] = useState(null);
-  // replaceTarget = { type: "existing" | "new", index }
-
-  const [selectedFile, setSelectedFile] = useState(null);
+  const [selectedFiles, setSelectedFiles] = useState([]);
 
   useEffect(() => {
-    if (!selectedFile || !replaceTarget) return;
+    if (!selectedFiles.length || !replaceTarget) return;
 
-    // ADD NEW IMAGE
     if (replaceTarget.type === "add") {
-      setImages((prev) => [...prev, selectedFile]);
+      const remaining = MAX_IMAGES - (images.length + existingImages.length);
+      setImages((prev) => [...prev, ...selectedFiles.slice(0, remaining)]);
     }
 
-    // REPLACE EXISTING IMAGE (URL → File)
     if (replaceTarget.type === "existing") {
-      setExistingImages((prev) =>
-        prev.filter((_, i) => i !== replaceTarget.index),
-      );
-      setImages((prev) => [...prev, selectedFile]);
+      setExistingImages((prev) => {
+        const updated = [...prev];
+        selectedFiles.forEach((file, i) => {
+          if (replaceTarget.index + i < updated.length) {
+            updated[replaceTarget.index + i] = {
+              url: URL.createObjectURL(file),
+              altText: updated[replaceTarget.index + i]?.altText || "Product",
+            };
+          }
+        });
+        return updated;
+      });
     }
 
-    // REPLACE NEW IMAGE (File → File)
     if (replaceTarget.type === "new") {
       setImages((prev) => {
         const updated = [...prev];
-        updated[replaceTarget.index] = selectedFile;
+        selectedFiles.forEach((file, i) => {
+          if (replaceTarget.index + i < updated.length) {
+            updated[replaceTarget.index + i] = file;
+          }
+        });
         return updated;
       });
     }
 
     setReplaceTarget(null);
-    setSelectedFile(null);
-  }, [selectedFile, replaceTarget, setImages, setExistingImages]);
+    setSelectedFiles([]);
+  }, [selectedFiles, replaceTarget]);
 
   const handleFileSelect = (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setSelectedFile(file);
+    const files = Array.from(e.target.files);
+    if (!files.length) return;
+    setSelectedFiles(files);
     e.target.value = "";
   };
 
@@ -80,7 +87,6 @@ const SectionOne = ({
     setImages((prev) => prev.filter((_, i) => i !== index));
   };
 
-  /* ---------------- TAG HELPERS ---------------- */
   const tagList = tags
     .split(",")
     .map((t) => t.trim())
@@ -91,10 +97,8 @@ const SectionOne = ({
   const addTag = (e) => {
     if (e.key !== "Enter") return;
     e.preventDefault();
-
     const value = tagInput.trim();
     if (!value || tagList.includes(value)) return;
-
     setTags([...tagList, value].join(","));
     setTagInput("");
   };
@@ -111,7 +115,6 @@ const SectionOne = ({
         Product Images ({totalImages}/{MAX_IMAGES})
       </h3>
 
-      {/* ---------------- TAG INPUT ---------------- */}
       <div className="relative">
         <label className="absolute -top-2 left-3 bg-white px-1 text-xs text-gray-600">
           Tags (↵ to Add)
@@ -125,7 +128,6 @@ const SectionOne = ({
         />
       </div>
 
-      {/* ---------------- TAG PREVIEW ---------------- */}
       {tagList.length > 0 && (
         <div className="flex flex-wrap gap-2">
           {tagList.map((tag, i) => (
@@ -143,9 +145,7 @@ const SectionOne = ({
         </div>
       )}
 
-      {/* ---------------- IMAGE GRID (BIGGER) ---------------- */}
       <div className="grid grid-cols-2 gap-4">
-        {/* EXISTING IMAGES */}
         {existingImages.map((img, i) => (
           <div
             key={`existing-${i}`}
@@ -156,7 +156,6 @@ const SectionOne = ({
               alt={img.altText || "Product"}
               className="w-full h-full object-cover object-center rounded-full transition-transform duration-400 group-hover:scale-105"
             />
-
             <div className="absolute inset-0 rounded-full bg-black/50 opacity-0 group-hover:opacity-100 transition flex flex-col items-center justify-center gap-2 text-white text-sm">
               <button
                 type="button"
@@ -176,7 +175,6 @@ const SectionOne = ({
           </div>
         ))}
 
-        {/* NEW IMAGES */}
         {images.map((file, i) => (
           <div
             key={`new-${i}`}
@@ -187,7 +185,6 @@ const SectionOne = ({
               alt={`New ${i}`}
               className="w-full h-full object-cover object-center rounded-full transition-transform duration-200 group-hover:scale-105"
             />
-
             <div className="absolute inset-0 rounded-full bg-black/50 opacity-0 group-hover:opacity-100 transition flex flex-col items-center justify-center gap-2 text-white text-sm">
               <button
                 type="button"
@@ -207,7 +204,6 @@ const SectionOne = ({
           </div>
         ))}
 
-        {/* ADD IMAGE */}
         {totalImages < MAX_IMAGES && (
           <button
             type="button"
@@ -219,10 +215,10 @@ const SectionOne = ({
         )}
       </div>
 
-      {/* ---------------- FILE INPUT ---------------- */}
       <input
         ref={fileInputRef}
         type="file"
+        multiple
         hidden
         name="images"
         accept="image/*"

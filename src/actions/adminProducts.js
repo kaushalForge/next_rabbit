@@ -2,14 +2,17 @@
 
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
+import product from "../../server/models/product";
 
 export async function createProductAction(productData) {
   const cookieStore = await cookies();
   const token = cookieStore.get("cUser")?.value;
   if (!token) throw new Error("Not authenticated");
 
+  console.log(productData, "The product data is");
+
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/admin/products/add`,
+    `${process.env.NEXT_PUBLIC_SITE_URL}/api/admin/products/add`,
     {
       method: "POST",
       headers: {
@@ -30,6 +33,8 @@ export async function updateProductAction(formData) {
     const cookieStore = await cookies();
     const token = cookieStore.get("cUser")?.value;
 
+    console.log(formData, "from edit updateProductAction");
+
     const id = formData.get("id");
 
     if (!id) {
@@ -37,13 +42,12 @@ export async function updateProductAction(formData) {
     }
 
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/admin/products/update/${id}`,
+      `${process.env.NEXT_PUBLIC_SITE_URL}/api/admin/products/edit/${id}`,
       {
-        method: "PUT",
+        method: "PATCH",
         headers: {
           Cookie: `cUser=${token}`,
         },
-        credentials: "include",
         body: formData,
       },
     );
@@ -67,28 +71,35 @@ export async function updateProductAction(formData) {
 }
 
 export async function deleteProductAction(productId) {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("cUser")?.value;
-  if (!token) throw new Error("Not authenticated");
-
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/admin/products/delete/${productId}`,
-    {
-      method: "DELETE",
-      headers: {
-        Cookie: `cUser=${token}`,
-      },
-      credentials: "include",
-    },
-  );
-
-  let data;
   try {
-    data = await res.json();
-  } catch {
-    data = { message: "Server returned invalid JSON" };
-  }
+    const cookieStore = await cookies();
+    const token = cookieStore.get("cUser")?.value;
 
-  revalidatePath("/admin/products");
-  return { status: res.status, message: data.message || "" };
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_SITE_URL}/api/admin/products/delete/${productId}`,
+      {
+        method: "DELETE",
+        headers: {
+          Cookie: `cUser=${token}`,
+        },
+        cache: "no-store",
+      },
+    );
+
+    const data = await res.json();
+
+    revalidatePath("/admin/products");
+
+    return {
+      status: res.status,
+      message: data?.message || "Something went wrong",
+    };
+  } catch (error) {
+    console.error("Error deleting product:", error);
+
+    return {
+      status: 500,
+      message: "Failed to delete product",
+    };
+  }
 }

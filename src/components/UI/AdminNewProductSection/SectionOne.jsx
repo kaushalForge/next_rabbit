@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import { FaSave } from "react-icons/fa";
 
 const SectionOne = ({
+  // PRODUCT CORE
   name,
   setName,
   description,
@@ -13,6 +14,8 @@ const SectionOne = ({
   setPrice,
   stock,
   setStock,
+
+  // ARRAYS / CSV FIELDS
   size,
   setSize,
   color,
@@ -21,68 +24,80 @@ const SectionOne = ({
   setMaterial,
   brand,
   setBrand,
+
+  // SELECT / TEXT
   gender,
   setGender,
   category,
   setCategory,
   weight,
   setWeight,
-  tags,
-  setTags,
+
+  // SEO META
+  metaTitle,
+  setMetaTitle,
+  metaDescription,
+  setMetaDescription,
+  metaKeywords,
+  setMetaKeywords,
+
+  // DIMENSIONS
+  dimensions,
+  setDimensions,
+
+  // FLAGS
   isFeatured,
   setIsFeatured,
   isPublished,
   setIsPublished,
 }) => {
-  const [tagInput, setTagInput] = useState("");
+  // Helper function to handle CSV input
+  const handleCsvChange = (label, value, setter) => {
+    let parts = value
+      .split(",")
+      .map((v) => {
+        v = v.trim();
+        if (label === "Size" || label === "Color") return v.toUpperCase();
+        return v;
+      })
+      .filter(Boolean);
 
-  const addTag = (e) => {
-    if (e.key === "Enter" && tagInput.trim()) {
-      e.preventDefault();
-      if (!tags.includes(tagInput.trim())) {
-        setTags([...tags, tagInput.trim()]);
-      }
-      setTagInput("");
-    }
-  };
-
-  const removeTag = (tagToRemove) => {
-    setTags(tags.filter((t) => t !== tagToRemove));
+    let formatted = parts.join(", ");
+    if (value[value.length - 1] === ",") formatted += ", ";
+    setter(formatted);
   };
 
   return (
-    <section className="space-y-6">
-      {/* Name */}
+    <section className="lg:col-span-2 space-y-6">
+      {/* ---------------- PRODUCT NAME ---------------- */}
       <div className="relative">
         <label className="absolute -top-3 left-3 bg-gray-100 px-1 text-sm text-gray-600">
-          Product Name *
+          Product Name
         </label>
         <input
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="w-full border rounded-xl p-3 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-          placeholder="Enter product name"
+          className="w-full border rounded-xl p-3"
         />
       </div>
 
-      {/* Description */}
+      {/* ---------------- DESCRIPTION ---------------- */}
       <div className="relative">
         <label className="absolute -top-3 left-3 bg-gray-100 px-1 text-sm text-gray-600">
-          Description *
+          Description
         </label>
         <textarea
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          className="w-full border rounded-xl p-3 h-28 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-          placeholder="Enter product description"
+          className="w-full border rounded-xl p-3 h-32"
         />
       </div>
 
-      {/* Pricing & Stock */}
+      {/* ---------------- PRICING & STOCK ---------------- */}
       <div className="grid md:grid-cols-3 gap-4">
         {[
-          ["Original Price *", originalPrice, setOriginalPrice],
-          ["Price *", price, setPrice],
+          ["Original Price", originalPrice, setOriginalPrice],
+          ["Price", price, setPrice],
           ["Stock", stock, setStock],
         ].map(([label, value, setter]) => (
           <div key={label} className="relative">
@@ -93,38 +108,20 @@ const SectionOne = ({
               type="number"
               value={value}
               onChange={(e) => setter(e.target.value)}
-              className="w-full border rounded-xl p-3 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-              placeholder={label}
+              className="w-full border rounded-xl p-3"
             />
           </div>
         ))}
       </div>
 
-      {/* Size & Color */}
+      {/* ---------------- SIZE, COLOR, META KEYWORDS ---------------- */}
       <div className="grid md:grid-cols-2 gap-4">
         {[
           ["Size", size, setSize],
           ["Color", color, setColor],
-        ].map(([label, value, setter]) => (
-          <div key={label} className="relative">
-            <label className="absolute -top-3 left-3 bg-gray-100 px-1 text-sm text-gray-600">
-              {label}
-            </label>
-            <input
-              value={value}
-              onChange={(e) => setter(e.target.value)}
-              className="w-full border rounded-xl p-3 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-              placeholder={label}
-            />
-          </div>
-        ))}
-      </div>
-
-      {/* Material & Brand */}
-      <div className="grid md:grid-cols-2 gap-4">
-        {[
           ["Material", material, setMaterial],
           ["Brand", brand, setBrand],
+          ["Meta Keywords", metaKeywords, setMetaKeywords],
         ].map(([label, value, setter]) => (
           <div key={label} className="relative">
             <label className="absolute -top-3 left-3 bg-gray-100 px-1 text-sm text-gray-600">
@@ -132,16 +129,23 @@ const SectionOne = ({
             </label>
             <input
               value={value}
-              onChange={(e) => setter(e.target.value)}
-              className="w-full border rounded-xl p-3 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-              placeholder={label}
+              onChange={(e) => handleCsvChange(label, e.target.value, setter)}
+              className="w-full border rounded-xl p-3"
+              placeholder={
+                label === "Color"
+                  ? "RED, ORANGE, BLUE"
+                  : label === "Meta Keywords"
+                    ? "Keywords"
+                    : ""
+              }
             />
           </div>
         ))}
       </div>
 
-      {/* Gender & Category */}
+      {/* ---------------- GENDER, CATEGORY ---------------- */}
       <div className="grid md:grid-cols-2 gap-4">
+        {/* GENDER SELECT */}
         <div className="relative">
           <label className="absolute -top-3 left-3 bg-gray-100 px-1 text-sm text-gray-600">
             Gender
@@ -158,6 +162,7 @@ const SectionOne = ({
           </select>
         </div>
 
+        {/* CATEGORY INPUT */}
         <div className="relative">
           <label className="absolute -top-3 left-3 bg-gray-100 px-1 text-sm text-gray-600">
             Category
@@ -171,7 +176,7 @@ const SectionOne = ({
         </div>
       </div>
 
-      {/* Weight */}
+      {/* ---------------- WEIGHT ---------------- */}
       <div className="relative">
         <label className="absolute -top-3 left-3 bg-gray-100 px-1 text-sm text-gray-600">
           Weight
@@ -179,48 +184,59 @@ const SectionOne = ({
         <input
           value={weight}
           onChange={(e) => setWeight(e.target.value)}
-          className="w-full border rounded-xl p-3 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-          placeholder="Enter weight"
+          className="w-full border rounded-xl p-3"
         />
       </div>
 
-      {/* Tags */}
+      {/* ---------------- DIMENSIONS ---------------- */}
+      <div className="grid md:grid-cols-3 gap-4">
+        {["length", "width", "height"].map((dim) => (
+          <div key={dim} className="relative">
+            <label className="absolute -top-3 left-3 bg-gray-100 px-1 text-sm text-gray-600">
+              {dim.toUpperCase()}
+            </label>
+            <input
+              type="number"
+              value={dimensions[dim]}
+              onChange={(e) =>
+                setDimensions({ ...dimensions, [dim]: e.target.value })
+              }
+              className="w-full border rounded-xl p-3"
+            />
+          </div>
+        ))}
+      </div>
+
+      {/* ---------------- META TITLE & DESCRIPTION ---------------- */}
       <div className="relative">
         <label className="absolute -top-3 left-3 bg-gray-100 px-1 text-sm text-gray-600">
-          Tags (press Enter)
+          Meta Title
         </label>
         <input
-          value={tagInput}
-          onChange={(e) => setTagInput(e.target.value)}
-          onKeyDown={addTag}
-          className="w-full border rounded-xl p-3 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-          placeholder="Add a tag"
+          value={metaTitle}
+          onChange={(e) => setMetaTitle(e.target.value)}
+          className="w-full border rounded-xl p-3"
         />
       </div>
 
-      {tags.length > 0 && (
-        <div className="flex flex-wrap gap-2">
-          {tags.map((tag, i) => (
-            <span
-              key={i}
-              className="px-3 py-1 text-sm rounded-full bg-indigo-50 text-indigo-700 cursor-pointer"
-              onClick={() => removeTag(tag)}
-              title="Click to remove"
-            >
-              {tag} ×
-            </span>
-          ))}
-        </div>
-      )}
+      <div className="relative">
+        <label className="absolute -top-3 left-3 bg-gray-100 px-1 text-sm text-gray-600">
+          Meta Description
+        </label>
+        <textarea
+          value={metaDescription}
+          onChange={(e) => setMetaDescription(e.target.value)}
+          className="w-full border rounded-xl p-3 h-24"
+        />
+      </div>
 
-      {/* Flags */}
+      {/* ---------------- FLAGS ---------------- */}
       <div className="flex gap-6">
         <label className="flex items-center gap-2">
           <input
             type="checkbox"
             checked={isFeatured}
             onChange={(e) => setIsFeatured(e.target.checked)}
-            className="accent-indigo-600"
           />
           Featured
         </label>
@@ -229,7 +245,6 @@ const SectionOne = ({
             type="checkbox"
             checked={isPublished}
             onChange={(e) => setIsPublished(e.target.checked)}
-            className="accent-indigo-600"
           />
           Published
         </label>

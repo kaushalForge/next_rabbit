@@ -5,7 +5,110 @@ const {
 } = require("../../lib/cloudinary");
 const cloudinary = require("../../lib/cloudinary");
 
-module.exports.createProductController = async (req, res) => {
+export async function fetchAllProducts (req,res){
+  router.get("/search", async (req, res) => {
+    try {
+      const {
+        collection,
+        size,
+        color,
+        gender,
+        minPrice,
+        maxPrice,
+        sortBy,
+        search,
+        category,
+        material,
+        brand,
+        limit,
+      } = req.query;
+  
+      let query = {};
+      if (collection && collection.toLowerCase() !== "all") {
+        query.collections = collection;
+      }
+      if (category && category.toLowerCase() !== "all") {
+        query.category = {
+          $in: category.split(","),
+        };
+      }
+  
+      if (material && material.toLowerCase() !== "all") {
+        query.material = { $in: material.split(",") };
+      }
+      if (brand) {
+        query.brand = { $in: brand.split(",") };
+      }
+      if (size) {
+        query.size = { $in: size.split(",") };
+      }
+  
+      if (category && category.toLowerCase() !== "all") {
+        query.category = {
+          $in: category.split(","),
+        };
+      }
+      if (color) {
+        query.color = { $in: color.split(",") };
+      }
+      if (gender) {
+        query.gender = { $regex: gender, $options: "i" };
+      }
+  
+      if (minPrice || maxPrice) {
+        query.price = {};
+        if (minPrice) query.price.$gte = Number(minPrice);
+        if (maxPrice) query.price.$lte = Number(maxPrice);
+      }
+      if (search) {
+        query.$or = [
+          { name: { $regex: search, $options: "i" } },
+          { description: { $regex: search, $options: "i" } },
+          { metaTitle: { $regex: search, $options: "i" } },
+          { metaDescription: { $regex: search, $options: "i" } },
+          { metaKeywords: { $regex: search, $options: "i" } },
+        ];
+      }
+  
+      let sort = {};
+      if (sortBy) {
+        switch (sortBy) {
+          case "priceAsc":
+            sort = { price: 1 };
+            break;
+  
+          case "priceDesc":
+            sort = { price: -1 };
+            break;
+  
+          case "popularity":
+            sort = { rating: -1 };
+            break;
+  
+          case "newest":
+            sort = { createdAt: -1 };
+            break;
+  
+          default:
+            break;
+        }
+      }
+  
+      let products = await productModel
+        .find({ ...query, isPublished: true }) // merge your existing query with isPublished filter
+        .sort(sort)
+        .limit(Number(limit) || 0);
+  
+      res.json(products);
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ message: "Server Error" });
+    }
+  });
+  
+}
+
+export async function createProductController(req, res) {
   try {
     const {
       name,
@@ -127,9 +230,9 @@ module.exports.createProductController = async (req, res) => {
       error: error.message,
     });
   }
-};
+}
 
-module.exports.updateProduct = async (req, res) => {
+export async function updateProduct(req, res) {
   try {
     const {
       existingImages = [], // URLs frontend wants to keep
@@ -212,9 +315,9 @@ module.exports.updateProduct = async (req, res) => {
       .status(500)
       .json({ message: "Server Error", error: error.message });
   }
-};
+}
 
-module.exports.deleteProduct = async (req, res) => {
+export async function deleteProduct(req, res) {
   try {
     const id = req.params.id;
 
@@ -242,4 +345,4 @@ module.exports.deleteProduct = async (req, res) => {
     console.log(error);
     return res.status(500).json({ message: "Server Error", error });
   }
-};
+}

@@ -7,13 +7,14 @@ import { useAuth } from "../context/AuthContext";
 
 export default function AdminLayout({ children }) {
   const router = useRouter();
-  const { currentUser } = useAuth();
-
-  if (currentUser.role !== "admin") {
-    router.replace("/404");
-  }
-
   const [collapsed, setCollapsed] = useState(false);
+  const { currentUser, loading } = useAuth();
+
+  useEffect(() => {
+    if (!loading && (!currentUser || currentUser.role !== "admin")) {
+      router.replace("/404");
+    }
+  }, [currentUser, loading, router]);
 
   const sidebarWidth = collapsed ? "80px" : "250px";
 

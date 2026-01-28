@@ -93,6 +93,7 @@ module.exports.createProductController = async (req, res) => {
       altText: name || "Product Image",
     }));
 
+    let userId = "69788218a867edc7dfbacc60";
     // ---------------- CREATE PRODUCT ----------------
     const createdProduct = await productModel.create({
       name,
@@ -111,11 +112,11 @@ module.exports.createProductController = async (req, res) => {
       weight: weight || "",
       category: category || "",
       images, // Array of {url, altText}
-      user: req.user._id,
+      user: userId,
     });
 
     return res.status(201).json({
-      message: `Product successfully created by admin ${req.user.name}`,
+      message: `Product successfully created by admin`,
       createdProduct,
     });
   } catch (error) {

@@ -2,13 +2,16 @@ import { NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 import { dbConnect } from "@/lib/dbConnection";
 import User from "@/models/user";
+import { cookies } from "next/headers";
 
-export async function GET(request) {
+/* ---------------- CURRENT USER ------------------ */
+export async function GET() {
   try {
     await dbConnect();
-    const cookie = request.cookies.get("cUser")?.value;
+    const cookieStore = await cookies();
+    const token = cookieStore.get("cUser").value;
 
-    if (!cookie) {
+    if (!token) {
       return NextResponse.json(
         { success: false, message: "No token provided", user: null },
         { status: 401 },
@@ -17,7 +20,7 @@ export async function GET(request) {
 
     let decoded;
     try {
-      decoded = jwt.verify(cookie, process.env.JWT_KEY);
+      decoded = jwt.verify(token, process.env.JWT_KEY);
     } catch (err) {
       console.error("JWT verification error:", err.message);
       return NextResponse.json(

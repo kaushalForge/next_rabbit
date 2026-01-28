@@ -405,14 +405,11 @@ const products = [
 const API_URL = "http://localhost:4000/api/admin/products/add";
 
 const ADMIN_COOKIE =
-  "cUser=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6eyJlbWFpbCI6ImluYm94LnJhYmJpdEBnbWFpbC5jb20iLCJyb2xlIjoiYWRtaW4ifSwiaWF0IjoxNzY5MjcwODYxLCJleHAiOjE3Njk0NDM2NjF9.Zv7u5MUEZwbZ_q-AyoUcyohe8hMpwHA-ncI_Pih6hGY";
-
-const USER_ID = "67c9356829a8820a6a4985f5";
+  "cUser=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5Nzg4MjE4YTg2N2VkYzdkZmJhY2M2MCIsIm5hbWUiOiJSYWJiaXQiLCJlbWFpbCI6ImluYm94LnJhYmJpdEBnbWFpbC5jb20iLCJyb2xlIjoiYWRtaW4iLCJhdmF0YXIiOiJodHRwczovL2xoMy5nb29nbGV1c2VyY29udGVudC5jb20vYS9BQ2c4b2NKTldTZlRabE5RbE9VMEg1OWxrVmRxRHlaekVMRTlCUEV0ZlFJMTNqeGlDUHd4SDJvPXM5Ni1jIiwiYXV0aFByb3ZpZGVyIjoiZ29vZ2xlIiwiaWF0IjoxNzY5NTMzODE4LCJleHAiOjE3NzAxMzg2MTh9.-lWZNwaoZXqYACTCe8rxNhsJRLidvNUlW4OJl7e-p6s";
 
 async function seedProducts() {
   for (const product of products) {
     const form = new FormData();
-
     form.append("name", product.name);
     form.append("description", product.description);
     form.append("originalPrice", String(product.originalPrice));
@@ -424,8 +421,6 @@ async function seedProducts() {
     form.append("isPublished", String(product.isPublished));
     form.append("weight", product.weight);
     form.append("stock", String(product.stock));
-    form.append("user", USER_ID);
-
     form.append("dimensions", JSON.stringify(product.dimensions));
     form.append("metaTitle", product.metaTitle);
     form.append("metaDescription", product.metaDescription);

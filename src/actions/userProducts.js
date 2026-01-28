@@ -7,18 +7,18 @@ export async function fetchAllProductsAction(query) {
     ),
   ).toString();
 
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/products/search?${queryString}`,
-    {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
-      cache: "no-store",
-    },
-  );
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL;
+  const url = `${baseUrl}/api/products/search?${queryString}`;
 
-  const products = await res.json();
+  const res = await fetch(url, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    credentials: "include",
+    cache: "no-store",
+  });
+
+  const { products } = await res.json();
   return products;
 }

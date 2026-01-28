@@ -3,7 +3,6 @@
 import { useState, useRef } from "react";
 import { updateProductAction } from "@/actions/adminProducts";
 import { toast } from "sonner";
-
 import SectionOne from "../UI/AdminEditSections/SectionOne";
 import SectionTwo from "../UI/AdminEditSections/SectionTwo";
 
@@ -11,7 +10,6 @@ const csv = (arr) => (Array.isArray(arr) ? arr.join(", ") : arr || "");
 
 const EditProductPage = ({ productDetails }) => {
   const [loading, setLoading] = useState(false);
-
   /* ---------------- BASIC ---------------- */
   const [name, setName] = useState(productDetails.name || "");
   const [description, setDescription] = useState(
@@ -144,6 +142,7 @@ const EditProductPage = ({ productDetails }) => {
       setLoading(false);
       toast.success("Product updated successfully!");
     } else {
+      setLoading(false);
       toast.error("Failed to update product");
     }
   };

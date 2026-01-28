@@ -2,8 +2,13 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+import Image from "next/image";
+import { useState } from "react";
+import { motion } from "framer-motion";
 
 const ProductGrid = ({ products = [] }) => {
+  console.log(products, "in productgrid");
+  const [loaded, setLoaded] = useState(false);
 
   return (
     <section className="border-[#f1f1f1] rounded-ss-2xl">
@@ -17,12 +22,40 @@ const ProductGrid = ({ products = [] }) => {
                 key={index}
                 className="rounded-lg border border-gray-200 bg-gray-100/40 p-6 shadow-sm"
               >
-                <div className="h-56 w-full">
+                <div className="h-56 w-full relative overflow-hidden rounded-xl">
+                  {!loaded && (
+                    <motion.div
+                      className="absolute inset-0 rounded-xl bg-gradient-to-r from-[#eaf2ff] via-[#fff1e6] to-[#eaf2ff]"
+                      initial={{ backgroundPosition: "0% 50%" }}
+                      animate={{ backgroundPosition: "200% 50%" }}
+                      transition={{
+                        duration: 1.8,
+                        repeat: Infinity,
+                        ease: "linear",
+                      }}
+                      style={{
+                        backgroundSize: "200% 200%",
+                      }}
+                    />
+                  )}
+
                   <Link href={`/collections/product/${product?._id}`}>
-                    <img
-                      className="mx-auto w-full object-cover h-full rounded-xl"
-                      src={product?.images[0].url}
-                      alt={product?.images[0].altText}
+                    <Image
+                      src={product?.images?.[0]?.url}
+                      alt={
+                        product?.images?.[0]?.altText ||
+                        product?.name ||
+                        "Product Image"
+                      }
+                      width={600}
+                      height={600}
+                      unoptimized
+                      quality={90}
+                      loading="lazy"
+                      onLoad={() => setLoaded(true)}
+                      className={`h-full w-full object-cover transition-opacity duration-300 ${
+                        loaded ? "opacity-100" : "opacity-0"
+                      }`}
                     />
                   </Link>
                 </div>

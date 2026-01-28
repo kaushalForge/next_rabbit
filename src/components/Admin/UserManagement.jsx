@@ -4,7 +4,7 @@ import { FaTrash } from "react-icons/fa";
 import { updateUserRoleAction, deleteUserAction } from "@/actions/adminUsers";
 import { toast } from "sonner";
 
-const UserManagement = ({ allUsersData = [] }) => {
+const UserManagement = ({ allUsersData }) => {
   const handleRoleChange = async (userId, role) => {
     try {
       const { status, newRole } = await updateUserRoleAction({ userId, role });
@@ -27,13 +27,14 @@ const UserManagement = ({ allUsersData = [] }) => {
   };
 
   let groupedUsers;
-  if (allUsersData.length > 0) {
+  if (allUsersData?.length > 0) {
     groupedUsers = {
-      admin: allUsersData.filter((user) => user.role === "admin"),
-      moderator: allUsersData.filter((user) => user.role === "moderator"),
-      customer: allUsersData.filter((user) => user.role === "customer"),
+      admin: allUsersData?.filter((user) => user.role === "admin"),
+      moderator: allUsersData?.filter((user) => user.role === "moderator"),
+      customer: allUsersData?.filter((user) => user.role === "customer"),
     };
   }
+
   const renderUsers = (users) =>
     users.length ? (
       users.map((user) => (
@@ -91,7 +92,7 @@ const UserManagement = ({ allUsersData = [] }) => {
       </div>
       <div className="w-full border-b border-[#bababa]"></div>
 
-      {allUsersData.length === 0 ? (
+      {allUsersData?.length === 0 ? (
         <div className="text-center text-gray-400 py-10 text-lg">
           No users found!
         </div>

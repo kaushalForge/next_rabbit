@@ -1,15 +1,24 @@
 import { NextResponse } from "next/server";
-import { fetchAdminProducts } from "@/controllers/admin/adminProductController";
-import { protect } from "@/protectedRoutes/protectMiddleware";
-import { protectAdmin } from "@/protectedRoutes/adminMiddleware";
+import { dbConnect } from "@/lib/dbConnection";
+import Product from "@/models/product";
+import { isAdmin } from "@/lib/isAdmin";
 
 export async function GET() {
-  const auth = await protect();
-  if (!auth.success) return { status: 401, body: auth };
+  const auth = await isAdmin();
 
-  const roleCheck = await protectAdmin(auth.user);
-  if (!roleCheck.success) return { status: 403, body: roleCheck };
+  if (!auth) {
+    return NextResponse.json({}, { status: 404 });
+  }
 
-  const products = await fetchAdminProducts();
-  return { status: 200, body: { success: true, products } };
+  try {
+    await dbConnect();
+    const products = await Product.find().sort({ createdAt: -1 }).lean();
+    return NextResponse.json({ success: true, products }, { status: 200 });
+  } catch (err) {
+    console.error(err);
+    return NextResponse.json(
+      { success: false, message: "Server error" },
+      { status: 500 },
+    );
+  }
 }

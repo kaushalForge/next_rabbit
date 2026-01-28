@@ -2,7 +2,7 @@ import ProductDetails from "../Layout/ProductDetails";
 
 const fetchDetails = async (id) => {
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/products/${id}`,
+    `${process.env.NEXT_PUBLIC_SITE_URL}/api/products/${id}`,
     {
       method: "GET",
       credentials: "include",

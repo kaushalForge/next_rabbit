@@ -11,7 +11,7 @@ const page = async () => {
 
   try {
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/admin/products/all`,
+      `${process.env.NEXT_PUBLIC_SITE_URL}/api/admin/products`,
       {
         method: "GET",
         headers: {
@@ -21,10 +21,9 @@ const page = async () => {
         cache: "no-store",
       },
     );
+    const { products } = await res.json();
 
-    const data = await res.json();
-
-    return <ProductManagement products={data} />;
+    return <ProductManagement products={products} />;
   } catch (error) {
     console.error("Admin products fetch error:", error);
     return <div className="text-red-500 p-4">Error: {error.message}</div>;

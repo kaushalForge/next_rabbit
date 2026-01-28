@@ -2,9 +2,9 @@ import EditProductPage from "@/components/Admin/EditProductPage";
 import { cookies } from "next/headers";
 
 const page = async ({ params }) => {
-  const { id } = await params; // ✅ no await
+  const { id } = await params;
 
-  const cookieStore = await cookies(); // ✅ no await
+  const cookieStore = await cookies();
   const token = cookieStore.get("cUser")?.value;
 
   if (!token) {
@@ -12,8 +12,9 @@ const page = async ({ params }) => {
   }
 
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/products/${id}`,
+    `${process.env.NEXT_PUBLIC_SITE_URL}/api/products/${id}`,
     {
+      // method: "PATCH",
       headers: {
         Cookie: `cUser=${token}`,
       },
