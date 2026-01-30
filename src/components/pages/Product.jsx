@@ -6,7 +6,7 @@ const fetchDetails = async (id) => {
     {
       method: "GET",
       credentials: "include",
-      cache: "no-store",
+      cache: "force-cache",
     },
   );
 

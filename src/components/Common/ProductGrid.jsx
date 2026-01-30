@@ -1,19 +1,17 @@
 "use client";
 
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { useState } from "react";
 import { motion } from "framer-motion";
 
 const ProductGrid = ({ products = [] }) => {
-  console.log(products, "in productgrid");
   const [loaded, setLoaded] = useState(false);
 
   return (
     <section className="border-[#f1f1f1] rounded-ss-2xl">
       <div className="mx-auto max-w-screen-xl px-4">
-        {Array.isArray(products) && products.length > 0 ? (
+        {Array.isArray(products) && products.length > 0 && (
           <div className="mb-4 grid gap-4 sm:grid-cols-2 md:mb-8 lg:grid-cols-3 xl:grid-cols-4">
             {/* 1number */}
 
@@ -40,23 +38,24 @@ const ProductGrid = ({ products = [] }) => {
                   )}
 
                   <Link href={`/collections/product/${product?._id}`}>
-                    <Image
-                      src={product?.images?.[0]?.url}
-                      alt={
-                        product?.images?.[0]?.altText ||
-                        product?.name ||
-                        "Product Image"
-                      }
-                      width={600}
-                      height={600}
-                      unoptimized
-                      quality={90}
-                      loading="lazy"
-                      onLoad={() => setLoaded(true)}
-                      className={`h-full w-full object-cover transition-opacity duration-300 ${
-                        loaded ? "opacity-100" : "opacity-0"
-                      }`}
-                    />
+                    <div className="relative w-full aspect-square md:aspect-[3/4] overflow-hidden">
+                      <Image
+                        src={product?.images?.[0]?.url}
+                        alt={
+                          product?.images?.[0]?.altText ||
+                          product?.name ||
+                          "Product Image"
+                        }
+                        fill
+                        sizes="(max-width: 768px) 100vw, 33vw"
+                        quality={75}
+                        loading="lazy"
+                        onLoad={() => setLoaded(true)}
+                        className={`object-cover object-top transition-opacity duration-300 ${
+                          loaded ? "opacity-100" : "opacity-0"
+                        }`}
+                      />
+                    </div>
                   </Link>
                 </div>
 
@@ -206,8 +205,6 @@ const ProductGrid = ({ products = [] }) => {
               </div>
             ))}
           </div>
-        ) : (
-          <p className="mt-8 text-left text-gray-500">No products found.</p>
         )}
         <div className="w-full text-center">
           <button

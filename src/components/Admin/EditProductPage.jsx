@@ -6,27 +6,55 @@ import { toast } from "sonner";
 import SectionOne from "../UI/AdminEditSections/SectionOne";
 import SectionTwo from "../UI/AdminEditSections/SectionTwo";
 
+/* ---------------- HELPERS ---------------- */
 const csv = (arr) => (Array.isArray(arr) ? arr.join(", ") : arr || "");
 
+const toArray = (str) =>
+  typeof str === "string"
+    ? str
+        .split(",")
+        .map((v) => v.trim())
+        .filter(Boolean)
+    : [];
+
+/* ---------------- COMPONENT ---------------- */
 const EditProductPage = ({ productDetails }) => {
   const [loading, setLoading] = useState(false);
+
   /* ---------------- BASIC ---------------- */
   const [name, setName] = useState(productDetails.name || "");
   const [description, setDescription] = useState(
     productDetails.description || "",
   );
-  const [originalPrice, setOriginalPrice] = useState(
-    productDetails.originalPrice || 0,
+  const [brand, setBrand] = useState(productDetails.brand || "");
+  const [countryOfOrigin, setCountryOfOrigin] = useState(
+    productDetails.countryOfOrigin || "",
   );
+  const [mainCategory, setMainCategory] = useState(
+    productDetails.mainCategory || "",
+  );
+  const [rating, setRating] = useState(productDetails.rating || 0);
+
+  /* ---------------- PRICES ---------------- */
+  const [offerPrice, setOfferPrice] = useState(productDetails.offerPrice || 0);
   const [price, setPrice] = useState(productDetails.price || 0);
   const [stock, setStock] = useState(productDetails.stock || 0);
 
-  /* ---------------- CSV FIELDS ---------------- */
-  const [size, setSize] = useState(csv(productDetails.size));
-  const [tags, setTags] = useState(csv(productDetails.tags));
-  const [color, setColor] = useState(csv(productDetails.color));
-  const [material, setMaterial] = useState(csv(productDetails.material));
-  const [brand, setBrand] = useState(csv(productDetails.brand));
+  /* ---------------- CSV INPUT STATES ---------------- */
+  const [tags, setTags] = useState(csv(productDetails?.tags));
+  const [size, setSize] = useState(csv(productDetails?.fashion?.size));
+  const [color, setColor] = useState(csv(productDetails?.fashion?.color));
+  const [material, setMaterial] = useState(
+    csv(productDetails?.fashion?.material),
+  );
+
+  /* ---------------- BULLETS ---------------- */
+  const [bulletDescription, setBulletDescription] = useState(
+    productDetails.bulletDescription || [""],
+  );
+  const [bulletKeyValueDescription, setBulletKeyValueDescription] = useState(
+    productDetails.bulletKeyValueDescription || [{ key: "", value: "" }],
+  );
 
   /* ---------------- SELECTS ---------------- */
   const [gender, setGender] = useState(productDetails.gender || "");
@@ -38,15 +66,12 @@ const EditProductPage = ({ productDetails }) => {
   const [metaDescription, setMetaDescription] = useState(
     productDetails.metaDescription || "",
   );
-  const [metaKeywords, setMetaKeywords] = useState(
-    csv(productDetails.metaKeywords),
-  );
 
   /* ---------------- DIMENSIONS ---------------- */
   const [dimensions, setDimensions] = useState({
-    length: productDetails.dimensions?.length || "",
-    width: productDetails.dimensions?.width || "",
-    height: productDetails.dimensions?.height || "",
+    length: productDetails?.fashion?.dimensions?.length || "",
+    width: productDetails?.fashion?.dimensions?.width || "",
+    height: productDetails?.fashion?.dimensions?.height || "",
   });
 
   /* ---------------- FLAGS ---------------- */
@@ -58,109 +83,123 @@ const EditProductPage = ({ productDetails }) => {
   );
 
   /* ---------------- IMAGES ---------------- */
-  // URLs already in DB
   const [existingImages, setExistingImages] = useState(
     productDetails.images || [],
   );
-
-  // New uploaded files
   const [images, setImages] = useState([]);
-
   const fileInputRef = useRef(null);
-
-  /* ---------------- HELPERS ---------------- */
-  const toArray = (str) =>
-    str
-      .split(",")
-      .map((v) => v.trim())
-      .filter(Boolean);
 
   /* ---------------- SUBMIT ---------------- */
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    const confirmUpdate = window.confirm(
-      "Are you sure you want to update this product?",
-    );
-    if (!confirmUpdate) {
+
+    if (!window.confirm("Are you sure you want to update this product?")) {
       setLoading(false);
       return;
     }
 
     const formData = new FormData();
 
-    /* ID */
+    /* ---------------- CORE ---------------- */
     formData.append("id", productDetails._id);
-
-    /* BASIC */
     formData.append("name", name);
     formData.append("description", description);
-    formData.append("originalPrice", originalPrice);
+    formData.append("brand", brand);
+    formData.append("countryOfOrigin", countryOfOrigin);
+    formData.append("mainCategory", mainCategory);
+    formData.append("rating", rating);
+
+    /* ---------------- PRICES ---------------- */
+    formData.append("offerPrice", offerPrice);
     formData.append("price", price);
     formData.append("stock", stock);
-    formData.append("gender", gender);
-    formData.append("category", category);
-    formData.append("weight", weight);
 
-    /* META */
+    /* ---------------- META ---------------- */
     formData.append("metaTitle", metaTitle);
     formData.append("metaDescription", metaDescription);
 
-    toArray(metaKeywords).forEach((k) => formData.append("metaKeywords[]", k));
+    /* ---------------- FLAGS ---------------- */
+    formData.append("isFeatured", String(isFeatured));
+    formData.append("isPublished", String(isPublished));
 
-    /* FLAGS */
-    formData.append("isFeatured", isFeatured ? "true" : "false");
-    formData.append("isPublished", isPublished ? "true" : "false");
+    /* ---------------- BULLETS ---------------- */
+    bulletDescription.forEach((b) => formData.append("bulletDescription[]", b));
 
-    /* ARRAYS */
-    toArray(tags).forEach((t) => formData.append("tags[]", t));
-    toArray(size).forEach((s) => formData.append("size[]", s));
-    toArray(color).forEach((c) => formData.append("color[]", c));
-    toArray(material).forEach((m) => formData.append("material[]", m));
-    toArray(brand).forEach((b) => formData.append("brand[]", b));
+    bulletKeyValueDescription.forEach((b) =>
+      formData.append("bulletKeyValueDescription[]", JSON.stringify(b)),
+    );
 
-    /* DIMENSIONS */
+    /* ---------------- DIMENSIONS ---------------- */
     formData.append("dimensions[length]", dimensions.length);
     formData.append("dimensions[width]", dimensions.width);
     formData.append("dimensions[height]", dimensions.height);
 
-    /* EXISTING IMAGES (KEEP THESE) */
-    existingImages.forEach((img) => {
-      formData.append("existingImages[]", img.url);
-    });
+    /* ---------------- EXISTING IMAGES ---------------- */
+    existingImages.forEach((img) =>
+      formData.append("existingImages[]", img.url || img),
+    );
 
-    /* NEW IMAGES ONLY */
+    /* ---------------- TAGS (FIXED) ---------------- */
+    toArray(tags).forEach((tag) => formData.append("tags[]", tag));
+
+    /* ---------------- NEW IMAGES ---------------- */
     images.forEach((file) => {
       if (file instanceof File) {
         formData.append("images", file);
       }
     });
 
-    const { status } = await updateProductAction(formData);
+    /* ---------------- CATEGORY-SPECIFIC ---------------- */
 
-    if (status === 200 || status === 201) {
+    // 🔹 Fashion ONLY
+    if (/^fashion$/i.test(mainCategory)) {
+      formData.append("gender", gender);
+
+      toArray(color).forEach((c) => formData.append("color[]", c));
+
+      toArray(size).forEach((s) => formData.append("size[]", s));
+
+      toArray(material).forEach((m) => formData.append("material[]", m));
+    }
+
+    // 🔹 Food ONLY
+    if (/^food$/i.test(mainCategory)) {
+      formData.append("sku", productDetails.food?.sku || "");
+      formData.append("foodType", productDetails.food?.foodType || "");
+      formData.append("taste", productDetails.food?.taste || "");
+    }
+
+    try {
+      const { status } = await updateProductAction(formData);
+
+      if (status === 200 || status === 201) {
+        toast.success("Product updated successfully!");
+      } else {
+        toast.error("Failed to update product");
+      }
+    } catch (err) {
+      console.error("UPDATE PRODUCT ERROR:", err);
+      toast.error("Something went wrong");
+    } finally {
       setLoading(false);
-      toast.success("Product updated successfully!");
-    } else {
-      setLoading(false);
-      toast.error("Failed to update product");
     }
   };
 
+  /* ---------------- UI ---------------- */
   return (
     <div className="relative">
-      {/* Loading Overlay */}
       {loading && (
         <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center">
-          <div className="w-16 h-16 border-4 border-t-indigo-500 border-gray-200 rounded-full animate-spin"></div>
+          <div className="w-16 h-16 border-4 border-t-indigo-500 border-gray-200 rounded-full animate-spin" />
         </div>
       )}
+
       <div className="container mx-auto p-6">
         <h2 className="text-3xl font-bold mb-6">Edit Product</h2>
 
         <form onSubmit={handleSubmit} encType="multipart/form-data">
           <div className="grid lg:grid-cols-3 gap-8">
-            {/* IMAGES + TAGS */}
             <SectionOne
               images={images}
               setImages={setImages}
@@ -171,14 +210,11 @@ const EditProductPage = ({ productDetails }) => {
               setTags={setTags}
             />
 
-            {/* PRODUCT DETAILS */}
             <SectionTwo
               name={name}
               setName={setName}
               description={description}
               setDescription={setDescription}
-              originalPrice={originalPrice}
-              setOriginalPrice={setOriginalPrice}
               price={price}
               setPrice={setPrice}
               stock={stock}
@@ -191,6 +227,18 @@ const EditProductPage = ({ productDetails }) => {
               setMaterial={setMaterial}
               brand={brand}
               setBrand={setBrand}
+              bulletDescription={bulletDescription}
+              setBulletDescription={setBulletDescription}
+              bulletKeyValueDescription={bulletKeyValueDescription}
+              setBulletKeyValueDescription={setBulletKeyValueDescription}
+              mainCategory={mainCategory}
+              setMainCategory={setMainCategory}
+              rating={rating}
+              setRating={setRating}
+              countryOfOrigin={countryOfOrigin}
+              setCountryOfOrigin={setCountryOfOrigin}
+              offerPrice={offerPrice}
+              setOfferPrice={setOfferPrice}
               gender={gender}
               setGender={setGender}
               category={category}
@@ -201,8 +249,6 @@ const EditProductPage = ({ productDetails }) => {
               setMetaTitle={setMetaTitle}
               metaDescription={metaDescription}
               setMetaDescription={setMetaDescription}
-              metaKeywords={metaKeywords}
-              setMetaKeywords={setMetaKeywords}
               dimensions={dimensions}
               setDimensions={setDimensions}
               isFeatured={isFeatured}

@@ -5,6 +5,7 @@ import { HiMagnifyingGlass, HiMiniXMark } from "react-icons/hi2";
 import { motion } from "framer-motion";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 
 const SearchBar = () => {
   const router = useRouter();
@@ -73,16 +74,6 @@ const SearchBar = () => {
           onSubmit={handleSearch}
           className="relative flex items-center justify-center w-full"
         >
-          <div className="absolute left-4 flex items-center">
-            <Link href="/" className="text-xl font-bold">
-              <img
-                src="/images/Logo.png"
-                alt="Logo"
-                className="h-32 w-32 object-cover select-none"
-              />
-            </Link>
-          </div>
-
           <motion.div
             initial={{ y: 30, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 import AdminSidebar from "@/components/Admin/AdminSidebar";
 import { useAuth } from "../context/AuthContext";
 
@@ -15,6 +15,12 @@ export default function AdminLayout({ children }) {
       router.replace("/404");
     }
   }, [currentUser, loading, router]);
+
+  if (loading) return null;
+
+  if (!currentUser || currentUser.role !== "admin") {
+    return null;
+  }
 
   const sidebarWidth = collapsed ? "80px" : "250px";
 

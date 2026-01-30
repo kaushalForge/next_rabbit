@@ -8,7 +8,7 @@ import FeaturedCollection from "@/components/Products/FeaturedCollection";
 import FeaturedSection from "@/components/Products/FeaturedSection";
 import Header from "@/components/Common/Header";
 import Footer from "@/components/Common/Footer";
-import React from "react";
+import React, { Suspense } from "react";
 import ProductDetails from "@/components/Layout/ProductDetails";
 import Product from "@/components/pages/Product";
 
@@ -19,10 +19,15 @@ const page = () => {
       <Hero />
       <GenderCollectionSection />
       <NewArrivalRouting />
-      <WomenCollectionRouting />
-      {/* <MenCollectionRouting /> */}
-      <Product productId="6974f19d87a8af9ee3aa6b5f" />
-      <ProductDetails />
+      {/* Womens Collection */}
+      <Suspense>
+        <WomenCollectionRouting />
+      </Suspense>
+
+      {/* Product Details */}
+      <Suspense>
+        <Product productId="697a42c1b69cff340257e509" />
+      </Suspense>
       <FeaturedCollection />
       <FeaturedSection />
       <Footer />

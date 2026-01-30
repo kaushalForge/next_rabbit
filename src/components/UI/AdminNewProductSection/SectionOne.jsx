@@ -1,250 +1,217 @@
 "use client";
 
-import { FaSave } from "react-icons/fa";
+import Fashion from "./HelpersUI/Fashion";
+import Food from "./HelpersUI/Food";
+import Descriptions from "./HelpersUI/Descriptions";
 
-const SectionOne = ({
-  // PRODUCT CORE
-  name,
-  setName,
-  description,
-  setDescription,
-  originalPrice,
-  setOriginalPrice,
-  price,
-  setPrice,
-  stock,
-  setStock,
+/* =====================================================
+ * SAFE HELPERS
+ * ===================================================== */
+const safeString = (value) => (typeof value === "string" ? value : "");
 
-  // ARRAYS / CSV FIELDS
-  size,
-  setSize,
-  color,
-  setColor,
-  material,
-  setMaterial,
-  brand,
-  setBrand,
+const SectionOne = (props) => {
+  /* =====================================================
+   * SAFE DESTRUCTURING
+   * ===================================================== */
+  const {
+    name,
+    setName,
+    brand,
+    setBrand,
+    mainCategory,
+    setMainCategory,
+    color,
+    setColor,
+    size,
+    setSize,
+    material,
+    setMaterial,
+    gender,
+    setGender,
+    category,
+    setCategory,
+    weight,
+    setWeight,
+    metaTitle,
+    setMetaTitle,
 
-  // SELECT / TEXT
-  gender,
-  setGender,
-  category,
-  setCategory,
-  weight,
-  setWeight,
+    description,
+    setDescription,
+    bulletDescription,
+    setBulletDescription,
+    bulletKeyValueDescription,
+    setBulletKeyValueDescription,
+    countryOfOrigin,
+    setCountryOfOrigin,
 
-  // SEO META
-  metaTitle,
-  setMetaTitle,
-  metaDescription,
-  setMetaDescription,
-  metaKeywords,
-  setMetaKeywords,
+    dimensions,
+    setDimensions,
 
-  // DIMENSIONS
-  dimensions,
-  setDimensions,
+    metaDescription,
+    setMetaDescription,
 
-  // FLAGS
-  isFeatured,
-  setIsFeatured,
-  isPublished,
-  setIsPublished,
-}) => {
-  // Helper function to handle CSV input
-  const handleCsvChange = (label, value, setter) => {
-    let parts = value
-      .split(",")
-      .map((v) => {
-        v = v.trim();
-        if (label === "Size" || label === "Color") return v.toUpperCase();
-        return v;
-      })
-      .filter(Boolean);
+    offerPrice,
+    setOfferPrice,
+    price,
+    setPrice,
+    stock,
+    setStock,
 
-    let formatted = parts.join(", ");
-    if (value[value.length - 1] === ",") formatted += ", ";
-    setter(formatted);
-  };
+    sku,
+    setSku,
+    foodType,
+    setFoodType,
+    taste,
+    setTaste,
 
+    isFeatured,
+    setIsFeatured,
+    isPublished,
+    setIsPublished,
+  } = props;
+
+  /* =====================================================
+   * JSX
+   * ===================================================== */
   return (
-    <section className="lg:col-span-2 space-y-6">
-      {/* ---------------- PRODUCT NAME ---------------- */}
-      <div className="relative">
-        <label className="absolute -top-3 left-3 bg-gray-100 px-1 text-sm text-gray-600">
-          Product Name
-        </label>
-        <input
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          className="w-full border rounded-xl p-3"
-        />
-      </div>
-
-      {/* ---------------- DESCRIPTION ---------------- */}
-      <div className="relative">
-        <label className="absolute -top-3 left-3 bg-gray-100 px-1 text-sm text-gray-600">
-          Description
-        </label>
-        <textarea
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          className="w-full border rounded-xl p-3 h-32"
-        />
-      </div>
-
-      {/* ---------------- PRICING & STOCK ---------------- */}
-      <div className="grid md:grid-cols-3 gap-4">
-        {[
-          ["Original Price", originalPrice, setOriginalPrice],
-          ["Price", price, setPrice],
-          ["Stock", stock, setStock],
-        ].map(([label, value, setter]) => (
-          <div key={label} className="relative">
-            <label className="absolute -top-3 left-3 bg-gray-100 px-1 text-sm text-gray-600">
-              {label}
-            </label>
-            <input
-              type="number"
-              value={value}
-              onChange={(e) => setter(e.target.value)}
-              className="w-full border rounded-xl p-3"
-            />
-          </div>
-        ))}
-      </div>
-
-      {/* ---------------- SIZE, COLOR, META KEYWORDS ---------------- */}
+    <section className="lg:col-span-2 space-y-10">
+      {/* ================= BASIC INFO ================= */}
       <div className="grid md:grid-cols-2 gap-4">
-        {[
-          ["Size", size, setSize],
-          ["Color", color, setColor],
-          ["Material", material, setMaterial],
-          ["Brand", brand, setBrand],
-          ["Meta Keywords", metaKeywords, setMetaKeywords],
-        ].map(([label, value, setter]) => (
-          <div key={label} className="relative">
-            <label className="absolute -top-3 left-3 bg-gray-100 px-1 text-sm text-gray-600">
-              {label}
-            </label>
-            <input
-              value={value}
-              onChange={(e) => handleCsvChange(label, e.target.value, setter)}
-              className="w-full border rounded-xl p-3"
-              placeholder={
-                label === "Color"
-                  ? "RED, ORANGE, BLUE"
-                  : label === "Meta Keywords"
-                    ? "Keywords"
-                    : ""
-              }
-            />
-          </div>
-        ))}
-      </div>
-
-      {/* ---------------- GENDER, CATEGORY ---------------- */}
-      <div className="grid md:grid-cols-2 gap-4">
-        {/* GENDER SELECT */}
-        <div className="relative">
-          <label className="absolute -top-3 left-3 bg-gray-100 px-1 text-sm text-gray-600">
-            Gender
-          </label>
-          <select
-            value={gender}
-            onChange={(e) => setGender(e.target.value)}
-            className="w-full border rounded-xl p-3 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-          >
-            <option value="">Select gender</option>
-            <option value="Male">Male</option>
-            <option value="Female">Female</option>
-            <option value="Unisex">Unisex</option>
-          </select>
-        </div>
-
-        {/* CATEGORY INPUT */}
-        <div className="relative">
-          <label className="absolute -top-3 left-3 bg-gray-100 px-1 text-sm text-gray-600">
-            Category
-          </label>
-          <input
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-            className="w-full border rounded-xl p-3 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-            placeholder="e.g. T-Shirts, Shoes"
-          />
-        </div>
-      </div>
-
-      {/* ---------------- WEIGHT ---------------- */}
-      <div className="relative">
-        <label className="absolute -top-3 left-3 bg-gray-100 px-1 text-sm text-gray-600">
-          Weight
-        </label>
         <input
-          value={weight}
-          onChange={(e) => setWeight(e.target.value)}
-          className="w-full border rounded-xl p-3"
+          placeholder="Product Name"
+          value={safeString(name)}
+          onChange={(e) => setName?.(e.target.value)}
+          className="border rounded-xl p-3"
+        />
+        <input
+          placeholder="Brand"
+          value={safeString(brand)}
+          onChange={(e) => setBrand?.(e.target.value)}
+          className="border rounded-xl p-3"
+        />
+
+        <select
+          value={safeString(mainCategory)}
+          onChange={(e) => setMainCategory?.(e.target.value)}
+          className="border rounded-xl p-3"
+        >
+          <option value="">Select Main Category</option>
+          <option value="Fashion">Fashion</option>
+          <option value="Food">Food</option>
+        </select>
+
+        <input
+          placeholder="Category"
+          value={safeString(category)}
+          onChange={(e) => setCategory?.(e.target.value)}
+          className="border rounded-xl p-3"
+        />
+
+        <input
+          placeholder="Weight"
+          value={safeString(weight)}
+          onChange={(e) => setWeight?.(e.target.value)}
+          className="border rounded-xl p-3"
+        />
+
+        <input
+          placeholder="Country of Origin"
+          value={safeString(countryOfOrigin)}
+          onChange={(e) => setCountryOfOrigin?.(e.target.value)}
+          className="border rounded-xl p-3"
         />
       </div>
 
-      {/* ---------------- DIMENSIONS ---------------- */}
+      {/* ================= DESCRIPTIONS ================= */}
+      <Descriptions
+        description={description}
+        setDescription={setDescription}
+        bulletDescription={bulletDescription}
+        setBulletDescription={setBulletDescription}
+        bulletKeyValueDescription={bulletKeyValueDescription}
+        setBulletKeyValueDescription={setBulletKeyValueDescription}
+      />
+
+      {/* ================= CATEGORY SPECIFIC ================= */}
+      {mainCategory === "Fashion" && (
+        <Fashion
+          color={color}
+          setColor={setColor}
+          size={size}
+          setSize={setSize}
+          material={material}
+          setMaterial={setMaterial}
+          gender={gender}
+          setGender={setGender}
+          dimensions={dimensions}
+          setDimensions={setDimensions}
+        />
+      )}
+      {mainCategory === "Food" && (
+        <Food
+          sku={sku}
+          setSku={setSku}
+          foodType={foodType}
+          setFoodType={setFoodType}
+          taste={taste}
+          setTaste={setTaste}
+        />
+      )}
+
+      {/* ================= PRICING ================= */}
       <div className="grid md:grid-cols-3 gap-4">
-        {["length", "width", "height"].map((dim) => (
-          <div key={dim} className="relative">
-            <label className="absolute -top-3 left-3 bg-gray-100 px-1 text-sm text-gray-600">
-              {dim.toUpperCase()}
-            </label>
-            <input
-              type="number"
-              value={dimensions[dim]}
-              onChange={(e) =>
-                setDimensions({ ...dimensions, [dim]: e.target.value })
-              }
-              className="w-full border rounded-xl p-3"
-            />
-          </div>
-        ))}
-      </div>
-
-      {/* ---------------- META TITLE & DESCRIPTION ---------------- */}
-      <div className="relative">
-        <label className="absolute -top-3 left-3 bg-gray-100 px-1 text-sm text-gray-600">
-          Meta Title
-        </label>
         <input
-          value={metaTitle}
-          onChange={(e) => setMetaTitle(e.target.value)}
-          className="w-full border rounded-xl p-3"
+          type="number"
+          placeholder="Original Price"
+          value={offerPrice ?? ""}
+          onChange={(e) => setOfferPrice?.(e.target.value)}
+          className="border rounded-xl p-3"
+        />
+        <input
+          type="number"
+          placeholder="Price"
+          value={price ?? ""}
+          onChange={(e) => setPrice?.(e.target.value)}
+          className="border rounded-xl p-3"
+        />
+        <input
+          type="number"
+          placeholder="Stock"
+          value={stock ?? ""}
+          onChange={(e) => setStock?.(e.target.value)}
+          className="border rounded-xl p-3"
         />
       </div>
 
-      <div className="relative">
-        <label className="absolute -top-3 left-3 bg-gray-100 px-1 text-sm text-gray-600">
-          Meta Description
-        </label>
-        <textarea
-          value={metaDescription}
-          onChange={(e) => setMetaDescription(e.target.value)}
-          className="w-full border rounded-xl p-3 h-24"
-        />
-      </div>
+      {/* ================= SEO ================= */}
+      <input
+        placeholder="Meta Title"
+        value={safeString(metaTitle)}
+        onChange={(e) => setMetaTitle?.(e.target.value)}
+        className="border rounded-xl p-3 w-full"
+      />
+      <textarea
+        placeholder="Meta Description"
+        value={safeString(metaDescription)}
+        onChange={(e) => setMetaDescription?.(e.target.value)}
+        className="border rounded-xl p-3 h-24 w-full"
+      />
 
-      {/* ---------------- FLAGS ---------------- */}
+      {/* ================= FLAGS ================= */}
       <div className="flex gap-6">
         <label className="flex items-center gap-2">
           <input
             type="checkbox"
-            checked={isFeatured}
-            onChange={(e) => setIsFeatured(e.target.checked)}
+            checked={!!isFeatured}
+            onChange={(e) => setIsFeatured?.(e.target.checked)}
           />
           Featured
         </label>
         <label className="flex items-center gap-2">
           <input
             type="checkbox"
-            checked={isPublished}
-            onChange={(e) => setIsPublished(e.target.checked)}
+            checked={!!isPublished}
+            onChange={(e) => setIsPublished?.(e.target.checked)}
           />
           Published
         </label>

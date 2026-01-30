@@ -2,14 +2,11 @@
 
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
-import product from "../../server/models/product";
+import Product from "@/models/product";
 
 export async function createProductAction(productData) {
   const cookieStore = await cookies();
   const token = cookieStore.get("cUser")?.value;
-  if (!token) throw new Error("Not authenticated");
-
-  console.log(productData, "The product data is");
 
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_SITE_URL}/api/admin/products/add`,
@@ -32,8 +29,6 @@ export async function updateProductAction(formData) {
   try {
     const cookieStore = await cookies();
     const token = cookieStore.get("cUser")?.value;
-
-    console.log(formData, "from edit updateProductAction");
 
     const id = formData.get("id");
 

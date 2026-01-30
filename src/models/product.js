@@ -2,90 +2,154 @@ const mongoose = require("mongoose");
 
 const productSchema = new mongoose.Schema(
   {
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "user",
+      required: true,
+    },
+
     name: {
       type: String,
       trim: true,
       required: true,
       unique: true,
     },
+
     description: {
       type: String,
       required: true,
     },
-    originalPrice: {
-      type: Number,
-      required: true,
+
+    bulletKeyValueDescription: [
+      {
+        key: { type: String, required: true },
+        value: { type: String, required: true },
+        _id: false,
+      },
+    ],
+
+    bulletDescription: [
+      {
+        type: String,
+      },
+    ],
+
+    brand: {
+      type: String,
+      trim: true,
     },
+
+    mainCategory: {
+      type: String,
+      enum: ["Food", "Fashion"],
+      required: true,
+      index: true,
+    },
+
+    category: {
+      type: String,
+      required: true,
+      index: true,
+    },
+
     price: {
       type: Number,
       required: true,
     },
+
     offerPrice: {
       type: Number,
     },
+
     stock: {
       type: Number,
-      required: false,
+      default: 0,
     },
-    color: {
-      type: [],
+
+    weight: {
+      type: String,
     },
+
+    images: {
+      type: Array,
+      required: true,
+    },
+
+    tags: [String],
+
+    metaTitle: String,
+    metaDescription: String,
+
+    isFeatured: {
+      type: Boolean,
+      default: false,
+    },
+
+    isPublished: {
+      type: Boolean,
+      default: false,
+    },
+
     rating: {
       type: Number,
       min: 0,
       max: 5,
       default: 0,
     },
-    size: {
-      type: [],
-    },
-    material: {
-      type: [],
-    },
-    brand: {
-      type: [],
-    },
-    gender: {
+
+    countryOfOrigin: {
       type: String,
     },
-    category: {
-      type: String,
-    },
-    tags: [String],
-    isFeatured: {
-      type: Boolean,
-      default: false,
-    },
-    isPublished: {
-      type: Boolean,
-      default: false,
-    },
-    weight: {
-      type: String,
-    },
-    images: {
-      type: [],
-      required: true,
-    },
-    metaTitle: {
-      type: String,
-    },
-    metaDescription: {
-      type: String,
-    },
-    metaKeywords: {
-      type: [],
-    },
-    dimensions: {
-      length: Number,
-      width: Number,
-      height: Number,
-    },
-    user: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "user",
-      required: true,
-    },
+
+    fashion: [
+      {
+        color: {
+          type: String,
+          required: true,
+          trim: true,
+        },
+
+        size: {
+          type: String,
+          required: true,
+          trim: true,
+        },
+
+        stock: {
+          type: Number,
+          required: true,
+          min: 0,
+        },
+
+        sku: {
+          type: String,
+          // unique: true,
+        },
+      },
+    ],
+
+    food: [
+      {
+        sku: {
+          type: String,
+          // unique: true,
+        },
+
+        foodType: {
+          type: String, // Veg, Non-veg, Vegan
+        },
+
+        taste: {
+          type: String,
+        },
+
+        batchNumber: String,
+
+        stock: {
+          type: Number,
+        },
+      },
+    ],
   },
   { timestamps: true },
 );
@@ -93,4 +157,4 @@ const productSchema = new mongoose.Schema(
 const Product =
   mongoose.models.product || mongoose.model("product", productSchema);
 
-export default Product;
+module.exports = Product;

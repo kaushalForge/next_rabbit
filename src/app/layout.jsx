@@ -2,7 +2,6 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import ReduxProvider from "@/components/redux/ReduxProvider";
 import { Toaster } from "sonner";
-import { Suspense } from "react";
 import { AuthProvider } from "./context/AuthContext";
 
 const geistSans = Geist({
@@ -33,9 +32,7 @@ export default async function AdminLayout({ children }) {
       >
         <Toaster position="top-right" richColors closeButton duration={1000} />
         <AuthProvider>
-          <Suspense fallback={null}>
-            <ReduxProvider>{children}</ReduxProvider>
-          </Suspense>
+          <ReduxProvider>{children}</ReduxProvider>
         </AuthProvider>
       </body>
     </html>

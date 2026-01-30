@@ -1,17 +1,18 @@
 "use client";
 
 import { FaSave } from "react-icons/fa";
+import EditDescriptions from "../AdminNewProductSection/HelpersUI/EditDescriptions";
 
 const SectionTwo = ({
   // PRODUCT CORE
   name,
   setName,
-  description,
-  setDescription,
-  originalPrice,
-  setOriginalPrice,
+  brand,
+  setBrand,
   price,
   setPrice,
+  offerPrice,
+  setOfferPrice,
   stock,
   setStock,
 
@@ -22,8 +23,6 @@ const SectionTwo = ({
   setColor,
   material,
   setMaterial,
-  brand,
-  setBrand,
 
   // SELECT / TEXT
   gender,
@@ -32,14 +31,26 @@ const SectionTwo = ({
   setCategory,
   weight,
   setWeight,
+  mainCategory,
+  setMainCategory,
+  rating,
+  setRating,
+  countryOfOrigin,
+  setCountryOfOrigin,
+
+  // DESCRIPTIONS
+  description,
+  setDescription,
+  bulletDescription,
+  setBulletDescription,
+  bulletKeyValueDescription,
+  setBulletKeyValueDescription,
 
   // SEO META
   metaTitle,
   setMetaTitle,
   metaDescription,
   setMetaDescription,
-  metaKeywords,
-  setMetaKeywords,
 
   // DIMENSIONS
   dimensions,
@@ -51,8 +62,7 @@ const SectionTwo = ({
   isPublished,
   setIsPublished,
 }) => {
-  // Helper function to handle CSV input
-  const handleCsvChange = (label, value, setter) => {
+  const csvFormatter = (label, value) => {
     let parts = value
       .split(",")
       .map((v) => {
@@ -63,8 +73,8 @@ const SectionTwo = ({
       .filter(Boolean);
 
     let formatted = parts.join(", ");
-    if (value[value.length - 1] === ",") formatted += ", ";
-    setter(formatted);
+    if (value.endsWith(",")) formatted += ", ";
+    return formatted;
   };
 
   return (
@@ -81,22 +91,21 @@ const SectionTwo = ({
         />
       </div>
 
-      {/* ---------------- DESCRIPTION ---------------- */}
-      <div className="relative">
-        <label className="absolute -top-3 left-3 bg-gray-100 px-1 text-sm text-gray-600">
-          Description
-        </label>
-        <textarea
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          className="w-full border rounded-xl p-3 h-32"
-        />
-      </div>
+      {/* ---------------- DESCRIPTIONS ---------------- */}
+      <EditDescriptions
+        description={description}
+        setDescription={setDescription}
+        bulletDescription={bulletDescription}
+        setBulletDescription={setBulletDescription}
+        bulletKeyValueDescription={bulletKeyValueDescription}
+        setBulletKeyValueDescription={setBulletKeyValueDescription}
+      />
 
-      {/* ---------------- PRICING & STOCK ---------------- */}
-      <div className="grid md:grid-cols-3 gap-4">
+      {/* ---------------- BRAND, OFFER PRICE, PRICE, STOCK ---------------- */}
+      <div className="grid md:grid-cols-4 gap-4">
         {[
-          ["Original Price", originalPrice, setOriginalPrice],
+          ["Brand", brand, setBrand],
+          ["Offer Price", offerPrice, setOfferPrice],
           ["Price", price, setPrice],
           ["Stock", stock, setStock],
         ].map(([label, value, setter]) => (
@@ -105,7 +114,7 @@ const SectionTwo = ({
               {label}
             </label>
             <input
-              type="number"
+              type={label === "Stock" ? "number" : "text"}
               value={value}
               onChange={(e) => setter(e.target.value)}
               className="w-full border rounded-xl p-3"
@@ -114,14 +123,12 @@ const SectionTwo = ({
         ))}
       </div>
 
-      {/* ---------------- SIZE, COLOR, META KEYWORDS ---------------- */}
-      <div className="grid md:grid-cols-2 gap-4">
+      {/* ---------------- CSV FIELDS ---------------- */}
+      <div className="grid md:grid-cols-3 gap-4">
         {[
           ["Size", size, setSize],
           ["Color", color, setColor],
           ["Material", material, setMaterial],
-          ["Brand", brand, setBrand],
-          ["Meta Keywords", metaKeywords, setMetaKeywords],
         ].map(([label, value, setter]) => (
           <div key={label} className="relative">
             <label className="absolute -top-3 left-3 bg-gray-100 px-1 text-sm text-gray-600">
@@ -129,23 +136,16 @@ const SectionTwo = ({
             </label>
             <input
               value={value}
-              onChange={(e) => handleCsvChange(label, e.target.value, setter)}
+              onChange={(e) => setter(csvFormatter(label, e.target.value))}
               className="w-full border rounded-xl p-3"
-              placeholder={
-                label === "Color"
-                  ? "RED, ORANGE, BLUE"
-                  : label === "Meta Keywords"
-                    ? "Keywords"
-                    : ""
-              }
             />
           </div>
         ))}
       </div>
 
-      {/* ---------------- GENDER, CATEGORY ---------------- */}
-      <div className="grid md:grid-cols-2 gap-4">
-        {/* GENDER SELECT */}
+      {/* ---------------- GENDER, CATEGORY, MAIN CATEGORY, RATING, COUNTRY ---------------- */}
+      <div className="grid md:grid-cols-5 gap-4">
+        {/* Gender */}
         <div className="relative">
           <label className="absolute -top-3 left-3 bg-gray-100 px-1 text-sm text-gray-600">
             Gender
@@ -153,16 +153,19 @@ const SectionTwo = ({
           <select
             value={gender}
             onChange={(e) => setGender(e.target.value)}
-            className="w-full border rounded-xl p-3 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+            className="w-full border rounded-xl p-3"
           >
             <option value="">Select gender</option>
-            <option value="Male">Male</option>
-            <option value="Female">Female</option>
+            <option value="Men">Men</option>
+            <option value="Women">Women</option>
             <option value="Unisex">Unisex</option>
+            <option value="Kids">Kids</option>
+            <option value="Girls">Girls</option>
+            <option value="Boys">Boys</option>
           </select>
         </div>
 
-        {/* CATEGORY INPUT */}
+        {/* Category */}
         <div className="relative">
           <label className="absolute -top-3 left-3 bg-gray-100 px-1 text-sm text-gray-600">
             Category
@@ -170,33 +173,73 @@ const SectionTwo = ({
           <input
             value={category}
             onChange={(e) => setCategory(e.target.value)}
-            className="w-full border rounded-xl p-3 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-            placeholder="e.g. T-Shirts, Shoes"
+            className="w-full border rounded-xl p-3"
+          />
+        </div>
+
+        {/* Main Category */}
+        <div className="relative">
+          <label className="absolute -top-3 left-3 bg-gray-100 px-1 text-sm text-gray-600">
+            Main Category
+          </label>
+          <select
+            value={mainCategory}
+            onChange={(e) => setMainCategory(e.target.value)}
+            className="w-full border rounded-xl p-3"
+          >
+            <option value="">Select</option>
+            <option value="Fashion">Fashion</option>
+            <option value="Food">Food</option>
+          </select>
+        </div>
+
+        {/* Rating */}
+        <div className="relative">
+          <label className="absolute -top-3 left-3 bg-gray-100 px-1 text-sm text-gray-600">
+            Rating
+          </label>
+          <input
+            type="number"
+            min={0}
+            max={5}
+            value={rating}
+            onChange={(e) => setRating(e.target.value)}
+            className="w-full border rounded-xl p-3"
+          />
+        </div>
+
+        {/* Country of Origin */}
+        <div className="relative">
+          <label className="absolute -top-3 left-3 bg-gray-100 px-1 text-sm text-gray-600">
+            Country of Origin
+          </label>
+          <input
+            value={countryOfOrigin}
+            onChange={(e) => setCountryOfOrigin(e.target.value)}
+            className="w-full border rounded-xl p-3"
           />
         </div>
       </div>
 
-      {/* ---------------- WEIGHT ---------------- */}
-      <div className="relative">
-        <label className="absolute -top-3 left-3 bg-gray-100 px-1 text-sm text-gray-600">
-          Weight
-        </label>
-        <input
-          value={weight}
-          onChange={(e) => setWeight(e.target.value)}
-          className="w-full border rounded-xl p-3"
-        />
-      </div>
+      {/* ---------------- WEIGHT, DIMENSIONS ---------------- */}
+      <div className="grid md:grid-cols-4 gap-4">
+        <div className="relative">
+          <label className="absolute -top-3 left-3 bg-gray-100 px-1 text-sm text-gray-600">
+            Weight
+          </label>
+          <input
+            value={weight}
+            onChange={(e) => setWeight(e.target.value)}
+            className="w-full border rounded-xl p-3"
+          />
+        </div>
 
-      {/* ---------------- DIMENSIONS ---------------- */}
-      <div className="grid md:grid-cols-3 gap-4">
         {["length", "width", "height"].map((dim) => (
           <div key={dim} className="relative">
             <label className="absolute -top-3 left-3 bg-gray-100 px-1 text-sm text-gray-600">
               {dim.toUpperCase()}
             </label>
             <input
-              type="number"
               value={dimensions[dim]}
               onChange={(e) =>
                 setDimensions({ ...dimensions, [dim]: e.target.value })
@@ -207,7 +250,7 @@ const SectionTwo = ({
         ))}
       </div>
 
-      {/* ---------------- META TITLE & DESCRIPTION ---------------- */}
+      {/* ---------------- META ---------------- */}
       <div className="relative">
         <label className="absolute -top-3 left-3 bg-gray-100 px-1 text-sm text-gray-600">
           Meta Title
@@ -218,7 +261,6 @@ const SectionTwo = ({
           className="w-full border rounded-xl p-3"
         />
       </div>
-
       <div className="relative">
         <label className="absolute -top-3 left-3 bg-gray-100 px-1 text-sm text-gray-600">
           Meta Description
@@ -255,8 +297,7 @@ const SectionTwo = ({
         type="submit"
         className="w-full flex items-center justify-center gap-3 bg-indigo-600 text-white py-4 rounded-xl font-semibold"
       >
-        <FaSave />
-        Update Product
+        <FaSave /> Update Product
       </button>
     </section>
   );
