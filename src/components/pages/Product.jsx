@@ -1,4 +1,4 @@
-import ProductDetails from "../Layout/ProductDetails";
+import ProductDetails from "./ProductDetails";
 
 const fetchDetails = async (id) => {
   const res = await fetch(

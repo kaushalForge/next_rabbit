@@ -9,12 +9,12 @@ const cartItemsSchema = new mongoose.Schema(
     },
     name: String,
     image: String,
-    price: String,
+    price: Number,
+    offerPrice: Number,
     size: String,
     color: String,
     quantity: {
       type: Number,
-      default: 1,
     },
   },
   { _id: false },
@@ -22,12 +22,9 @@ const cartItemsSchema = new mongoose.Schema(
 
 const cartSchema = new mongoose.Schema(
   {
-    user: {
+    userId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "user",
-    },
-    guestId: {
-      type: String,
     },
     products: [cartItemsSchema],
     totalPrice: {

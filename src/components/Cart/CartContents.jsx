@@ -1,36 +1,62 @@
 "use client";
 import React from "react";
 import { RiDeleteBin3Line } from "react-icons/ri";
-import { useDispatch } from "react-redux";
-import {
-  removeFromCart,
-  updateCartItemQuantity,
-} from "../redux/slices/cartSlice";
 import { toast } from "sonner";
+import { useCart } from "@/app/context/CartContext";
 
-const CartContents = ({ cart, userId, guestId }) => {
-  const dispatch = useDispatch();
+const CartContents = ({ cart }) => {
+  const { removeCart, updateCart } = useCart();
 
-  const handleAddToCart = (productId, delta, quantity, size, color) => {
-    const newQuantity = quantity + delta;
-    if (newQuantity < 1) return;
+  const handleUpdateCart = async (
+    productId,
+    delta,
+    currentQuantity,
+    size,
+    color,
+  ) => {
+    try {
+      const newQuantity = currentQuantity + delta;
 
-    dispatch(
-      updateCartItemQuantity({
+      if (newQuantity < 1) {
+        toast.error("Quantity cannot be less than 1");
+        return;
+      }
+
+      const response = await updateCart({
         productId,
         quantity: newQuantity,
-        guestId,
-        userId,
         size,
         color,
-      }),
-    );
+      });
+
+      if (response?.status === 200 || response?.status === 201) {
+        toast.success("Cart updated");
+      } else {
+        toast.error(response?.message || "Failed to update cart");
+      }
+    } catch (err) {
+      console.error("handleUpdateCart error:", err);
+      toast.error("Failed to update cart");
+    }
   };
 
-  const handleRemoveFromCart = (productId, size, color) => {
-    dispatch(removeFromCart({ productId, guestId, userId, size, color })).then(
-      () => toast.success("Removed from cart"),
-    );
+  const handleRemoveFromCart = async (productId, size, color) => {
+    try {
+      const response = await removeCart({
+        productId,
+        size,
+        color,
+      });
+
+      if (response?.status === 200 || response?.status === 201) {
+        toast.success("Removed from cart");
+      } else {
+        toast.error(response?.message || "Failed to remove item");
+      }
+    } catch (err) {
+      console.error("handleRemoveFromCart error:", err);
+      toast.error("Failed to remove item");
+    }
   };
 
   return (
@@ -62,7 +88,7 @@ const CartContents = ({ cart, userId, guestId }) => {
               <div className="flex items-center gap-3 mt-2">
                 <button
                   onClick={() =>
-                    handleAddToCart(
+                    handleUpdateCart(
                       product.productId,
                       -1,
                       product.quantity,
@@ -81,7 +107,7 @@ const CartContents = ({ cart, userId, guestId }) => {
 
                 <button
                   onClick={() =>
-                    handleAddToCart(
+                    handleUpdateCart(
                       product.productId,
                       1,
                       product.quantity,
@@ -100,7 +126,7 @@ const CartContents = ({ cart, userId, guestId }) => {
           {/* Right */}
           <div className="flex flex-col items-end gap-3">
             <p className="text-sm font-semibold text-slate-700">
-              $ {product.price.toLocaleString()}
+              Rs.{product.offerPrice}
             </p>
 
             <button

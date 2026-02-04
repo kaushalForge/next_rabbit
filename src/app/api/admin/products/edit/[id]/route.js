@@ -8,53 +8,37 @@ import {
 } from "@/lib/cloudinary";
 
 /* ================= HELPERS ================= */
-const safeString = (v) =>
-  typeof v === "string" && v.trim() !== "" ? v.trim() : undefined;
+const safeString = (val) => (typeof val === "string" ? val.trim() : "");
+const safeNumber = (val) =>
+  val !== undefined && val !== null ? Number(val) : 0;
+const safeBool = (val) => val === "true" || val === true;
 
-const safeNumber = (v) => {
-  if (v === "" || v === null || v === undefined) return undefined;
-  const num = Number(v);
-  return isNaN(num) ? undefined : num;
+// Convert string / JSON array to string array
+const parseStringArray = (val) => {
+  if (!val) return [];
+  if (Array.isArray(val))
+    return val.map((v) => String(v).trim()).filter(Boolean);
+  try {
+    const arr = JSON.parse(val);
+    if (Array.isArray(arr)) return arr.map((v) => String(v).trim());
+  } catch {}
+  return String(val)
+    .split(",")
+    .map((v) => v.trim())
+    .filter(Boolean);
 };
 
-const safeBool = (v) => v === "true" || v === true;
+// ✅ Convert ANY value to Number (not array)
+const parseNumber = (val) => {
+  if (val === undefined || val === null) return 0;
+  return Number(val) || 0;
+};
 
-const safeArray = (v) =>
-  Array.isArray(v) ? v.map((x) => String(x).trim()).filter(Boolean) : undefined;
-
+// Normalize main category
 const normalizeMainCategory = (v) => {
   if (/^fashion$/i.test(v)) return "Fashion";
   if (/^food$/i.test(v)) return "Food";
   return null;
-};
-
-/* ================= VALIDATION ================= */
-const validateFields = (data, mainCategory) => {
-  const errors = {};
-
-  // Common required fields
-  if (!data.name) errors.name = "Name is required";
-  if (data.price === undefined) errors.price = "Price is required";
-  if (data.stock === undefined) errors.stock = "Stock is required";
-  if (!data.mainCategory) errors.mainCategory = "Main category is required";
-
-  // Fashion-specific
-  if (mainCategory === "Fashion") {
-    if (!data.fashion?.size?.length)
-      errors["fashion.size"] = "At least one size is required";
-    if (!data.fashion?.color?.length)
-      errors["fashion.color"] = "At least one color is required";
-    if (!data.fashion?.material?.length)
-      errors["fashion.material"] = "At least one material is required";
-  }
-
-  // Food-specific
-  if (mainCategory === "Food") {
-    if (!data.food?.sku) errors["food.sku"] = "SKU is required";
-    if (!data.food?.foodType) errors["food.foodType"] = "Food type is required";
-  }
-
-  return errors;
 };
 
 /* ================= PATCH PRODUCT ================= */
@@ -74,145 +58,149 @@ export const PATCH = async (req, { params }) => {
 
   /* ================= MAIN CATEGORY ================= */
   const mainCategory = normalizeMainCategory(formData.get("mainCategory"));
-  if (!mainCategory) {
+  if (!mainCategory)
     return NextResponse.json(
       { message: "Invalid mainCategory (Fashion | Food)" },
       { status: 400 },
     );
-  }
 
   /* ================= IMAGES ================= */
   const uploadedFiles = formData.getAll("images");
-  const existingImages = formData.getAll("existingImages[]");
+  const existingImagesRaw = formData.getAll("existingImages[]");
+
+  const existingImages = existingImagesRaw.map((v) => {
+    try {
+      const parsed = JSON.parse(v);
+      if (parsed && parsed.url)
+        return { url: parsed.url, altText: parsed.altText || "" };
+      return { url: String(v), altText: "" };
+    } catch {
+      return { url: String(v), altText: "" };
+    }
+  });
 
   const buffers = [];
   for (const file of uploadedFiles) {
-    if (file instanceof File) {
+    if (file instanceof File)
       buffers.push(Buffer.from(await file.arrayBuffer()));
-    }
   }
 
-  const uploadedUrls =
-    buffers.length > 0
-      ? await uploadMultipleToCloudinary(buffers, "Rabbit")
-      : [];
+  const uploadedUrls = buffers.length
+    ? await uploadMultipleToCloudinary(buffers, "Rabbit")
+    : [];
 
   const removedImages = product.images
-    .filter((img) => !existingImages.includes(img.url))
-    .map((img) => img.url);
+    .filter((img) => !existingImages.some((e) => e.url === (img.url || img)))
+    .map((img) => img.url || img);
 
-  if (removedImages.length) {
-    await deleteMultipleFromCloudinary(removedImages);
-  }
+  if (removedImages.length) await deleteMultipleFromCloudinary(removedImages);
 
   const finalImages = [
-    ...product.images.filter((img) => existingImages.includes(img.url)),
-    ...uploadedUrls.map((url) => ({ url, altText: product.name })),
+    ...existingImages,
+    ...uploadedUrls.map((url) => ({
+      url,
+      altText: safeString(formData.get("name")) || product.name,
+    })),
   ].slice(0, 6);
 
-  /* ================= BASE UPDATE DOC ================= */
-  const updateDoc = {
-    name: safeString(formData.get("name")),
-    description: safeString(formData.get("description")),
-    brand: safeString(formData.get("brand")),
-    category: safeString(formData.get("category")),
-    weight: safeString(formData.get("weight")),
-    price: safeNumber(formData.get("price")),
-    offerPrice: safeNumber(formData.get("offerPrice")),
-    stock: safeNumber(formData.get("stock")),
-    rating: safeNumber(formData.get("rating")),
-    countryOfOrigin: safeString(formData.get("countryOfOrigin")),
-    metaTitle: safeString(formData.get("metaTitle")),
-    metaDescription: safeString(formData.get("metaDescription")),
-    isFeatured: safeBool(formData.get("isFeatured")),
-    isPublished: safeBool(formData.get("isPublished")),
-    tags: safeArray(formData.getAll("tags[]")),
-    metaKeywords: safeArray(formData.getAll("metaKeywords[]")),
-    images: finalImages,
-    mainCategory,
-  };
+  /* ================= FASHION ================= */
+  let fashion = [];
+  if (mainCategory === "Fashion") {
+    fashion = formData
+      .getAll("fashion[]")
+      .map((item) => {
+        try {
+          const parsed = JSON.parse(item);
+          return {
+            color: parseStringArray(parsed.color),
+            size: parseStringArray(parsed.size),
+            price: parseNumber(parsed.price), // ✅ number
+            offerPrice: parseNumber(parsed.offerPrice), // ✅ number
+            stock: Number(parsed.stock) || 0,
+            sku: safeString(parsed.sku),
+            gender: safeString(parsed.gender),
+          };
+        } catch {
+          return null;
+        }
+      })
+      .filter(Boolean);
+  }
+
+  /* ================= FOOD ================= */
+  let food = [];
+  if (mainCategory === "Food") {
+    food = formData
+      .getAll("food[]")
+      .map((item) => {
+        try {
+          const parsed = JSON.parse(item);
+          return {
+            sku: safeString(parsed.sku),
+            foodType: safeString(parsed.foodType),
+            weight: parseStringArray(parsed.weight),
+            taste: safeString(parsed.taste),
+            price: parseNumber(parsed.price), // ✅ number
+            offerPrice: parseNumber(parsed.offerPrice), // ✅ number
+            batchNumber: safeString(parsed.batchNumber),
+            stock: Number(parsed.stock) || 0,
+          };
+        } catch {
+          return null;
+        }
+      })
+      .filter(Boolean);
+  }
 
   /* ================= BULLETS ================= */
-  const bullets = safeArray(formData.getAll("bulletDescription[]"));
-  if (bullets) updateDoc.bulletDescription = bullets;
-
-  const kvBullets = formData
-    .getAll("bulletKeyValueDescription[]")
+  const bulletDescription = formData.getAll("bulletDescription[]") || [];
+  const bulletKeyValueDescription = (
+    formData.getAll("bulletKeyValueDescription[]") || []
+  )
     .map((v) => {
       try {
-        const p = JSON.parse(v);
-        return p?.key && p?.value ? p : null;
+        const parsed = JSON.parse(v);
+        return parsed?.key && parsed?.value ? parsed : null;
       } catch {
         return null;
       }
     })
     .filter(Boolean);
 
-  if (kvBullets.length) updateDoc.bulletKeyValueDescription = kvBullets;
-
-  /* ================= DIMENSIONS ================= */
-  const dimensions = {
-    length: safeString(formData.get("dimensions[length]")),
-    width: safeString(formData.get("dimensions[width]")),
-    height: safeString(formData.get("dimensions[height]")),
+  /* ================= UPDATE DOC ================= */
+  const updateDoc = {
+    name: safeString(formData.get("name")),
+    description: safeString(formData.get("description")),
+    mainCategory,
+    images: finalImages,
+    tags: formData.getAll("tags[]") || [],
+    bulletDescription,
+    bulletKeyValueDescription,
+    category: safeString(formData.get("category")),
+    metaTitle: safeString(formData.get("metaTitle")),
+    metaDescription: safeString(formData.get("metaDescription")),
+    isFeatured: safeBool(formData.get("isFeatured")),
+    isPublished: safeBool(formData.get("isPublished")),
+    rating: safeNumber(formData.get("rating")),
+    countryOfOrigin: safeString(formData.get("countryOfOrigin")),
+    brand: safeString(formData.get("brand")),
+    weight: safeString(formData.get("weight")),
+    material: safeString(formData.get("material")),
+    fashion: fashion.length ? fashion : undefined,
+    food: food.length ? food : undefined,
   };
 
-  if (Object.values(dimensions).some(Boolean)) {
-    updateDoc.dimensions = dimensions;
-  }
-
-  /* ================= CATEGORY-SPECIFIC ================= */
-  const unsetDoc = {};
-
-  if (mainCategory === "Fashion") {
-    updateDoc.fashion = {
-      gender: safeString(formData.get("gender")),
-      size: safeArray(formData.getAll("size[]")),
-      color: safeArray(formData.getAll("color[]")),
-      material: safeArray(formData.getAll("material[]")),
-      dimensions,
-    };
-    unsetDoc.food = 1;
-  }
-
-  if (mainCategory === "Food") {
-    updateDoc.food = {
-      sku: safeString(formData.get("sku")),
-      foodType: safeString(formData.get("foodType")),
-      taste: safeString(formData.get("taste")),
-    };
-    unsetDoc.fashion = 1;
-  }
-
-  /* ================= VALIDATION ================= */
-  const errors = validateFields(updateDoc, mainCategory);
-  if (Object.keys(errors).length > 0) {
-    return NextResponse.json(
-      { message: "Validation failed", errors },
-      { status: 400 },
-    );
-  }
-
-  /* ================= CLEAN UNDEFINED ================= */
   Object.keys(updateDoc).forEach(
     (k) => updateDoc[k] === undefined && delete updateDoc[k],
   );
 
-  /* ================= UPDATE PRODUCT ================= */
-  const updatedProduct = await Product.findByIdAndUpdate(
-    id,
-    {
-      $set: updateDoc,
-      ...(Object.keys(unsetDoc).length && { $unset: unsetDoc }),
-    },
-    { new: true, runValidators: true },
-  );
+  const updatedProduct = await Product.findByIdAndUpdate(id, updateDoc, {
+    new: true,
+    runValidators: true,
+  });
 
-  return NextResponse.json(
-    {
-      message: "Product updated successfully",
-      updatedProduct,
-    },
-    { status: 200 },
-  );
+  return NextResponse.json({
+    message: "Product updated successfully",
+    updatedProduct,
+  });
 };

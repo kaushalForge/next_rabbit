@@ -3,6 +3,7 @@ import "./globals.css";
 import ReduxProvider from "@/components/redux/ReduxProvider";
 import { Toaster } from "sonner";
 import { AuthProvider } from "./context/AuthContext";
+import { CartProvider } from "./context/CartContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,9 +31,11 @@ export default async function AdminLayout({ children }) {
         suppressHydrationWarning //prevents hydration mismatch error to display on console
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <Toaster position="top-right" richColors closeButton duration={1000} />
+        <Toaster position="top-right" visibleToasts={4} duration={1200} />
         <AuthProvider>
-          <ReduxProvider>{children}</ReduxProvider>
+          <CartProvider>
+            <ReduxProvider>{children}</ReduxProvider>
+          </CartProvider>
         </AuthProvider>
       </body>
     </html>

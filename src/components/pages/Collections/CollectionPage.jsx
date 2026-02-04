@@ -70,9 +70,7 @@ const CollectionPage = ({ products }) => {
               <h2 className="text-2xl font-semibold uppercase">
                 All Collection
               </h2>
-              <p className="text-lg font-medium text-gray-900">
-                ({category})
-              </p>
+              <p className="text-lg font-medium text-gray-900">({category})</p>
             </div>
             <SortOptions onSortChange={handleSort} />
           </div>

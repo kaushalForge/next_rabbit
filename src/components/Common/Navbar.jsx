@@ -2,7 +2,6 @@
 
 import React, { useEffect, useState, useRef } from "react";
 import Link from "next/link";
-import { useSelector } from "react-redux";
 import {
   HiOutlineUser,
   HiOutlineShoppingBag,
@@ -13,23 +12,18 @@ import SearchBar from "./SearchBar";
 import CartDrawer from "../Layout/CartDrawer";
 import { useAuth } from "@/app/context/AuthContext";
 import Image from "next/image";
+import { useCart } from "@/app/context/CartContext";
 
 const Navbar = () => {
-  // States
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [navDrawerOpen, setNavDrawerOpen] = useState(false);
   const [avatarDropdownOpen, setAvatarDropdownOpen] = useState(false);
 
-  // Context & Redux
+  const { cartQuantity } = useCart();
   const { currentUser, loading } = useAuth();
-  const { items } = useSelector((state) => state.cart);
 
   const navDrawerRef = useRef(null);
   const avatarRef = useRef(null);
-
-  const cartItemCount =
-    items?.products?.reduce((total, product) => total + product.quantity, 0) ||
-    0;
 
   const isLoggedIn = !!currentUser;
   const role = currentUser?.role;
@@ -130,9 +124,9 @@ const Navbar = () => {
               className="relative flex-shrink-0"
             >
               <HiOutlineShoppingBag className="h-6 w-6" />
-              {cartItemCount > 0 && (
+              {cartQuantity > 0 && (
                 <span className="absolute top-0 left-3 h-4 w-4 rounded-full bg-red-600 text-xs text-white flex items-center justify-center">
-                  {cartItemCount}
+                  {cartQuantity}
                 </span>
               )}
             </button>

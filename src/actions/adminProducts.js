@@ -8,6 +8,8 @@ export async function createProductAction(productData) {
   const cookieStore = await cookies();
   const token = cookieStore.get("cUser")?.value;
 
+  console.log(productData);
+
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_SITE_URL}/api/admin/products/add`,
     {

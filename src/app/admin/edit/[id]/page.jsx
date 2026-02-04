@@ -1,4 +1,4 @@
-import EditProductPage from "@/components/Admin/EditProductPage";
+import EditProductPage from "@/components/Admin/EditProduct";
 import { cookies } from "next/headers";
 
 const page = async ({ params }) => {

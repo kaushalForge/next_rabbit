@@ -1,220 +1,191 @@
 "use client";
 
-import Fashion from "./HelpersUI/Fashion";
-import Food from "./HelpersUI/Food";
-import Descriptions from "./HelpersUI/Descriptions";
+import { Input } from "../input";
+import { useState, useMemo } from "react";
 
 /* =====================================================
  * SAFE HELPERS
  * ===================================================== */
-const safeString = (value) => (typeof value === "string" ? value : "");
+const safeString = (v) => (typeof v === "string" ? v : "");
+const safeArray = (v) => (Array.isArray(v) ? v : []);
+
+const CATEGORY_OPTIONS = [
+  "Clothing",
+  "Shoes",
+  "Accessories",
+  "Food",
+  "Electronics",
+];
 
 const SectionOne = (props) => {
-  /* =====================================================
-   * SAFE DESTRUCTURING
-   * ===================================================== */
   const {
     name,
     setName,
-    brand,
-    setBrand,
-    mainCategory,
-    setMainCategory,
-    color,
-    setColor,
-    size,
-    setSize,
-    material,
-    setMaterial,
-    gender,
-    setGender,
+    countryOfOrigin,
+    setCountryOfOrigin,
     category,
     setCategory,
     weight,
     setWeight,
-    metaTitle,
-    setMetaTitle,
-
-    description,
-    setDescription,
-    bulletDescription,
-    setBulletDescription,
-    bulletKeyValueDescription,
-    setBulletKeyValueDescription,
-    countryOfOrigin,
-    setCountryOfOrigin,
-
-    dimensions,
-    setDimensions,
-
-    metaDescription,
-    setMetaDescription,
-
-    offerPrice,
-    setOfferPrice,
-    price,
-    setPrice,
-    stock,
-    setStock,
-
-    sku,
-    setSku,
-    foodType,
-    setFoodType,
-    taste,
-    setTaste,
-
-    isFeatured,
-    setIsFeatured,
-    isPublished,
-    setIsPublished,
+    rating,
+    setRating,
+    tags,
+    brand,
+    setBrand,
+    setTags,
+    material,
+    setMaterial,
   } = props;
 
-  /* =====================================================
-   * JSX
-   * ===================================================== */
+  /* ================= TAG STATE ================= */
+  const [tagInput, setTagInput] = useState("");
+  const tagList = useMemo(() => safeArray(tags), [tags]);
+
+  const handleAddTag = (e) => {
+    if (e.key === "Enter" && tagInput.trim()) {
+      e.preventDefault();
+      const value = tagInput.trim();
+      if (!tagList.includes(value)) {
+        setTags([...tagList, value]);
+      }
+      setTagInput("");
+    }
+  };
+
+  const removeTag = (tag) => {
+    setTags(tagList.filter((t) => t !== tag));
+  };
+
+  /* ================= CATEGORY LOGIC =================
+     Only ONE can control the value
+  ===================================================== */
+  const isPredefined = CATEGORY_OPTIONS.includes(category);
+
   return (
-    <section className="lg:col-span-2 space-y-10">
+    <section className="lg:col-span-2 space-y-8">
       {/* ================= BASIC INFO ================= */}
       <div className="grid md:grid-cols-2 gap-4">
-        <input
+        <Input
+          label="Product Name"
           placeholder="Product Name"
           value={safeString(name)}
-          onChange={(e) => setName?.(e.target.value)}
-          className="border rounded-xl p-3"
+          onChange={(e) => setName(e.target.value)}
         />
-        <input
+
+        <Input
+          label="Brand"
           placeholder="Brand"
           value={safeString(brand)}
-          onChange={(e) => setBrand?.(e.target.value)}
-          className="border rounded-xl p-3"
+          onChange={(e) => setBrand(e.target.value)}
         />
 
-        <select
-          value={safeString(mainCategory)}
-          onChange={(e) => setMainCategory?.(e.target.value)}
-          className="border rounded-xl p-3"
-        >
-          <option value="">Select Main Category</option>
-          <option value="Fashion">Fashion</option>
-          <option value="Food">Food</option>
-        </select>
+        {/* ============ CATEGORY (MATCHED HEIGHT) ============ */}
+        <div className="flex gap-2">
+          <select
+            value={isPredefined ? category : ""}
+            onChange={(e) => setCategory(e.target.value)}
+            className="h-10 w-1/2 rounded-md border border-input bg-background px-3 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+          >
+            <option value="">Select Category</option>
+            {CATEGORY_OPTIONS.map((opt) => (
+              <option key={opt} value={opt}>
+                {opt}
+              </option>
+            ))}
+          </select>
 
-        <input
-          placeholder="Category"
-          value={safeString(category)}
-          onChange={(e) => setCategory?.(e.target.value)}
-          className="border rounded-xl p-3"
-        />
+          <Input
+            label="Custom Category"
+            placeholder="Custom Category"
+            value={!isPredefined ? safeString(category) : ""}
+            onChange={(e) => setCategory(e.target.value)}
+            className="w-1/2"
+          />
+        </div>
 
-        <input
+        <Input
+          label="Weight"
           placeholder="Weight"
           value={safeString(weight)}
-          onChange={(e) => setWeight?.(e.target.value)}
-          className="border rounded-xl p-3"
+          onChange={(e) => setWeight(e.target.value)}
         />
 
-        <input
-          placeholder="Country of Origin"
+        <Input
+          label="Country of Origin"
+          placeholder="Nepal"
           value={safeString(countryOfOrigin)}
-          onChange={(e) => setCountryOfOrigin?.(e.target.value)}
-          className="border rounded-xl p-3"
+          onChange={(e) => setCountryOfOrigin(e.target.value)}
+        />
+        <Input
+          label="Rating"
+          type="number"
+          min={0}
+          max={5}
+          step={1}
+          placeholder="Rating (0 - 5)"
+          value={rating ?? ""}
+          onChange={(e) => {
+            const val = e.target.value;
+
+            // Empty input → reset
+            if (val === "") {
+              setRating("");
+              return;
+            }
+
+            // Parse integer
+            const num = parseInt(val, 10);
+
+            // Valid integer between 0 and 5 → set it
+            if (!isNaN(num) && num >= 0 && num <= 5) {
+              setRating(num);
+            } else {
+              // Invalid → clear
+              setRating("");
+            }
+          }}
         />
       </div>
 
-      {/* ================= DESCRIPTIONS ================= */}
-      <Descriptions
-        description={description}
-        setDescription={setDescription}
-        bulletDescription={bulletDescription}
-        setBulletDescription={setBulletDescription}
-        bulletKeyValueDescription={bulletKeyValueDescription}
-        setBulletKeyValueDescription={setBulletKeyValueDescription}
+      {/* ================= MATERIAL (STRING) ================= */}
+      <Input
+        label="Material"
+        placeholder="Cotton"
+        value={safeString(material)}
+        onChange={(e) => setMaterial(e.target.value)}
       />
 
-      {/* ================= CATEGORY SPECIFIC ================= */}
-      {mainCategory === "Fashion" && (
-        <Fashion
-          color={color}
-          setColor={setColor}
-          size={size}
-          setSize={setSize}
-          material={material}
-          setMaterial={setMaterial}
-          gender={gender}
-          setGender={setGender}
-          dimensions={dimensions}
-          setDimensions={setDimensions}
+      {/* ================= TAGS (ARRAY) ================= */}
+      <div className="space-y-3">
+        <Input
+          label="Tags"
+          placeholder="Type tag and press Enter"
+          value={tagInput}
+          onChange={(e) => setTagInput(e.target.value)}
+          onKeyDown={handleAddTag}
         />
-      )}
-      {mainCategory === "Food" && (
-        <Food
-          sku={sku}
-          setSku={setSku}
-          foodType={foodType}
-          setFoodType={setFoodType}
-          taste={taste}
-          setTaste={setTaste}
-        />
-      )}
 
-      {/* ================= PRICING ================= */}
-      <div className="grid md:grid-cols-3 gap-4">
-        <input
-          type="number"
-          placeholder="Original Price"
-          value={offerPrice ?? ""}
-          onChange={(e) => setOfferPrice?.(e.target.value)}
-          className="border rounded-xl p-3"
-        />
-        <input
-          type="number"
-          placeholder="Price"
-          value={price ?? ""}
-          onChange={(e) => setPrice?.(e.target.value)}
-          className="border rounded-xl p-3"
-        />
-        <input
-          type="number"
-          placeholder="Stock"
-          value={stock ?? ""}
-          onChange={(e) => setStock?.(e.target.value)}
-          className="border rounded-xl p-3"
-        />
-      </div>
-
-      {/* ================= SEO ================= */}
-      <input
-        placeholder="Meta Title"
-        value={safeString(metaTitle)}
-        onChange={(e) => setMetaTitle?.(e.target.value)}
-        className="border rounded-xl p-3 w-full"
-      />
-      <textarea
-        placeholder="Meta Description"
-        value={safeString(metaDescription)}
-        onChange={(e) => setMetaDescription?.(e.target.value)}
-        className="border rounded-xl p-3 h-24 w-full"
-      />
-
-      {/* ================= FLAGS ================= */}
-      <div className="flex gap-6">
-        <label className="flex items-center gap-2">
-          <input
-            type="checkbox"
-            checked={!!isFeatured}
-            onChange={(e) => setIsFeatured?.(e.target.checked)}
-          />
-          Featured
-        </label>
-        <label className="flex items-center gap-2">
-          <input
-            type="checkbox"
-            checked={!!isPublished}
-            onChange={(e) => setIsPublished?.(e.target.checked)}
-          />
-          Published
-        </label>
+        <div className="flex flex-wrap gap-2">
+          {tagList.map((tag, i) => (
+            <div
+              key={i}
+              className="flex items-center gap-2 px-3 py-1.5 rounded-full
+bg-gradient-to-br from-red-400/30 via-rose-300/20 to-red-500/30
+backdrop-blur-md border border-red-300/40
+shadow-[0_4px_14px_rgba(239,68,68,0.28)]
+text-red-900 text-xs font-semibold tracking-wide"
+            >
+              {tag}
+              <button
+                type="button"
+                onClick={() => removeTag(tag)}
+                className="text-xs text-red-900/70"
+              >
+                ✕
+              </button>
+            </div>
+          ))}
+        </div>
       </div>
     </section>
   );

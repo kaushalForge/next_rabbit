@@ -9,7 +9,7 @@ import FeaturedSection from "@/components/Products/FeaturedSection";
 import Header from "@/components/Common/Header";
 import Footer from "@/components/Common/Footer";
 import React, { Suspense } from "react";
-import ProductDetails from "@/components/Layout/ProductDetails";
+import ProductDetails from "@/components/pages/ProductDetails";
 import Product from "@/components/pages/Product";
 
 const page = () => {

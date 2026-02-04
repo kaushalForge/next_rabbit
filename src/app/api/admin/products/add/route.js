@@ -6,7 +6,28 @@ import { uploadMultipleToCloudinary } from "@/lib/cloudinary";
 
 const safeString = (val) => (typeof val === "string" ? val.trim() : "");
 
-/* ======================= POST PRODUCT ======================= */
+// Helper to convert a value to string array (for color, size, weight etc.)
+const parseStringArray = (val) => {
+  if (!val) return [];
+  if (Array.isArray(val)) return val.map((v) => v.trim()).filter(Boolean);
+  try {
+    const arr = JSON.parse(val);
+    if (Array.isArray(arr)) return arr.map((v) => String(v).trim());
+    return [];
+  } catch {
+    return val
+      .split(",")
+      .map((v) => v.trim())
+      .filter(Boolean);
+  }
+};
+
+// Helper to convert value to number
+const parseNumber = (val) => {
+  const n = Number(val);
+  return isNaN(n) ? 0 : n;
+};
+
 export const POST = async (req) => {
   await dbConnect();
 
@@ -16,28 +37,17 @@ export const POST = async (req) => {
 
   const formData = await req.formData();
 
-  // Required
   const name = safeString(formData.get("name"));
   const description = safeString(formData.get("description"));
-  const price = Number(formData.get("price") || 0);
   const mainCategory = safeString(formData.get("mainCategory"));
 
-  if (!name || !description || !price) {
+  if (!name || !description || !mainCategory)
     return NextResponse.json(
-      { message: "Name, description and price are required" },
+      { message: "Name, description, and mainCategory are required" },
       { status: 400 },
     );
-  }
 
-  // Validate mainCategory
-  if (!/^fashion$/i.test(mainCategory) && !/^food$/i.test(mainCategory)) {
-    return NextResponse.json(
-      { message: "Invalid mainCategory. Product not added." },
-      { status: 400 },
-    );
-  }
-
-  // Duplicate check
+  // Prevent duplicate
   const existingProduct = await Product.findOne({
     name: { $regex: `^${name}$`, $options: "i" },
   });
@@ -47,72 +57,7 @@ export const POST = async (req) => {
       { status: 409 },
     );
 
-  // Helper functions
-  const toArrayField = (val) => (Array.isArray(val) ? val : val ? [val] : []);
-  const safeStringField = (val) => (typeof val === "string" ? val.trim() : "");
-
-  // Arrays
-  const size = toArrayField(formData.getAll("size[]")).map(safeStringField);
-  const color = toArrayField(formData.getAll("color[]")).map(safeStringField);
-  const material = toArrayField(formData.getAll("material[]")).map(
-    safeStringField,
-  );
-  const tags = toArrayField(formData.getAll("tags[]")).map(safeStringField);
-  const metaKeywords = toArrayField(formData.getAll("metaKeywords[]")).map(
-    safeStringField,
-  );
-
-  const bulletDescription = toArrayField(
-    formData.getAll("bulletDescription[]"),
-  ).map(safeStringField);
-  const bulletKeyValueDescription = toArrayField(
-    formData.getAll("bulletKeyValueDescription[]"),
-  )
-    .map((b) => {
-      try {
-        const parsed = JSON.parse(b);
-        return parsed.key && parsed.value ? parsed : null;
-      } catch {
-        return null;
-      }
-    })
-    .filter(Boolean);
-
-  // Strings
-  const brand = safeStringField(formData.get("brand"));
-  const category = safeStringField(formData.get("category"));
-  const gender = safeStringField(formData.get("gender")) || "Unisex"; // Required for Fashion
-  const weight = safeStringField(formData.get("weight"));
-  const metaTitle = safeStringField(formData.get("metaTitle"));
-  const metaDescription = safeStringField(formData.get("metaDescription"));
-  const countryOfOrigin = safeStringField(formData.get("countryOfOrigin"));
-  const offerPrice = Number(formData.get("offerPrice") || 0);
-  const rating = Number(formData.get("rating") || 0);
-  const isFeatured = formData.get("isFeatured") === "true";
-  const isPublished = formData.get("isPublished") === "true";
-
-  // Dimensions
-  const dimensions = {
-    length: safeStringField(formData.get("dimensions[length]")),
-    width: safeStringField(formData.get("dimensions[width]")),
-    height: safeStringField(formData.get("dimensions[height]")),
-  };
-
-  // Category-specific
-  let fashion = null;
-  let food = null;
-
-  if (/^fashion$/i.test(mainCategory)) {
-    fashion = { color, size, material, gender, dimensions };
-  } else if (/^food$/i.test(mainCategory)) {
-    food = {
-      sku: safeStringField(formData.get("sku")),
-      foodType: safeStringField(formData.get("foodType")),
-      taste: safeStringField(formData.get("taste")),
-    };
-  }
-
-  // Images (only upload if valid category)
+  // Upload images
   const uploadedFiles = formData.getAll("images");
   const buffers = [];
   for (const file of uploadedFiles) {
@@ -121,7 +66,6 @@ export const POST = async (req) => {
       buffers.push(Buffer.from(arrayBuffer));
     }
   }
-
   const uploadedUrls =
     buffers.length > 0
       ? await uploadMultipleToCloudinary(buffers, "Rabbit")
@@ -131,50 +75,98 @@ export const POST = async (req) => {
     altText: name || `Product ${i + 1}`,
   }));
 
-  // Build product object
+  // ---------- Fashion ----------
+  let fashion = [];
+  if (/^fashion$/i.test(mainCategory)) {
+    const rawFashion = formData.getAll("fashion[]");
+    fashion = rawFashion
+      .map((item) => {
+        try {
+          const parsed = JSON.parse(item);
+          return {
+            color: parseStringArray(parsed.color),
+            size: parseStringArray(parsed.size),
+            price: parseNumber(parsed.price), // number
+            offerPrice: parseNumber(parsed.offerPrice), // number
+            stock: parseNumber(parsed.stock),
+            sku: safeString(parsed.sku),
+            gender: safeString(parsed.gender),
+          };
+        } catch {
+          return null;
+        }
+      })
+      .filter(Boolean);
+  }
+
+  // ---------- Food ----------
+  let food = [];
+  if (/^food$/i.test(mainCategory)) {
+    const rawFood = formData.getAll("food[]");
+    food = rawFood
+      .map((item) => {
+        try {
+          const parsed = JSON.parse(item);
+          return {
+            sku: safeString(parsed.sku),
+            foodType: safeString(parsed.foodType),
+            weight: parseStringArray(parsed.weight),
+            taste: safeString(parsed.taste),
+            price: parseNumber(parsed.price), // number
+            offerPrice: parseNumber(parsed.offerPrice), // number
+            batchNumber: safeString(parsed.batchNumber),
+            stock: parseNumber(parsed.stock),
+          };
+        } catch {
+          return null;
+        }
+      })
+      .filter(Boolean);
+  }
+
+  // ---------- Other fields ----------
   const productObj = {
     user: admin.id,
     name,
     description,
-    originalPrice: Number(formData.get("originalPrice") || 0),
-    price,
-    offerPrice,
-    stock: Number(formData.get("stock") || 0),
-    size,
-    color,
-    material,
-    brand,
-    tags,
-    bulletDescription,
-    bulletKeyValueDescription,
-    gender,
-    category,
-    weight,
-    mainCategory,
-    metaTitle,
-    metaDescription,
-    metaKeywords,
-    dimensions,
-    countryOfOrigin,
-    rating,
-    isFeatured,
-    isPublished,
+    mainCategory:
+      mainCategory.charAt(0).toUpperCase() +
+      mainCategory.slice(1).toLowerCase(),
     images,
-    fashion, // only set if Fashion
-    food, // only set if Food
+    tags: formData.getAll("tags[]") || [],
+    bulletDescription: formData.getAll("bulletDescription[]") || [],
+    bulletKeyValueDescription: (
+      formData.getAll("bulletKeyValueDescription[]") || []
+    )
+      .map((v) => {
+        try {
+          return JSON.parse(v);
+        } catch {
+          return null;
+        }
+      })
+      .filter(Boolean),
+    metaTitle: safeString(formData.get("metaTitle")),
+    category: safeString(formData.get("category")),
+    metaDescription: safeString(formData.get("metaDescription")),
+    isFeatured: formData.get("isFeatured") === "true",
+    isPublished: formData.get("isPublished") === "true",
+    rating: parseNumber(formData.get("rating")),
+    countryOfOrigin: safeString(formData.get("countryOfOrigin")),
+    brand: safeString(formData.get("brand")),
+    weight: safeString(formData.get("weight")),
+    material: safeString(formData.get("material")),
+    fashion: fashion.length ? fashion : undefined,
+    food: food.length ? food : undefined,
   };
 
-  try {
-    const newProduct = await Product.create(productObj);
-    return NextResponse.json(
-      { message: "Product created successfully!", newProduct },
-      { status: 201 },
-    );
-  } catch (err) {
-    console.error("CREATE PRODUCT ERROR:", err);
-    return NextResponse.json(
-      { message: "Server Error", error: err.message },
-      { status: 500 },
-    );
-  }
+  // ---------- LOG for debugging ----------
+  console.log("FINAL PRODUCT OBJECT:", JSON.stringify(productObj, null, 2));
+
+  const newProduct = await Product.create(productObj);
+
+  return NextResponse.json(
+    { message: "Product created successfully!", newProduct },
+    { status: 201 },
+  );
 };

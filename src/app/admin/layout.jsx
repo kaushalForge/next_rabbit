@@ -22,14 +22,9 @@ export default function AdminLayout({ children }) {
     return null;
   }
 
-  const sidebarWidth = collapsed ? "80px" : "250px";
-
   return (
     <div className="flex bg-gray-100">
-      <div
-        className="fixed top-0 left-0 h-screen z-20"
-        style={{ width: sidebarWidth }}
-      >
+      <div className="fixed top-0 left-0 h-screen z-20">
         <AdminSidebar
           collapsed={collapsed}
           toggleCollapse={() => setCollapsed(!collapsed)}
@@ -37,8 +32,9 @@ export default function AdminLayout({ children }) {
       </div>
 
       <main
-        className="flex-1 p-2 min-h-screen transition-all duration-300"
-        style={{ marginLeft: sidebarWidth }}
+        className={`flex-1 p-2 ml-18 min-h-screen transition-all duration-300 ${
+          collapsed ? "lg:ml-20" : "lg:ml-64"
+        }`}
       >
         {children}
       </main>

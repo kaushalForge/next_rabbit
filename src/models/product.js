@@ -6,11 +6,13 @@ const productSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "user",
       required: true,
+      index: true,
     },
 
     name: {
       type: String,
       trim: true,
+      index: true,
       required: true,
       unique: true,
     },
@@ -22,9 +24,8 @@ const productSchema = new mongoose.Schema(
 
     bulletKeyValueDescription: [
       {
-        key: { type: String, required: true },
-        value: { type: String, required: true },
-        _id: false,
+        key: { type: String },
+        value: { type: String },
       },
     ],
 
@@ -36,7 +37,6 @@ const productSchema = new mongoose.Schema(
 
     brand: {
       type: String,
-      trim: true,
     },
 
     mainCategory: {
@@ -48,17 +48,7 @@ const productSchema = new mongoose.Schema(
 
     category: {
       type: String,
-      required: true,
       index: true,
-    },
-
-    price: {
-      type: Number,
-      required: true,
-    },
-
-    offerPrice: {
-      type: Number,
     },
 
     stock: {
@@ -72,7 +62,6 @@ const productSchema = new mongoose.Schema(
 
     images: {
       type: Array,
-      required: true,
     },
 
     tags: [String],
@@ -97,33 +86,55 @@ const productSchema = new mongoose.Schema(
       default: 0,
     },
 
+    dimensions: {
+      length: String,
+      breadth: String,
+      height: String,
+    },
+
+    material: {
+      type: String,
+    },
+
     countryOfOrigin: {
       type: String,
     },
 
     fashion: [
       {
-        color: {
-          type: String,
+        color: [
+          {
+            type: String,
+            required: true,
+          },
+        ],
+
+        size: [
+          {
+            type: String,
+            required: true,
+          },
+        ],
+
+        price: {
+          type: Number,
           required: true,
-          trim: true,
         },
 
-        size: {
-          type: String,
-          required: true,
-          trim: true,
+        offerPrice: {
+          type: Number,
         },
 
         stock: {
           type: Number,
-          required: true,
-          min: 0,
         },
 
         sku: {
           type: String,
-          // unique: true,
+        },
+
+        gender: {
+          type: String,
         },
       },
     ],
@@ -132,15 +143,29 @@ const productSchema = new mongoose.Schema(
       {
         sku: {
           type: String,
-          // unique: true,
         },
 
         foodType: {
           type: String, // Veg, Non-veg, Vegan
         },
 
+        weight: [
+          {
+            type: String, // "500gm", "1kg", "2kg"
+          },
+        ],
+
         taste: {
           type: String,
+        },
+
+        price: {
+          type: Number,
+          required: true,
+        },
+
+        offerPrice: {
+          type: Number,
         },
 
         batchNumber: String,

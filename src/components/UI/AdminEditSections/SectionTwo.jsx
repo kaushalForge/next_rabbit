@@ -1,7 +1,7 @@
 "use client";
 
 import { FaSave } from "react-icons/fa";
-import EditDescriptions from "../AdminNewProductSection/HelpersUI/EditDescriptions";
+import EditDescriptions from "../AdminNewProductSection/ResuableHelpers/EditDescriptions";
 
 const SectionTwo = ({
   // PRODUCT CORE
@@ -51,10 +51,6 @@ const SectionTwo = ({
   setMetaTitle,
   metaDescription,
   setMetaDescription,
-
-  // DIMENSIONS
-  dimensions,
-  setDimensions,
 
   // FLAGS
   isFeatured,
@@ -221,7 +217,7 @@ const SectionTwo = ({
         </div>
       </div>
 
-      {/* ---------------- WEIGHT, DIMENSIONS ---------------- */}
+      {/* ---------------- WEIGHT ---------------- */}
       <div className="grid md:grid-cols-4 gap-4">
         <div className="relative">
           <label className="absolute -top-3 left-3 bg-gray-100 px-1 text-sm text-gray-600">
@@ -233,21 +229,6 @@ const SectionTwo = ({
             className="w-full border rounded-xl p-3"
           />
         </div>
-
-        {["length", "width", "height"].map((dim) => (
-          <div key={dim} className="relative">
-            <label className="absolute -top-3 left-3 bg-gray-100 px-1 text-sm text-gray-600">
-              {dim.toUpperCase()}
-            </label>
-            <input
-              value={dimensions[dim]}
-              onChange={(e) =>
-                setDimensions({ ...dimensions, [dim]: e.target.value })
-              }
-              className="w-full border rounded-xl p-3"
-            />
-          </div>
-        ))}
       </div>
 
       {/* ---------------- META ---------------- */}
