@@ -2,12 +2,12 @@
 
 import { useState, useMemo } from "react";
 import { useCart } from "@/app/context/CartContext";
-import { Skeleton } from "../UI/skeleton";
-import { Button } from "../UI/button";
+import { Skeleton } from "../ui/skeleton";
+import { Button } from "../ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { toast } from "sonner";
 import { useAuth } from "@/app/context/AuthContext";
-import { Input } from "../UI/input";
+import { Input } from "../ui/input";
 
 const Checkout = () => {
   const { cart, totalPrice } = useCart();

@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { addToCartAction, fetchCartAction } from "@/actions/handleCart";
 import { useAuth } from "@/app/context/AuthContext";
 import { useCart } from "@/app/context/CartContext";
-import ProductDescription from "@/components/UI/ProductDetails/ProductDetailsDescription";
+import ProductDescription from "@/components/ui/ProductDetails/ProductDetailsDescription";
 
 const ProductDetails = ({ productId, productDetail }) => {
   const { id } = useParams();
