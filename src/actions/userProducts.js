@@ -48,18 +48,13 @@ export async function getNewArrivals() {
 }
 
 export async function getBestSellers() {
-  try {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_SITE_URL}/api/products/best-seller`,
-      {
-        cache: "no-store",
-        credentials: "include",
-      },
-    );
-    bestSeller = await res.json();
-  } catch (err) {
-    console.log("Failed to fetch products:", err.message);
-  }
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_SITE_URL}/api/products/best-seller`,
+    {
+      cache: "no-store",
+      credentials: "include",
+    },
+  );
 
   return await res.json();
 }
