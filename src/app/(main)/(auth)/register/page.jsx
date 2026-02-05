@@ -1,10 +1,12 @@
-"use client";
-import React from "react";
 import Register from "@/components/pages/Register";
+import { Suspense } from "react";
+
 const page = () => {
   return (
     <div>
-      <Register />
+      <Suspense>
+        <Register />
+      </Suspense>
     </div>
   );
 };

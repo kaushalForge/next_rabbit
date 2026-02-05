@@ -25,9 +25,9 @@ const page = () => {
       </Suspense>
 
       {/* Product Details */}
-      <Suspense>
-        <Product productId="697a42c1b69cff340257e509" />
-      </Suspense>
+      {/* <Suspense>
+        <Product productId="697e0e7d38778a5f62f3be20" />
+      </Suspense> */}
       <FeaturedCollection />
       <FeaturedSection />
       <Footer />

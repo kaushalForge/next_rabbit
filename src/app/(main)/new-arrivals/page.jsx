@@ -1,19 +1,9 @@
 import NewArrivals from "@/components/Products/NewArrivals";
+import { getNewArrivals } from "@/actions/userProducts";
 
 const NewArrivalRouting = async () => {
-  try {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_SITE_URL}/api/products/new-arrivals`,
-      {
-        cache: "no-store",
-        credentials: "include",
-      },
-    );
-
-    const newArrivals = await res.json();
-    return <NewArrivals newArrivals={newArrivals} />;
-  } catch (err) {
-    console.error("Failed to fetch products:", err);
-  }
+  const newArrivals = await getNewArrivals();
+  return <NewArrivals newArrivals={newArrivals} />;
 };
+
 export default NewArrivalRouting;

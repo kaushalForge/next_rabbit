@@ -4,6 +4,7 @@ import ReduxProvider from "@/components/redux/ReduxProvider";
 import { Toaster } from "sonner";
 import { AuthProvider } from "./context/AuthContext";
 import { CartProvider } from "./context/CartContext";
+import { Suspense } from "react";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,11 +33,13 @@ export default async function AdminLayout({ children }) {
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <Toaster position="top-right" visibleToasts={4} duration={1200} />
-        <AuthProvider>
-          <CartProvider>
-            <ReduxProvider>{children}</ReduxProvider>
-          </CartProvider>
-        </AuthProvider>
+        <Suspense>
+          <AuthProvider>
+            <CartProvider>
+              <ReduxProvider>{children}</ReduxProvider>
+            </CartProvider>
+          </AuthProvider>
+        </Suspense>
       </body>
     </html>
   );

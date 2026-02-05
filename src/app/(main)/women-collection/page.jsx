@@ -1,21 +1,9 @@
 import WomenCollection from "@/components/Layout/WomenCollection";
+import { getWomenCollections } from "@/actions/userProducts";
 
 const WomenCollectionRouting = async () => {
-  try {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_SITE_URL}/api/products/women-collections`,
-      {
-        method: "GET",
-        credentials: "include",
-        cache: "no-store",
-      },
-    );
-
-    const womenCollection = await res.json();
-    return <WomenCollection products={womenCollection} />;
-  } catch (error) {
-    console.log(error, "error occured");
-  }
+  const womenCollection = await getWomenCollections();
+  return <WomenCollection products={womenCollection} />;
 };
 
 export default WomenCollectionRouting;

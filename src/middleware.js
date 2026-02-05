@@ -3,7 +3,11 @@ import { NextResponse } from "next/server";
 export function middleware(request) {
   const { pathname } = request.nextUrl;
 
-  if (!pathname.startsWith("/admin") && !pathname.startsWith("/api/admin")) {
+  if (
+    !pathname.startsWith("/admin") &&
+    !pathname.startsWith("/api/admin") &&
+    !pathname.startsWith("/checkout")
+  ) {
     return NextResponse.next();
   }
 
@@ -16,5 +20,5 @@ export function middleware(request) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/api/admin/:path*"],
+  matcher: ["/admin/:path*", "/api/admin/:path*", "/checkout"],
 };
