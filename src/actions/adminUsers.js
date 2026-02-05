@@ -3,6 +3,31 @@
 import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
 
+export async function fetchUsersAdminAction() {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get("cUser")?.value;
+
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_SITE_URL}/api/admin/users`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Cookie: `cUser=${token}`,
+        },
+        credentials: "include",
+        cache: "no-store",
+      },
+    );
+
+    const data = await res.json();
+    return data.users || [];
+  } catch (error) {
+    console.error("fetchUsersAdminAction error:", error);
+    return [];
+  }
+}
 export async function createUserAction(userData) {
   const cookieStore = await cookies();
   const token = cookieStore.get("cUser")?.value;

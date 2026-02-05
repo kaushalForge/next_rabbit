@@ -1,28 +1,25 @@
+// app/admin/users/page.jsx
 import UserManagement from "@/components/Admin/UserManagement";
-import { cookies } from "next/headers";
+import { fetchUsersAdminAction } from "@/actions/adminUsers";
 
-const page = async () => {
+// Force server-side rendering to access cookies safely
+export const dynamic = "force-dynamic";
+
+const Page = async () => {
   try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get("cUser")?.value;
+    // Fetch users using the centralized action
+    const users = await fetchUsersAdminAction();
 
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_SITE_URL}/api/admin/users`,
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Cookie: `cUser=${token}`,
-        },
-        credentials: "include",
-        cache: "no-store",
-      },
-    );
-    const { users } = await res.json();
+    // Render the UserManagement component with fetched data
     return <UserManagement allUsersData={users} />;
   } catch (error) {
     console.error("Fetch error:", error);
-    return <div className="text-red-500 p-4">Error: {error.message}</div>;
+    return (
+      <div className="text-red-500 p-4">
+        Error fetching users: {error.message}
+      </div>
+    );
   }
 };
 
-export default page;
+export default Page;

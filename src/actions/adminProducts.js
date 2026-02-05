@@ -2,7 +2,31 @@
 
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
-import Product from "@/models/product";
+
+export async function fetchProductsAdminAction() {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get("cUser")?.value;
+
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_SITE_URL}/api/admin/products`,
+      {
+        method: "GET",
+        headers: {
+          Cookie: `cUser=${token}`,
+        },
+        credentials: "include",
+        cache: "no-store",
+      },
+    );
+
+    const { products } = await res.json();
+    return products;
+  } catch (error) {
+    console.error("fetchProductsAdminAction error:", error);
+    throw error;
+  }
+}
 
 export async function createProductAction(productData) {
   const cookieStore = await cookies();
