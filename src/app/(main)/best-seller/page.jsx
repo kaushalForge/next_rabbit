@@ -1,17 +1,8 @@
 import BestSeller from "@/components/Products/BestSeller";
+import { getBestSellers } from "@/actions/userProducts";
 
 export default async function ProductsPage() {
-  let bestSeller = [];
-
-  try {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/products/best-seller`,
-      { credentials: "include" },
-    );
-    bestSeller = await res.json();
-  } catch (err) {
-    console.log("Failed to fetch products:", err.message);
-  }
+  const bestSeller = await getBestSellers();
 
   return <BestSeller bestSeller={bestSeller} />;
 }
