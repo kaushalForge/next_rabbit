@@ -1,9 +1,9 @@
 "use client";
 
 import { FaPlus, FaTrash } from "react-icons/fa";
-import { Input } from "../../input";
-import { Textarea } from "../../textarea";
-import { CardHeader, CardTitle } from "../../card";
+import { Input } from "../input";
+import { Textarea } from "../textarea";
+import { CardHeader, CardTitle } from "../card";
 
 /* ---------- SAFE HELPERS ---------- */
 const safeArray = (v) => (Array.isArray(v) ? v : []);

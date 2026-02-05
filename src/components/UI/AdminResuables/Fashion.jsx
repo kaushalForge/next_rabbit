@@ -1,16 +1,16 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Input } from "../../input";
-import { Button } from "../../button";
-import { CardHeader, CardTitle } from "../../card";
+import { Input } from "../input";
+import { Button } from "../button";
+import { CardHeader, CardTitle } from "../card";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../../select";
+} from "../select";
 
 const EMPTY_VARIANT = {
   color: [],

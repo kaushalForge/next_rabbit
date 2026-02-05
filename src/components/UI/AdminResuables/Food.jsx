@@ -1,8 +1,8 @@
 "use client";
 import { useEffect } from "react";
-import { Input } from "../../input";
-import { Button } from "../../button";
-import { CardHeader, CardTitle } from "../../card";
+import { Input } from "../input";
+import { Button } from "../button";
+import { CardHeader, CardTitle } from "../card";
 
 // EMPTY_BATCH: Always number for price/offerPrice
 const EMPTY_BATCH = {

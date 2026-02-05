@@ -2,15 +2,15 @@
 
 import { useState, useRef, useEffect } from "react";
 import { toast } from "sonner";
-import SectionOne from "@/components/ui/AdminNewProductSection/SectionOne";
-import SectionTwo from "@/components/ui/AdminNewProductSection/SectionTwo";
+import SectionOne from "@/components/ui/AdminResuables/SectionOne";
+import SectionTwo from "@/components/ui/AdminResuables/SectionTwo";
 import { updateProductAction } from "@/actions/adminProducts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
-import Descriptions from "@/components/ui/AdminNewProductSection/ResuableHelpers/Descriptions";
-import Fashion from "@/components/ui/AdminNewProductSection/ResuableHelpers/Fashion";
-import Food from "@/components/ui/AdminNewProductSection/ResuableHelpers/Food";
+import Descriptions from "@/components/ui/AdminResuables/Descriptions";
+import Fashion from "@/components/ui/AdminResuables/Fashion";
+import Food from "@/components/ui/AdminResuables/Food";
 import {
   Select,
   SelectContent,
