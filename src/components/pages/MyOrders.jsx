@@ -1,112 +1,187 @@
-import React, { useEffect, useState } from "react";
+"use client";
+
+import { useOrders } from "@/app/context/OrderContext";
+import { useEffect } from "react";
+import Image from "next/image";
+import { MdPerson, MdPhone, MdLocationOn } from "react-icons/md";
+
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
+} from "@/components/ui/table";
 
 const MyOrders = () => {
-  const [orders, setOrders] = useState([]);
+  const { orders, allShipments, loading, refreshOrders } = useOrders();
+  const statusColors = {
+    Pending: "bg-yellow-100 text-yellow-800",
+    Shipped: "bg-blue-100 text-blue-800",
+    Delivered: "bg-green-100 text-green-800",
+    Canceled: "bg-red-100 text-red-800",
+  };
 
   useEffect(() => {
-    setTimeout(() => {
-      const mockOrders = [
-        {
-          _id: "12344",
-          createdAt: new Date(),
-          shippingAddress: { city: "New York", country: "USA" },
-          orderItems: [
-            {
-              name: "Product 1",
-              image: "https://picsum.photos/500/500?random=1",
-            },
-          ],
-          totalPrice: 100,
-          isPaid: true,
-        },
-        {
-          _id: "2334",
-          createdAt: new Date(),
-          shippingAddress: { city: "Kathmandu", country: "Nepal" },
-          orderItems: [
-            {
-              name: "Product 2",
-              image: "https://picsum.photos/500/500?random=2",
-            },
-          ],
-          totalPrice: 120,
-          isPaid: false,
-        },
-      ];
-      setOrders(mockOrders);
-    }, 1000);
-  }, []);
+    refreshOrders();
+  }, [refreshOrders]);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <p className="text-gray-500 text-lg font-medium">Loading orders...</p>
+      </div>
+    );
+  }
+
+  if (!allShipments || allShipments.length === 0) {
+    return (
+      <div className="text-center text-gray-500 text-lg font-medium">
+        You have no orders yet.
+      </div>
+    );
+  }
+
+  // Group shipments by orderId
+  const ordersMap = allShipments.reduce((acc, shipment) => {
+    const orderId = shipment.orderId || "Unknown";
+    if (!acc[orderId]) acc[orderId] = [];
+    acc[orderId].push(shipment);
+    return acc;
+  }, {});
 
   return (
-    <>
-      <div className="max-w-7xl mx-auto p-4 sm:p-6">
-        <h2 className="text-xl sm:text-2xl font-bold mb-6">My Orders</h2>
-        <div className="relative shadow-md sm:rounded-lg overflow-hidden">
-          <table className="min-w-full text-left text-gray-500">
-            <thead className="bg-gray-100 text-xs uppercase text-gray-700">
-              <tr>
-                <th className="py-2 px-4 sm:py-3">Image</th>
-                <th className="py-2 px-4 sm:py-3">Order ID</th>
-                <th className="py-2 px-4 sm:py-3">Created</th>
-                <th className="py-2 px-4 sm:py-3">Shipping Address</th>
-                <th className="py-2 px-4 sm:py-3">Items</th>
-                <th className="py-2 px-4 sm:py-3">Price</th>
-                <th className="py-2 px-4 sm:py-3">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {orders.length > 0 ? (
-                orders.map((order) => (
-                  <tr
-                    key={order._id}
-                    className="border-b hover:border-gray-50 cursor-pointer"
+    <div className="flex flex-col gap-6">
+      {Object.entries(ordersMap).map(([orderId, shipments]) => {
+        return (
+          <div
+            key={orderId}
+            className="overflow-hidden rounded-xl border border-gray-200"
+          >
+            {/* Order Header */}
+            <div className="p-4 bg-[#ff4500] text-white font-semibold flex justify-between items-center">
+              <div className="text-base">
+                Created:{" "}
+                {shipments[0]?.createdAt &&
+                  new Date(shipments[0].createdAt).toLocaleString()}
+              </div>
+              <div className="flex items-center gap-2">
+                <span>(Including all charges) Rs.{orders[0]?.totalPrice}</span>
+              </div>
+            </div>
+
+            {/* Shipments Table */}
+            <Table className="min-w-full table-auto">
+              <TableHeader>
+                <TableRow className="bg-gray-50">
+                  <TableHead>Customer Details</TableHead>
+                  <TableHead>Delivery</TableHead>
+                  <TableHead>Products</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Total</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {shipments.map((shipment) => (
+                  <TableRow
+                    key={shipment._id}
+                    className="hover:bg-gray-50 transition-colors"
                   >
-                    <td className="p-2 sm:p-4">
-                      <img
-                        src={order.orderItems[0].image}
-                        alt={order.orderItems[0].name}
-                        className="w-10 h-10 sm:w-12 sm:h-12 object-cover rounded-lg"
-                      />
-                    </td>
-                    <td className="p-2 sm:p-4 font-medium text-gray-900 whitespace-nowrap">
-                      #{order._id}
-                    </td>
-                    <td className="p-2 sm:p-4">
-                      {new Date(order.createdAt).toLocaleDateString()}{" "}
-                      {new Date(order.createdAt).toLocaleTimeString()}
-                    </td>
-                    <td className="p-2 sm:p-4">
-                      {order.shippingAddress
-                        ? `${order.shippingAddress.city},${order.shippingAddress.country}`
-                        : "N/A"}
-                    </td>
-                    <td className="p-2 sm:p-4">{order.orderItems[0].name}</td>
-                    <td className="p-2 sm:p-4">$ {order.totalPrice}</td>
-                    <td className="p-2 sm:p-4">
-                      <span
-                        className={`${
-                          order.isPaid
-                            ? "bg-green-100 text-green-700"
-                            : "bg-red-100 text-red-700"
-                        } px-2 py-1 rounded-full text-xs sm:text-sm font-medium`}
-                      >
-                        {order.isPaid ? "Paid" : "Pending"}
-                      </span>
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan={7} className="p-4 text-center text-gray-500">
-                    You have no orders
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </>
+                    {/* Customer */}
+                    <TableCell>
+                      <div className="flex flex-col gap-1">
+                        <div className="flex items-center gap-2">
+                          <MdPerson className="text-gray-500" />
+                          <span>{shipment.customer?.fullName || "N/A"}</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-sm text-gray-400">
+                          <MdPhone className="text-gray-500" />
+                          {shipment.customer?.phone || "-"}
+                        </div>
+                      </div>
+                    </TableCell>
+
+                    {/* Delivery */}
+                    <TableCell>
+                      <div className="flex flex-col gap-1">
+                        <div className="flex items-center gap-2">
+                          <MdLocationOn className="text-green-500" />
+                          <span>
+                            {shipment.delivery?.city || "-"},{" "}
+                            {shipment.delivery?.district || "-"},{" "}
+                            {shipment.delivery?.province || "-"}
+                          </span>
+                        </div>
+                      </div>
+                    </TableCell>
+
+                    {/* Products */}
+                    <TableCell className="align-top">
+                      <div className="space-y-3">
+                        {(shipment.products || []).map((p, idx) => (
+                          <div
+                            key={idx}
+                            className="flex items-center gap-2 text-sm"
+                          >
+                            {p.image && (
+                              <Image
+                                src={p.image}
+                                alt={p.name}
+                                width={50}
+                                height={40}
+                                className="rounded-sm flex-shrink-0"
+                              />
+                            )}
+
+                            <div className="flex flex-col">
+                              <span className="font-medium text-gray-800">
+                                {p.name}
+                              </span>
+
+                              <span className="text-gray-500 text-xs">
+                                X{p.quantity} — {p.size} — {p.color}
+                              </span>
+
+                              <div className="flex gap-2 text-xs flex-wrap">
+                                <span className="text-gray-500 line-through">
+                                  Rs.{p.price || 0}
+                                </span>
+                                <span className="text-orange-600 font-medium">
+                                  Offer Price: Rs.{p.offerPrice || 0}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </TableCell>
+                    {/* Status */}
+                    <TableCell className="align-center text-center">
+                      <div className="flex items-center justify-center">
+                        <span
+                          className={`inline-block px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${
+                            statusColors[shipment.status] ||
+                            "bg-gray-100 text-gray-600"
+                          }`}
+                        >
+                          {shipment.status || "Pending"}
+                        </span>
+                      </div>
+                    </TableCell>
+
+                    {/* Shipment Total */}
+                    <TableCell className="font-medium text-gray-700">
+                      {shipment.price} Rs.{shipment.shipmentTotal || 0}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        );
+      })}
+    </div>
   );
 };
 

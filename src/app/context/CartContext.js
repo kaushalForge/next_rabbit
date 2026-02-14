@@ -7,7 +7,7 @@ import {
   useEffect,
   useCallback,
 } from "react";
-import { toast } from "sonner";
+import { useAuth } from "./AuthContext";
 import {
   fetchCartAction,
   addToCartAction,
@@ -18,15 +18,19 @@ import {
 const CartContext = createContext();
 
 export const CartProvider = ({ children }) => {
-  const [cart, setCart] = useState([]); // products array
+  const { currentUser } = useAuth();
+
+  const [cart, setCart] = useState([]);
   const [cartQuantity, setCartQuantity] = useState(0);
   const [totalPrice, setTotalPrice] = useState(0);
   const [loading, setLoading] = useState(true);
 
   /* =========================
-        Fetch Cart
+        Fetch Cart (only if user exists)
   ========================= */
   const fetchCart = useCallback(async () => {
+    if (!currentUser) return;
+
     setLoading(true);
     try {
       const { status, products, totalPrice } = await fetchCartAction();
@@ -34,161 +38,127 @@ export const CartProvider = ({ children }) => {
       if (status === 200 || status === 201) {
         setCart(products || []);
         setTotalPrice(totalPrice || 0);
-        const quantity =
-          products?.reduce((acc, p) => acc + (p.quantity || 1), 0) || 0;
-        setCartQuantity(quantity);
-      } else {
-        console.error("Failed to fetch cart");
       }
     } catch (err) {
       console.error("fetchCart error:", err);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [currentUser]);
 
-  /* =========================
-        Refresh Cart
-        Just calls fetchCart
-  ========================= */
   const refreshCart = useCallback(async () => {
     await fetchCart();
   }, [fetchCart]);
 
   /* =========================
-        Add Item to Cart
+        Add Item
   ========================= */
-  const addCart = async ({
-    productId,
-    quantity = 1,
-    price,
-    offerPrice,
-    size = "",
-    color = "",
-    name,
-  }) => {
+  const addCart = async (data) => {
     try {
-      // Optimistic UI
       setCart((prev) => {
         const exists = prev.find(
           (p) =>
-            p.productId === productId && p.size === size && p.color === color,
+            p.productId === data.productId &&
+            p.size === data.size &&
+            p.color === data.color,
         );
+
         if (exists) {
           return prev.map((p) =>
-            p.productId === productId && p.size === size && p.color === color
-              ? { ...p, quantity: (p.quantity || 1) + quantity }
+            p.productId === data.productId &&
+            p.size === data.size &&
+            p.color === data.color
+              ? { ...p, quantity: (p.quantity || 1) + data.quantity }
               : p,
           );
         }
-        return [
-          ...prev,
-          { productId, price, offerPrice, quantity, size, color, name },
-        ];
+
+        return [...prev, data];
       });
 
-      const response = await addToCartAction({
-        productId,
-        quantity,
-        price,
-        offerPrice,
-        size,
-        color,
-      });
-
-      await refreshCart(); // Sync with server
-      return response;
-    } catch (err) {
-      console.error("addCart error:", err);
+      await addToCartAction(data);
       await refreshCart();
-      return { status: 500, message: "Failed to add item" };
+    } catch {
+      await refreshCart();
     }
   };
 
   /* =========================
-        Update Cart Quantity
+        Update Quantity
   ========================= */
-  const updateCart = async ({ productId, quantity, size, color }) => {
+  const updateCart = async (data) => {
     try {
-      // Optimistic UI
       setCart((prev) =>
         prev.map((p) =>
-          p.productId === productId && p.size === size && p.color === color
-            ? { ...p, quantity }
+          p.productId === data.productId &&
+          p.size === data.size &&
+          p.color === data.color
+            ? { ...p, quantity: data.quantity }
             : p,
         ),
       );
 
-      const response = await updateCartItemQuantityAction({
-        productId,
-        quantity,
-        size,
-        color,
-      });
-
-      await refreshCart(); // Sync with server
-      return response;
-    } catch (err) {
-      console.error("updateCart error:", err);
+      await updateCartItemQuantityAction(data);
       await refreshCart();
-      return { status: 500, message: "Failed to update cart" };
+    } catch {
+      await refreshCart();
     }
   };
 
   /* =========================
-        Remove Item from Cart
+        Remove Item
   ========================= */
-  const removeCart = async ({ productId, size, color }) => {
+  const removeCart = async (data) => {
     try {
-      // Optimistic UI
       setCart((prev) =>
         prev.filter(
           (p) =>
             !(
-              p.productId === productId &&
-              p.size === size &&
-              p.color === color
+              p.productId === data.productId &&
+              p.size === data.size &&
+              p.color === data.color
             ),
         ),
       );
 
-      const response = await removeFromCartAction({ productId, size, color });
-
-      await refreshCart(); // Sync with server
-      return response;
-    } catch (err) {
-      console.error("removeCart error:", err);
+      const { status, message, products, totalPrice } =
+        await removeFromCartAction(data);
+      setTotalPrice(totalPrice);
+      setCart(products);
       await refreshCart();
-      return { status: 500, message: "Failed to remove item" };
+      return { status, message };
+    } catch {
+      await refreshCart();
     }
   };
 
-  /* =========================
-        Clear Cart (local only)
-  ========================= */
   const clearCart = () => {
     setCart([]);
     setCartQuantity(0);
     setTotalPrice(0);
-    toast.success("Cart cleared");
   };
 
-  // useEffect(() => {
-  //   const quantity = cart.reduce((acc, item) => acc + (item.quantity || 1), 0);
-  //   const price = cart.reduce(
-  //     (acc, item) => acc + item.price * (item.quantity || 1),
-  //     0,
-  //   );
-  //   setCartQuantity(quantity);
-  //   setTotalPrice(price);
-  // }, [cart]);
-
   /* =========================
-        Fetch cart on mount
+        Auto recalc when cart changes
   ========================= */
   useEffect(() => {
-    refreshCart();
-  }, [refreshCart]);
+    const quantity = cart.reduce((acc, p) => acc + (p.quantity || 1), 0);
+    setCartQuantity(quantity);
+  }, [cart]);
+
+  /* =========================
+        🔥 MAIN LOGIC (very important)
+        React to user change
+  ========================= */
+  useEffect(() => {
+    if (!currentUser) {
+      clearCart(); // logout → empty instantly
+      setLoading(false);
+      return;
+    }
+
+    fetchCart(); // login → fetch cart
+  }, [currentUser, fetchCart]);
 
   return (
     <CartContext.Provider

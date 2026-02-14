@@ -157,15 +157,15 @@ const ProductGrid = ({ products = [] }) => {
                     <div className="flex items-center justify-between">
                       {/* Price */}
                       <div className="text-xl font-semibold text-gray-900">
-                        {product?.offerPrice ? (
+                        {product?.fashion[0]?.offerPrice ? (
                           <div className="flex items-center gap-2 flex-row">
                             <span className="text-sm line-through text-red-400">
-                              Rs.{product?.price}
+                              Rs.{product?.fashion[0]?.price}
                             </span>
-                            <span>Rs.{product?.offerPrice}</span>
+                            <span>Rs.{product?.fashion[0]?.offerPrice}</span>
                           </div>
                         ) : (
-                          <span>Rs.{product?.price}</span>
+                          <span>Rs.{product?.fashion[0]?.price}</span>
                         )}
                       </div>
 

@@ -28,6 +28,7 @@ export async function fetchUsersAdminAction() {
     return [];
   }
 }
+
 export async function createUserAction(userData) {
   const cookieStore = await cookies();
   const token = cookieStore.get("cUser")?.value;

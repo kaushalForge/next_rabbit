@@ -1,8 +1,7 @@
 "use client";
 
 import React from "react";
-import { IoLogoInstagram } from "react-icons/io";
-import { RiTwitterXLine } from "react-icons/ri";
+import { AiFillTikTok } from "react-icons/ai";
 import { TbBrandMeta } from "react-icons/tb";
 import { FiPhoneCall } from "react-icons/fi";
 import Link from "next/link";
@@ -116,31 +115,24 @@ const Footer = () => {
             <h3 className="text-lg text-gray-800 mb-4">Follow Us</h3>
             <div className="flex items-center space-x-4 mb-6">
               <a
-                href="https://www.facebook.com"
+                href="https://www.facebook.com/profile.php?id=61587557573469"
                 target="_blank"
                 rel="noopener noreferrer"
               >
                 <TbBrandMeta className="h-6 w-6" />
               </a>
               <a
-                href="https://www.instagram.com"
+                href="https://www.tiktok.com/@rabbithubnepal"
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <IoLogoInstagram className="h-6 w-6" />
-              </a>
-              <a
-                href="https://www.twitter.com"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <RiTwitterXLine className="h-5 w-5" />
+                <AiFillTikTok className="h-6 w-6" />
               </a>
             </div>
             <p className="text-gray-500">Call Us</p>
             <p>
               <FiPhoneCall className="inline-block h-5 w-5 mr-2" />
-              +977 9834435723
+              +977 970-4063469
             </p>
           </div>
         </div>

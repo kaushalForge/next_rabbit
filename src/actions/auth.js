@@ -2,13 +2,13 @@
 
 import { cookies } from "next/headers";
 
-export async function fetchCurrentUser() {
+export async function getCurrentUser() {
   const cookieStore = await cookies();
   const token = cookieStore.get("cUser")?.value;
 
   try {
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/cookie/get-user`,
+      `${process.env.NEXT_PUBLIC_SITE_URL}/api/auth/currentUser`,
       {
         method: "GET",
         headers: {

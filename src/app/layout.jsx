@@ -4,6 +4,7 @@ import ReduxProvider from "@/components/redux/ReduxProvider";
 import { Toaster } from "sonner";
 import { AuthProvider } from "./context/AuthContext";
 import { CartProvider } from "./context/CartContext";
+import { OrderProvider } from "./context/OrderContext";
 import { Suspense } from "react";
 
 const geistSans = Geist({
@@ -36,7 +37,9 @@ export default async function AdminLayout({ children }) {
         <Suspense>
           <AuthProvider>
             <CartProvider>
-              <ReduxProvider>{children}</ReduxProvider>
+              <OrderProvider>
+                <ReduxProvider>{children}</ReduxProvider>
+              </OrderProvider>
             </CartProvider>
           </AuthProvider>
         </Suspense>

@@ -22,17 +22,17 @@ const CartContents = ({ cart }) => {
         return;
       }
 
-      const response = await updateCart({
+      const { status, message } = await updateCart({
         productId,
         quantity: newQuantity,
         size,
         color,
       });
 
-      if (response?.status === 200 || response?.status === 201) {
-        toast.success("Cart updated");
+      if (status === 200 || status === 201) {
+        toast.success(message || "Cart updated");
       } else {
-        toast.error(response?.message || "Failed to update cart");
+        toast.error(message || "Failed to update cart");
       }
     } catch (err) {
       console.error("handleUpdateCart error:", err);
@@ -42,14 +42,14 @@ const CartContents = ({ cart }) => {
 
   const handleRemoveFromCart = async (productId, size, color) => {
     try {
-      const response = await removeCart({
+      const { status, message } = await removeCart({
         productId,
         size,
         color,
       });
 
-      if (response?.status === 200 || response?.status === 201) {
-        toast.success("Removed from cart");
+      if (status === 200 || status === 201) {
+        toast.success(message || "Item removed");
       } else {
         toast.error(response?.message || "Failed to remove item");
       }

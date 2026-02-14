@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
-import { Spinner } from "@/components/ui/spinner"; // ShadCN spinner
+import { Spinner } from "@/components/ui/spinner";
 
 /* ---------------- HELPERS ---------------- */
 const toArray = (value) =>

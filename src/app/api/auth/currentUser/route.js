@@ -13,7 +13,7 @@ export async function GET() {
 
     if (!token) {
       return NextResponse.json(
-        { success: false, message: "No token provided", user: null },
+        { success: false, message: "No token provided" },
         { status: 401 },
       );
     }

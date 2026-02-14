@@ -89,8 +89,7 @@ export async function addToCartAction({
 
     return {
       status: res.status,
-      message:
-        data?.message || (res.ok ? "Item added to cart" : "Failed to add item"),
+      message: data?.message,
       products: data?.products || [],
       totalPrice: data?.totalPrice || 0,
     };
@@ -132,8 +131,7 @@ export async function updateCartItemQuantityAction({
 
     return {
       status: res.status,
-      message:
-        data?.message || (res.ok ? "Cart updated" : "Failed to update cart"),
+      message: data?.message,
       products: data?.products || [],
       totalPrice: data?.totalPrice || 0,
     };
@@ -154,7 +152,6 @@ export async function updateCartItemQuantityAction({
 export async function removeFromCartAction({ productId, size, color }) {
   try {
     const token = await getOwner();
-    if (!token) throw new Error("Unauthorized");
 
     const res = await fetch(`${API_BASE}/api/cart`, {
       method: "DELETE",
@@ -167,12 +164,10 @@ export async function removeFromCartAction({ productId, size, color }) {
     });
 
     const data = await res.json();
-
+    console.log(data, "test");
     return {
       status: res.status,
-      message:
-        data?.message ||
-        (res.ok ? "Item removed from cart" : "Failed to remove item"),
+      message: data.message,
       products: data?.products || [],
       totalPrice: data?.totalPrice || 0,
     };

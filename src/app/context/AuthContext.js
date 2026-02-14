@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { getCurrentUser } from "@/actions/auth";
 import { toast } from "sonner";
 
 const AuthContext = createContext();
@@ -11,15 +12,13 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [loggingOut, setLoggingOut] = useState(false);
 
+  const router = useRouter();
+
   const fetchCurrentUser = async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/auth/currentUser", {
-        cache: "no-store",
-        credentials: "include",
-      });
-      const data = await res.json();
-      setCurrentUser(data.user || null);
+      const res = await getCurrentUser();
+      setCurrentUser(res.user || null);
     } catch {
       setCurrentUser(null);
     } finally {
@@ -30,8 +29,6 @@ export const AuthProvider = ({ children }) => {
   const refreshCurrentUser = () => fetchCurrentUser();
 
   const logout = async () => {
-    const router = useRouter(); // ✅ moved here
-
     setLoggingOut(true);
     try {
       const res = await fetch("/api/auth/logout", {
@@ -44,6 +41,7 @@ export const AuthProvider = ({ children }) => {
 
       if (res.ok && data.success) {
         toast.success(data.message);
+
         setCurrentUser(null);
         router.replace("/login");
       }
@@ -58,7 +56,13 @@ export const AuthProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider
-      value={{ currentUser, refreshCurrentUser, logout, loading, loggingOut }}
+      value={{
+        currentUser,
+        refreshCurrentUser,
+        logout,
+        loading,
+        loggingOut,
+      }}
     >
       {children}
     </AuthContext.Provider>

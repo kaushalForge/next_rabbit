@@ -123,8 +123,12 @@ export const POST = async (req) => {
     await cart.save();
 
     return NextResponse.json(
-      { products: cart.products, totalPrice: cart.totalPrice },
-      { status: 200 },
+      {
+        products: cart.products,
+        totalPrice: cart.totalPrice,
+        message: "Cart updated!",
+      },
+      { status: 201 },
     );
   } catch (err) {
     console.error("POST cart error:", err);
@@ -193,7 +197,11 @@ export const DELETE = async (req) => {
     await cart.save();
 
     return NextResponse.json(
-      { products: cart.products, totalPrice: cart.totalPrice },
+      {
+        products: cart.products,
+        totalPrice: cart.totalPrice,
+        message: "Item removed!",
+      },
       { status: 200 },
     );
   } catch (err) {

@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { Input } from "../input";
 import { Button } from "../button";
 import { CardHeader, CardTitle } from "../card";
+import ProductDetails from "@/components/pages/ProductDetails";
 
 // EMPTY_BATCH: Always number for price/offerPrice
 const EMPTY_BATCH = {
@@ -101,11 +102,18 @@ const Food = ({ food, setFood }) => {
             onChange={(e) => updateBatch(i, "foodType", e.target.value)}
           />
 
+          {console.log(food?.[0].weight)}
           <Input
             label="Weight"
             placeholder="1kg"
-            value={b.weight}
-            onChange={(e) => updateBatch(i, "weight", e.target.value)}
+            value={
+              Array.isArray(b.weight) ? b.weight.join(", ") : b.weight || ""
+            }
+            onChange={(e) => {
+              const input = e.target.value;
+              const formatted = input.replace(/,\s*/g, ", ");
+              updateBatch(i, "weight", formatted);
+            }}
           />
 
           <Input
