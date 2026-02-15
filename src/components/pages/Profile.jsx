@@ -10,14 +10,11 @@ import {
 import { FaBoxOpen } from "react-icons/fa6";
 // import MyOrders from "./MyOrders";
 const MyOrders = lazy(() => import("./MyOrders"));
-
 import { useAuth } from "@/app/context/AuthContext";
 import Link from "next/link";
 import Image from "next/image";
-import { Spinner, Loading } from "../ui/spinner";
-import { Suspense } from "react";
 import { Skeleton } from "../ui/skeleton";
-
+import { Suspense } from "react";
 const Profile = () => {
   const { currentUser, refreshCurrentUser, logout, loggingOut } = useAuth();
   const [loading, setLoading] = useState(true);
@@ -26,7 +23,7 @@ const Profile = () => {
     if (currentUser) {
       setLoading(false);
     }
-  }, [currentUser]);
+  }, [loading, currentUser]);
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
@@ -89,11 +86,11 @@ const Profile = () => {
 
           {/* Right Column - Minimal User Card */}
           <div className="w-full lg:w-72 aspect-square shrink-0 flex flex-col h-full self-start lg:self-center">
-            <div className="bg-stone-100/60 grow border-gray-100 rounded-2xl px-4 py-3 flex flex-col items-center justify-center text-center shadow-sm h-full">
+            <div className="bg-stone-100/80 grow border border-gray-100 rounded-2xl px-4 py-3 flex flex-col items-center justify-center text-center shadow-sm h-full">
               {/* Avatar */}
               <div className="relative">
                 {loading ? (
-                  <Skeleton className="h-16 w-16 rounded-full" />
+                  <Skeleton className="h-16 w-16 rounded-full bg-stone-300 animate-pulse" />
                 ) : (
                   <img
                     src={currentUser?.avatar}
@@ -111,11 +108,11 @@ const Profile = () => {
               </div>
 
               {/* Name and Email */}
-              <div className="mt-2 flex items-center justify-center flex-col gap-1">
+              <div className="mt-2 flex flex-col gap-2 items-center justify-center">
                 {loading ? (
                   <div className="flex flex-col gap-2 items-center">
-                    <Skeleton className="h-4 w-24 rounded" />
-                    <Skeleton className="h-3 w-32 rounded" />
+                    <Skeleton className="h-4 w-24 rounded bg-stone-300 animate-pulse" />
+                    <Skeleton className="h-3 w-32 rounded bg-stone-300 animate-pulse" />
                   </div>
                 ) : (
                   <>
@@ -154,7 +151,7 @@ const Profile = () => {
                 className="mt-4 w-full flex items-center justify-center gap-2 text-sm bg-red-300/60 hover:bg-red-400/60 text-red-500 font-semibold px-4 py-2 rounded-lg transition disabled:opacity-50"
               >
                 {loggingOut ? (
-                  <Skeleton className="h-4 w-4 rounded-full" />
+                  <Skeleton className="h-4 w-4 rounded-full bg-red-300 animate-pulse" />
                 ) : (
                   <MdLogout size={16} />
                 )}
@@ -167,13 +164,7 @@ const Profile = () => {
         {/* My Orders Section - dynamic */}
         <div className="w-full bg-white shadow-xl rounded-3xl p-4 flex flex-col gap-2">
           <h3 className="text-xl font-bold text-gray-800 mb-2">My Orders</h3>
-          <Suspense
-            fallback={
-              <div className="flex items-center justify-center py-10">
-                <Loading className="w-14 h-14 text-primary" />
-              </div>
-            }
-          >
+          <Suspense>
             <MyOrders />
           </Suspense>
         </div>
