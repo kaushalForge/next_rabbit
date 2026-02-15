@@ -97,7 +97,7 @@ const Login = () => {
         {/* ✅ ALWAYS RENDERED */}
         <div
           ref={googleBtnRef}
-          className={`mb-6 ${authLoading ? "opacity-50 pointer-events-none" : ""}`}
+          className={`mb-6 flex items-center justify-center ${authLoading ? "opacity-50 pointer-events-none" : ""}`}
         />
 
         <p className="mt-6 text-center text-gray-500 text-sm">
