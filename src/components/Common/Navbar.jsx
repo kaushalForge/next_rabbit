@@ -14,19 +14,22 @@ import { useAuth } from "@/app/context/AuthContext";
 import Image from "next/image";
 import { useCart } from "@/app/context/CartContext";
 
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
 const Navbar = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [navDrawerOpen, setNavDrawerOpen] = useState(false);
   const [avatarDropdownOpen, setAvatarDropdownOpen] = useState(false);
 
   const { cartQuantity } = useCart();
-  const { currentUser, loading } = useAuth();
+  const { currentUser } = useAuth();
 
   const navDrawerRef = useRef(null);
   const avatarRef = useRef(null);
+  const logoRef = useRef(null);
 
   const isLoggedIn = !!currentUser;
-  const role = currentUser?.role;
 
   // Toggle functions
   const toggleCartDrawer = () => setDrawerOpen((prev) => !prev);
@@ -46,28 +49,54 @@ const Navbar = () => {
         setAvatarDropdownOpen(false);
       }
     };
+
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // GSAP Scroll Animation for Logo
+  useEffect(() => {
+    gsap.registerPlugin(ScrollTrigger);
+
+    if (!logoRef.current) return;
+
+    gsap.to(logoRef.current, {
+      y: 14,
+      ease: "none",
+      scrollTrigger: {
+        trigger: document.documentElement,
+        start: "top top",
+        end: "top -4",
+        scrub: 2,
+        markers: false,
+      },
+    });
+
+    return () => {
+      ScrollTrigger.getAll().forEach((t) => t.kill());
+    };
   }, []);
 
   return (
     <>
       <nav className="sticky left-0 top-0 z-50 backdrop-blur-md shadow-sm">
-        <div className="flex flex-wrap items-center justify-between gap-2 container p-4 mx-auto">
+        <div className="flex relative flex-wrap items-center justify-end gap-2 container p-4 mx-auto">
           {/* Logo */}
           <Link
             href="/"
-            className="flex items-center justify-center w-40 h-2 md:w-52 md:h-4"
+            className="absolute -top-8 left-12 -translate-y-1/2 items-center h-6 w-24 justify-center mb-2"
           >
-            <Image
-              src="/images/Logo.png"
-              alt="Logo"
-              width={250}
-              height={200}
-              quality={80}
-              className="select-none"
-              priority
-            />
+            <div ref={logoRef}>
+              <Image
+                src="/images/RabbitHubLogo.png"
+                alt="Logo"
+                width={220}
+                height={220}
+                quality={80}
+                className="select-none"
+                priority
+              />
+            </div>
           </Link>
 
           {/* Desktop Menu */}
@@ -81,12 +110,12 @@ const Navbar = () => {
           </div>
 
           {/* Right Section */}
-          <div className="flex items-center space-x-2 md:space-x-4 flex-shrink-0">
+          <div className="flex items-center space-x-2 md:space-x-4 shrink-0">
+            {/* Avatar */}
             <div className="relative" ref={avatarRef}>
               <button
                 onClick={() => {
                   if (isLoggedIn) {
-                    // navigate directly
                     window.location.href = "/profile";
                   } else {
                     toggleAvatarDropdown();
@@ -97,7 +126,6 @@ const Navbar = () => {
                 <HiOutlineUser className="h-5 w-5 text-gray-700" />
               </button>
 
-              {/* Dropdown for logged-out users */}
               {!isLoggedIn && avatarDropdownOpen && (
                 <div className="absolute right-0 mt-2 w-36 bg-white border rounded shadow-lg flex flex-col z-50">
                   <Link
@@ -119,10 +147,7 @@ const Navbar = () => {
             </div>
 
             {/* Cart */}
-            <button
-              onClick={toggleCartDrawer}
-              className="relative flex-shrink-0"
-            >
+            <button onClick={toggleCartDrawer} className="relative shrink-0">
               <HiOutlineShoppingBag className="h-6 w-6" />
               {cartQuantity > 0 && (
                 <span className="absolute top-0 left-3 h-4 w-4 rounded-full bg-red-600 text-xs text-white flex items-center justify-center">
@@ -132,15 +157,12 @@ const Navbar = () => {
             </button>
 
             {/* Search */}
-            <div className="flex-shrink-0">
+            <div className="shrink-0">
               <SearchBar />
             </div>
 
             {/* Mobile Menu Button */}
-            <button
-              onClick={toggleNavDrawer}
-              className="lg:hidden flex-shrink-0"
-            >
+            <button onClick={toggleNavDrawer} className="lg:hidden shrink-0">
               <HiBars3BottomRight className="h-6 w-6" />
             </button>
           </div>
@@ -163,7 +185,7 @@ const Navbar = () => {
           </button>
         </div>
 
-        <div className="lg:hidden p-4 flex flex-col space-y-4 text-gray-800 font-medium">
+        <div className="p-4 flex flex-col space-y-4 text-gray-800 font-medium">
           <Link href="/collections/all?gender=Male" onClick={toggleNavDrawer}>
             Men
           </Link>

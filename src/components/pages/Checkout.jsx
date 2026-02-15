@@ -12,7 +12,7 @@ import { useRouter } from "next/navigation";
 import { createOrderAction } from "@/actions/handleOrder";
 
 const Checkout = () => {
-  const { cart, totalPrice } = useCart();
+  const { cart, totalPrice, refreshCart } = useCart();
   const router = useRouter();
   const { currentUser } = useAuth();
   const [paymentMethod, setPaymentMethod] = useState("cod");
@@ -27,9 +27,7 @@ const Checkout = () => {
   const [city, setCity] = useState("");
   const [state, setState] = useState(""); // your dropdown state
   const [zipCode, setZipCode] = useState("");
-
-  const [finalOrder, setFinalOrder] = useState(null);
-
+  const [finalOrder, setFinalOrder] = useState("");
   const isLoading = !cart || cart.length === 0;
 
   // ---- Calculations ----
@@ -101,20 +99,20 @@ const Checkout = () => {
 
       const { status, message } = await createOrderAction(orderData);
 
-      if (status === 201) {
+      if (status === 200 || status === 201) {
         toast.success(message || "Order placed successfully!");
-
-        // clear form
-        // setFirstName("");
-        // setLastName("");
-        // setEmail("");
-        // setPhone("");
-        // setAddress("");
-        // setCity("");
-        // setState("");
-        // setZipCode("");
-
-        // you may also clear cart here
+        setFirstName("");
+        setLastName("");
+        setEmail("");
+        setPhone("");
+        setAddress("");
+        setCity("");
+        setState("");
+        setDistrict("");
+        setCity("");
+        setAddress("");
+        setZipCode("");
+        refreshCart();
       } else {
         toast.error(message || "Failed to place order");
       }
@@ -303,7 +301,7 @@ const Checkout = () => {
               <>
                 <h2 className="text-xl font-bold mb-6">Order Summary</h2>
 
-                <div className="space-y-5 h-[360px] overflow-auto pr-2">
+                <div className="space-y-5 h-90 overflow-auto pr-2">
                   {isLoading
                     ? Array.from({ length: 4 }).map((_, i) => (
                         <div key={i} className="flex gap-4 p-3">
@@ -322,9 +320,9 @@ const Checkout = () => {
                         return (
                           <div
                             key={idx}
-                            className="flex gap-4 p-3 rounded-xl hover:bg-gray-50 transition h-[88px]"
+                            className="flex gap-4 p-3 rounded-xl hover:bg-gray-50 transition h-22"
                           >
-                            <div className="w-24 h-24 bg-gray-100 overflow-hidden flex items-center justify-center flex-shrink-0">
+                            <div className="w-24 h-24 bg-gray-100 overflow-hidden flex items-center justify-center shrink-0">
                               <img
                                 src={item.image}
                                 alt={item.name}
@@ -409,7 +407,7 @@ const Checkout = () => {
                 <p className="text-gray-500 text-sm text-center px-4">
                   Looks like you haven’t added any products yet.
                 </p>
-                <div className="flex text-sm items-center justify-center gap-2 flex-grow">
+                <div className="flex text-sm items-center justify-center gap-2 grow">
                   <button
                     onClick={() => router.push("/collections/all")}
                     className="mt-2 bg-[#ff4500] hover:bg-black text-white border px-5 py-2 rounded-lg font-semibold transition-colors duration-300"

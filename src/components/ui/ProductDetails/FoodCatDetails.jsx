@@ -7,6 +7,7 @@ import { useCart } from "@/app/context/CartContext";
 import { addToCartAction } from "@/actions/handleCart";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useRouter } from "next/navigation";
 
 const FoodCatDetails = ({ productId, productDetail }) => {
   const { currentUser } = useAuth();
@@ -14,6 +15,7 @@ const FoodCatDetails = ({ productId, productDetail }) => {
 
   const foodVariants = productDetail?.food || [];
   const productFetchId = productId;
+  const router = useRouter();
 
   const [quantity, setQuantity] = useState(1);
   const [selectedWeight, setSelectedWeight] = useState("");
@@ -47,7 +49,9 @@ const FoodCatDetails = ({ productId, productDetail }) => {
 
   const handleAddToCart = async () => {
     if (!currentUser) {
+      console.log(currentUser);
       toast.warning("You must login first!");
+      router.push("/login");
       return;
     }
 
@@ -75,8 +79,6 @@ const FoodCatDetails = ({ productId, productDetail }) => {
       toast.error(error?.message || "Something went wrong. Please try again.");
     }
   };
-
-  console.log(productDetail);
 
   return (
     <div className="relative md:w-1/2 space-y-6">

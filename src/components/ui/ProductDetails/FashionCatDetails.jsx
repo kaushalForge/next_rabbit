@@ -6,8 +6,11 @@ import { useCart } from "@/app/context/CartContext";
 import { Button } from "@/components/ui/button";
 import { addToCartAction } from "@/actions/handleCart";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 const FashionCatDetails = ({ productId, productDetail }) => {
+  const router = useRouter("");
+
   const { addCart, refreshCart } = useCart();
   const fashionVariants = productDetail?.fashion || [];
   const productFetchId = productId || id;
@@ -61,7 +64,8 @@ const FashionCatDetails = ({ productId, productDetail }) => {
   const handleAddToCart = async () => {
     if (!currentUser) {
       toast.warning("You must login first!");
-      return router.push("/login");
+      router.push("/login");
+      return;
     }
 
     if (!selectedSize || !selectedColor) {

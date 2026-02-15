@@ -56,15 +56,15 @@ const CollectionPage = ({ products }) => {
         {/* Sidebar */}
         <div
           ref={sidebarRef}
-          className={`fixed inset-0 bg-black bg-opacity-0 left-0 z-50 w-64 bg-white transition-transform duration-300
-          ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}
+          className={`fixed inset-0 bg-black bg-opacity-0 left-0 w-64 transition-transform duration-300
+          ${isSidebarOpen ? "translate-x-0 z-50" : "-translate-x-full"}
           lg:static lg:translate-x-0`}
         >
           <FilterSidebar />
         </div>
 
         {/* Products */}
-        <div className="flex-grow">
+        <div className="grow">
           <div className="flex flex-col md:flex-row md:justify-between mb-4 items-center p-4">
             <div className="flex items-center justify-center gap-2">
               <h2 className="text-2xl font-semibold uppercase">

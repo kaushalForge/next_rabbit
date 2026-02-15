@@ -58,7 +58,7 @@ const shipmentSchema = new mongoose.Schema(
       method: { type: String, required: true },
       status: {
         type: String,
-        enum: ["Pending", "Shipped", "Delivered", "Canceled"],
+        enum: ["Pending", "Paid", "Failed", "Refunded"],
         default: "Pending",
       },
       transactionId: String,

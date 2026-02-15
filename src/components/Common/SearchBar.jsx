@@ -65,7 +65,7 @@ const SearchBar = () => {
   return (
     <div
       ref={searchRef}
-      className={`flex items-center justify-center w-full transition-all duration-200 ${
+      className={`flex items-center justify-center z-70 w-full transition-all duration-200 ${
         isOpen ? "absolute top-0 left-0 w-full bg-white h-full" : "w-auto"
       }`}
     >

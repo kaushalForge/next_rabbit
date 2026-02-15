@@ -2,8 +2,6 @@
 
 import { useEffect } from "react";
 import Link from "next/link";
-import { useSelector, useDispatch } from "react-redux";
-import { fetchProducts } from "../redux/slices/adminSlice";
 import { FaMoneyBillWave, FaClipboardList, FaBoxOpen } from "react-icons/fa";
 
 const orders = [
@@ -30,14 +28,6 @@ const statusStyles = {
 };
 
 const AdminHomePage = () => {
-  const dispatch = useDispatch();
-
-  useEffect(() => {
-    dispatch(fetchProducts());
-  }, [dispatch]);
-
-  const totalProducts = useSelector((state) => state.admin.totalProducts);
-
   return (
     <div className="w-full container mx-auto px-4 py-6 space-y-8">
       {/* Header */}
@@ -90,9 +80,7 @@ const AdminHomePage = () => {
             </div>
             <div>
               <p className="text-sm text-gray-500">Total Products</p>
-              <p className="text-2xl font-semibold text-gray-800">
-                {totalProducts}
-              </p>
+              <p className="text-2xl font-semibold text-gray-800">{2}</p>
               <Link
                 href="/admin/products"
                 className="text-sm text-purple-600 hover:underline"

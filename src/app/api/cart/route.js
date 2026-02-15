@@ -73,8 +73,16 @@ export const POST = async (req) => {
     if (!owner)
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
 
-    const { productId, quantity, size, color, price, offerPrice } =
-      await req.json();
+    const {
+      productId,
+      quantity,
+      size,
+      color,
+      price,
+      totalPrice,
+      offerPrice,
+      shippingFee,
+    } = await req.json();
 
     const product = await Product.findById(productId)
       .select("name images")
@@ -94,7 +102,7 @@ export const POST = async (req) => {
       cart = new Cart({
         userId: new Types.ObjectId(owner.id),
         products: [],
-        totalPrice: 0,
+        shipmentTotal: totalPrice || 0,
       });
     }
 
@@ -111,14 +119,13 @@ export const POST = async (req) => {
         image,
         price,
         offerPrice,
+        shipmentTotal: totalPrice,
         size,
         color,
         quantity,
       });
     }
-
-    // Calculate totalPrice based on offerPrice
-    cart.totalPrice = calculateTotalPrice(cart.products);
+    cart.totalPrice = calculateTotalPrice(cart.products, shippingFee);
 
     await cart.save();
 

@@ -121,3 +121,93 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* * {
+  font-family: "Poppins";
+}
+
+
+
+/* To not let confuse between the scroll cause i am not using the default scroller i am using lens */
+/* html, */
+/* body { */
+/* scroll-behavior: auto !important; */
+/* } */
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.spin {
+  animation: spin 8s linear infinite;
+  font-size: 50px;
+  display: inline-block;
+}
+
+/* Outline Text */
+.outline-text {
+  color: #1d293d;
+  -webkit-text-stroke: 2px #000;
+}
+
+/* Card Border Animation */
+.box {
+  position: relative;
+  height: 400px;
+  width: 400px;
+  padding: 6px;
+  overflow: hidden;
+}
+
+.animate_border {
+  height: 100%;
+  width: 100%;
+  background-color: #819a91;
+  position: relative;
+  z-index: 99;
+}
+
+.box::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(45deg);
+  background-color: white;
+  height: 600px;
+  width: 200px;
+  animation: border-animation 3.5s linear infinite;
+}
+
+@keyframes border-animation {
+  100% {
+    transform: translate(-50%, -50%) rotate(225deg);
+  }
+}
+
+.dashboardContainer::-webkit-scrollbar,
+.mobileMenuContainer::-webkit-scrollbar {
+  width: 2px;
+}
+
+.dashboardContainer::-webkit-scrollbar-thumb,
+.mobileMenuContainer::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #888888, #555555);
+  border-radius: 10px;
+}
+
+.dashboardContainer::-webkit-scrollbar-track,
+.mobileMenuContainer::-webkit-scrollbar-track {
+  background: th1;
+  border-radius: 10px;
+}
+
+.dashboardContainer::-webkit-scrollbar-thumb:hover,
+.mobileMenuContainer::-webkit-scrollbar-thumb:hover {
+  background: #555555;
+}

@@ -1,6 +1,5 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import ReduxProvider from "@/components/redux/ReduxProvider";
 import { Toaster } from "sonner";
 import { AuthProvider } from "./context/AuthContext";
 import { CartProvider } from "./context/CartContext";
@@ -37,9 +36,7 @@ export default async function AdminLayout({ children }) {
         <Suspense>
           <AuthProvider>
             <CartProvider>
-              <OrderProvider>
-                <ReduxProvider>{children}</ReduxProvider>
-              </OrderProvider>
+              <OrderProvider>{children}</OrderProvider>
             </CartProvider>
           </AuthProvider>
         </Suspense>

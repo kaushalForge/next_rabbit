@@ -3,7 +3,7 @@
 import { useOrders } from "@/app/context/OrderContext";
 import { useEffect } from "react";
 import Image from "next/image";
-import { MdPerson, MdPhone, MdLocationOn } from "react-icons/md";
+import { MdPayment, MdPerson, MdPhone, MdLocationOn } from "react-icons/md";
 
 import {
   Table,
@@ -16,11 +16,19 @@ import {
 
 const MyOrders = () => {
   const { orders, allShipments, loading, refreshOrders } = useOrders();
+
   const statusColors = {
     Pending: "bg-yellow-100 text-yellow-800",
     Shipped: "bg-blue-100 text-blue-800",
     Delivered: "bg-green-100 text-green-800",
     Canceled: "bg-red-100 text-red-800",
+  };
+
+  const paymentStatusColors = {
+    Pending: "bg-yellow-50 text-yellow-800 ring-1 ring-yellow-200",
+    Paid: "bg-green-50 text-green-800 ring-1 ring-green-200",
+    Refunded: "bg-blue-50 text-blue-800 ring-1 ring-blue-200",
+    Failed: "bg-red-50 text-red-800 ring-1 ring-red-200",
   };
 
   useEffect(() => {
@@ -43,7 +51,6 @@ const MyOrders = () => {
     );
   }
 
-  // Group shipments by orderId
   const ordersMap = allShipments.reduce((acc, shipment) => {
     const orderId = shipment.orderId || "Unknown";
     if (!acc[orderId]) acc[orderId] = [];
@@ -71,17 +78,19 @@ const MyOrders = () => {
               </div>
             </div>
 
-            {/* Shipments Table */}
             <Table className="min-w-full table-auto">
               <TableHeader>
                 <TableRow className="bg-gray-50">
                   <TableHead>Customer Details</TableHead>
-                  <TableHead>Delivery</TableHead>
+                  <TableHead>Delivery Details</TableHead>
                   <TableHead>Products</TableHead>
                   <TableHead>Status</TableHead>
+                  <TableHead>Ordered At</TableHead>
+                  <TableHead>Payment</TableHead>
                   <TableHead>Total</TableHead>
                 </TableRow>
               </TableHeader>
+
               <TableBody>
                 {shipments.map((shipment) => (
                   <TableRow
@@ -156,16 +165,44 @@ const MyOrders = () => {
                         ))}
                       </div>
                     </TableCell>
+
                     {/* Status */}
-                    <TableCell className="align-center text-center">
-                      <div className="flex items-center justify-center">
+                    <TableCell>
+                      <div className="text-sm">
                         <span
-                          className={`inline-block px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${
+                          className={`inline-block px-2 py-1 rounded-full text-xs font-semibold ${
                             statusColors[shipment.status] ||
                             "bg-gray-100 text-gray-600"
                           }`}
                         >
                           {shipment.status || "Pending"}
+                        </span>
+                      </div>
+                    </TableCell>
+
+                    {/* Ordered At (NEW COLUMN) */}
+                    <TableCell className="text-sm text-gray-600">
+                      {shipment.createdAt &&
+                        new Date(shipment.createdAt).toLocaleString()}
+                    </TableCell>
+
+                    {/* NEW PAYMENT COLUMN */}
+                    <TableCell>
+                      <div className="flex flex-col gap-1 text-sm">
+                        <div className="flex items-center">
+                          <MdPayment className="text-gray-400" />
+                          <span className="uppercase font-medium">
+                            {shipment.payment?.method || "COD"}
+                          </span>
+                        </div>
+
+                        <span
+                          className={`px-2 py-1 rounded-full text-xs font-semibold w-fit ${
+                            paymentStatusColors[shipment.payment?.status] ||
+                            "bg-gray-100 text-gray-600"
+                          }`}
+                        >
+                          {shipment.payment?.status || "Pending"}
                         </span>
                       </div>
                     </TableCell>
