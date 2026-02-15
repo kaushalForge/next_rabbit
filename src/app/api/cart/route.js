@@ -79,7 +79,7 @@ export const POST = async (req) => {
       size,
       color,
       price,
-      totalPrice,
+      shipmentTotal,
       offerPrice,
       shippingFee,
     } = await req.json();
@@ -102,7 +102,7 @@ export const POST = async (req) => {
       cart = new Cart({
         userId: new Types.ObjectId(owner.id),
         products: [],
-        shipmentTotal: totalPrice || 0,
+        shipmentTotal: shipmentTotal || 0,
       });
     }
 
@@ -119,7 +119,7 @@ export const POST = async (req) => {
         image,
         price,
         offerPrice,
-        shipmentTotal: totalPrice,
+        shipmentTotal: shipmentTotal,
         size,
         color,
         quantity,
