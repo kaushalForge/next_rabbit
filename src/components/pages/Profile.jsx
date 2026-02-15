@@ -1,54 +1,54 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { lazy, useEffect, useState } from "react";
 import {
-  MdEmail,
-  MdPerson,
-  MdAdminPanelSettings,
-  MdLogout,
   MdAttachMoney,
   MdAccessTime,
+  MdAdminPanelSettings,
+  MdLogout,
 } from "react-icons/md";
 import { FaBoxOpen } from "react-icons/fa6";
-import MyOrders from "./MyOrders";
+// import MyOrders from "./MyOrders";
+const MyOrders = lazy(() => import("./MyOrders"));
+
 import { useAuth } from "@/app/context/AuthContext";
 import Link from "next/link";
 import Image from "next/image";
+import { Spinner, Loading } from "../ui/spinner";
+import { Suspense } from "react";
+import { Skeleton } from "../ui/skeleton";
 
-const Profile = ({ currentUser }) => {
-  const [mounted, setMounted] = useState(false);
-  const { logout, loggingOut } = useAuth();
+const Profile = () => {
+  const { currentUser, refreshCurrentUser, logout, loggingOut } = useAuth();
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  if (!mounted || !currentUser) return null;
-
-  const { avatar, name, email, role } = currentUser;
+    if (currentUser) {
+      setLoading(false);
+    }
+  }, [currentUser]);
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <div className="container mx-auto p-6 flex flex-col w-full gap-8">
-        {/* User Card */}
-        <div className="flex items-center justify-center h-full flex-col lg:flex-row gap-6">
-          {/* Left Column - Profile Stats */}
-          <div className="w-full flex-1 flex flex-col gap-6">
-            <div className="flex-1 rounded-2xl p-6 flex flex-col bg-linear-to-r from-green-100/30 to-sky-100/30 backdrop-blur-md shadow-lg">
+        {/* User Card + Stats */}
+        <div className="flex flex-col lg:flex-row gap-6 h-full items-start lg:items-center">
+          {/* Left Column - Stats */}
+          <div className="w-full flex-1 flex flex-col gap-6 h-full">
+            <div className="flex-1 rounded-2xl p-6 flex flex-col bg-stone-100/60 border-gray-100 shadow-sm backdrop-blur-md">
               <h3 className="text-lg font-semibold text-gray-800 mb-4">
                 Account Stats
               </h3>
 
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 flex-1">
-                {/* Rabbit Hub */}
+                {/* RabbitHub */}
                 <div className="relative w-full aspect-square rounded-xl bg-linear-to-br from-blue-200/50 to-blue-400/30 transition-all duration-300 flex items-center justify-center">
                   <Image
                     src="/images/RabbitHub.png"
                     alt="RabbitHub Logo"
                     fill
-                    loading="lazy"
-                    style={{ objectFit: "contain" }}
-                    className="rounded-md"
+                    preload
+                    className="rounded-md object-cover"
                   />
                 </div>
 
@@ -59,7 +59,6 @@ const Profile = ({ currentUser }) => {
                     Total Orders
                   </span>
                   <span className="text-indigo-900 font-bold text-lg">128</span>
-                  {/* small glow effect */}
                   <div className="absolute inset-0 rounded-xl bg-indigo-200/20 blur-xl -z-10"></div>
                 </div>
 
@@ -89,62 +88,94 @@ const Profile = ({ currentUser }) => {
           </div>
 
           {/* Right Column - Minimal User Card */}
-          <div className="w-full lg:w-[320px] shrink-0 flex flex-col">
-            <div className="bg-white border border-gray-200 rounded-2xl px-4 py-3 flex flex-col items-center text-center shadow-sm h-full">
+          <div className="w-full lg:w-72 aspect-square shrink-0 flex flex-col h-full self-start lg:self-center">
+            <div className="bg-stone-100/60 grow border-gray-100 rounded-2xl px-4 py-3 flex flex-col items-center justify-center text-center shadow-sm h-full">
               {/* Avatar */}
               <div className="relative">
-                <img
-                  src={avatar}
-                  alt={name || "User Avatar"}
-                  referrerPolicy="no-referrer"
-                  className="h-16 w-16 rounded-full object-cover border border-gray-300"
-                />
-                <span
-                  className="absolute bottom-0 right-0 h-3 w-3 bg-green-500 rounded-full ring-2 ring-white"
-                  title="Online"
-                ></span>
+                {loading ? (
+                  <Skeleton className="h-16 w-16 rounded-full" />
+                ) : (
+                  <img
+                    src={currentUser?.avatar}
+                    alt={currentUser?.name || "User Avatar"}
+                    referrerPolicy="no-referrer"
+                    className="h-16 w-16 rounded-full object-cover border border-gray-300"
+                  />
+                )}
+                {!loading && (
+                  <span
+                    className="absolute bottom-0 right-0 h-3 w-3 bg-green-500 rounded-full ring-2 ring-white"
+                    title="Online"
+                  />
+                )}
               </div>
 
               {/* Name and Email */}
-              <div className="mt-2 flex flex-col gap-1">
-                <span className="font-semibold text-gray-800 truncate">
-                  {name || "User"}
-                </span>
-                <span className="text-gray-500 text-xs truncate">{email}</span>
+              <div className="mt-2 flex items-center justify-center flex-col gap-1">
+                {loading ? (
+                  <div className="flex flex-col gap-2 items-center">
+                    <Skeleton className="h-4 w-24 rounded" />
+                    <Skeleton className="h-3 w-32 rounded" />
+                  </div>
+                ) : (
+                  <>
+                    <span className="font-semibold text-gray-800 truncate">
+                      {currentUser?.name}
+                    </span>
+                    <span className="text-gray-500 text-xs truncate">
+                      {currentUser?.email}
+                    </span>
+                  </>
+                )}
               </div>
 
               {/* Role */}
               <div className="mt-2">
-                {role === "admin" ? (
-                  <Link
-                    href="/admin"
-                    className="inline-flex items-center gap-1 px-2 py-0.5 bg-black text-white rounded-full text-xs"
-                  >
-                    <MdAdminPanelSettings size={14} /> Admin
-                  </Link>
-                ) : (
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-gray-200 text-gray-700 rounded-full text-xs">
-                    <MdAdminPanelSettings size={14} /> {role || "User"}
-                  </span>
-                )}
+                {!loading &&
+                  (currentUser?.role === "admin" ? (
+                    <Link
+                      href="/admin"
+                      className="inline-flex items-center gap-1 px-2 py-0.5 bg-black text-white rounded-full text-xs"
+                    >
+                      <MdAdminPanelSettings size={14} /> Admin
+                    </Link>
+                  ) : (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-gray-200 text-gray-700 rounded-full text-xs">
+                      <MdAdminPanelSettings size={14} />{" "}
+                      {currentUser?.role || "User"}
+                    </span>
+                  ))}
               </div>
 
               {/* Logout Button */}
               <button
                 onClick={logout}
                 disabled={loggingOut}
-                className="mt-4 w-full flex items-center justify-center gap-2 text-sm bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition disabled:opacity-50"
+                className="mt-4 w-full flex items-center justify-center gap-2 text-sm bg-red-300/60 hover:bg-red-400/60 text-red-500 font-semibold px-4 py-2 rounded-lg transition disabled:opacity-50"
               >
-                <MdLogout size={16} />
+                {loggingOut ? (
+                  <Skeleton className="h-4 w-4 rounded-full" />
+                ) : (
+                  <MdLogout size={16} />
+                )}
                 {loggingOut ? "Logging out..." : "Logout"}
               </button>
             </div>
           </div>
         </div>
 
+        {/* My Orders Section - dynamic */}
         <div className="w-full bg-white shadow-xl rounded-3xl p-4 flex flex-col gap-2">
           <h3 className="text-xl font-bold text-gray-800 mb-2">My Orders</h3>
-          <MyOrders />
+          <Suspense
+            fallback={
+              <div className="flex items-center justify-center py-10">
+                <Loading className="w-14 h-14 text-primary" />
+              </div>
+            }
+          >
+            <MyOrders />
+          </Suspense>
         </div>
       </div>
     </div>
