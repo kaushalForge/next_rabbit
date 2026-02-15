@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useAuth } from "@/app/context/AuthContext";
@@ -10,8 +10,10 @@ const Login = () => {
   const router = useRouter();
   const { refreshCurrentUser } = useAuth();
 
-  const [loading, setLoading] = useState(true);
-  const [authenticating, setAuthenticating] = useState(false);
+  const googleBtnRef = useRef(null);
+
+  const [pageLoading, setPageLoading] = useState(true);
+  const [authLoading, setAuthLoading] = useState(false);
 
   useEffect(() => {
     const script = document.createElement("script");
@@ -21,51 +23,63 @@ const Login = () => {
     document.body.appendChild(script);
 
     script.onload = () => {
-      setLoading(false);
-      google.accounts.id.initialize({
-        client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
-        callback: async (response) => {
-          try {
-            setAuthenticating(true);
+      setPageLoading(false);
 
-            const res = await fetch("/api/auth/login", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ idToken: response.credential }),
-              credentials: "include",
-            });
-            const data = await res.json();
-            if (res.status === 200 || res.status === 201 || data.success) {
-              toast.success("Login successful!");
-              await refreshCurrentUser();
-              router.push("/");
-            } else {
-              toast.error(data.message || "Login failed");
-              await refreshCurrentUser();
-            }
-          } catch (err) {
-            toast.error("Server error");
-            await refreshCurrentUser();
-          } finally {
-            setAuthenticating(false);
-          }
-        },
+      if (!window.google || !googleBtnRef.current) return;
+
+      window.google.accounts.id.initialize({
+        client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
+        auto_select: false,
+        cancel_on_tap_outside: true,
+        callback: handleGoogleResponse,
       });
 
-      google.accounts.id.renderButton(
-        document.getElementById("google-signin-btn"),
-        { theme: "outline", size: "large", width: "100%" },
-      );
+      // 🔥 Important: clear previous render
+      googleBtnRef.current.innerHTML = "";
+
+      window.google.accounts.id.renderButton(googleBtnRef.current, {
+        theme: "outline",
+        size: "large",
+        width: "100%",
+      });
     };
 
     return () => {
       document.body.removeChild(script);
     };
-  }, [router, refreshCurrentUser]);
+  }, []);
+
+  const handleGoogleResponse = async (response) => {
+    try {
+      setAuthLoading(true);
+
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ idToken: response.credential }),
+        credentials: "include",
+      });
+
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        toast.success("Login successful!");
+        await refreshCurrentUser();
+        router.replace("/");
+      } else {
+        toast.error(data.message || "Login failed");
+        setAuthLoading(false);
+      }
+    } catch (error) {
+      toast.error("Server error");
+      setAuthLoading(false);
+    }
+  };
 
   return (
-    <div className="container mx-auto flex items-center justify-center bg-gray-100 h-screen">
-      {loading && (
+    <div className="container mx-auto flex items-center justify-center bg-gray-100 h-screen relative">
+      {/* FULL SCREEN LOADER */}
+      {(pageLoading || authLoading) && (
         <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-black/20">
           <Spinner className="w-14 h-14 text-primary" />
         </div>
@@ -75,17 +89,16 @@ const Login = () => {
         <h1 className="text-3xl font-medium text-gray-900 mb-3 text-center leading-snug">
           Welcome to Rabbit 🐇
         </h1>
+
         <p className="text-gray-600 mb-6 text-center">
           Sign in securely using your Google account or your registered email.
         </p>
 
-        {/* Google Button */}
-        {!loading && (
-          <div
-            id="google-signin-btn"
-            className={`mb-6 ${authenticating ? "opacity-50 pointer-events-none" : ""}`}
-          />
-        )}
+        {/* ✅ ALWAYS RENDERED */}
+        <div
+          ref={googleBtnRef}
+          className={`mb-6 ${authLoading ? "opacity-50 pointer-events-none" : ""}`}
+        />
 
         <p className="mt-6 text-center text-gray-500 text-sm">
           By continuing, you agree to our{" "}
