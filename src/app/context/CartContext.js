@@ -25,9 +25,7 @@ export const CartProvider = ({ children }) => {
   const [totalPrice, setTotalPrice] = useState(0);
   const [loading, setLoading] = useState(true);
 
-  /* =========================
-        Fetch Cart (only if user exists)
-  ========================= */
+  /* ================= FETCH CART ================= */
   const fetchCart = useCallback(async () => {
     if (!currentUser) return;
 
@@ -50,85 +48,53 @@ export const CartProvider = ({ children }) => {
     await fetchCart();
   }, [fetchCart]);
 
-  /* =========================
-        Add Item
-  ========================= */
+  /* ================= ADD ITEM ================= */
   const addCart = async (data) => {
     try {
-      setCart((prev) => {
-        const exists = prev.find(
-          (p) =>
-            p.productId === data.productId &&
-            p.size === data.size &&
-            p.color === data.color,
-        );
+      const response = await addToCartAction(data);
 
-        if (exists) {
-          return prev.map((p) =>
-            p.productId === data.productId &&
-            p.size === data.size &&
-            p.color === data.color
-              ? { ...p, quantity: (p.quantity || 1) + data.quantity }
-              : p,
-          );
-        }
+      if (response?.status === 200 || response?.status === 201) {
+        await fetchCart();
+      }
 
-        return [...prev, data];
-      });
-
-      await addToCartAction(data);
-      await refreshCart();
-    } catch {
-      await refreshCart();
+      return response; // ✅ return to component
+    } catch (error) {
+      console.error("addCart error:", error);
+      return { status: 500, message: "Failed to add item" };
     }
   };
 
-  /* =========================
-        Update Quantity
-  ========================= */
+  /* ================= UPDATE QUANTITY ================= */
   const updateCart = async (data) => {
     try {
-      setCart((prev) =>
-        prev.map((p) =>
-          p.productId === data.productId &&
-          p.size === data.size &&
-          p.color === data.color
-            ? { ...p, quantity: data.quantity }
-            : p,
-        ),
-      );
+      const response = await updateCartItemQuantityAction(data);
 
-      await updateCartItemQuantityAction(data);
-      await refreshCart();
-    } catch {
-      await refreshCart();
+      if (response?.status === 200 || response?.status === 201) {
+        setCart(response.products || []);
+        setTotalPrice(response.totalPrice || 0);
+      }
+
+      return response; // ✅ important
+    } catch (error) {
+      console.error("updateCart error:", error);
+      return { status: 500, message: "Failed to update quantity" };
     }
   };
 
-  /* =========================
-        Remove Item
-  ========================= */
+  /* ================= REMOVE ITEM ================= */
   const removeCart = async (data) => {
     try {
-      setCart((prev) =>
-        prev.filter(
-          (p) =>
-            !(
-              p.productId === data.productId &&
-              p.size === data.size &&
-              p.color === data.color
-            ),
-        ),
-      );
+      const response = await removeFromCartAction(data);
 
-      const { status, message, products, totalPrice } =
-        await removeFromCartAction(data);
-      setTotalPrice(totalPrice);
-      setCart(products);
-      await refreshCart();
-      return { status, message };
-    } catch {
-      await refreshCart();
+      if (response?.status === 200 || response?.status === 201) {
+        setCart(response.products || []);
+        setTotalPrice(response.totalPrice || 0);
+      }
+
+      return response; // ✅ important
+    } catch (error) {
+      console.error("removeCart error:", error);
+      return { status: 500, message: "Failed to remove item" };
     }
   };
 
@@ -138,26 +104,21 @@ export const CartProvider = ({ children }) => {
     setTotalPrice(0);
   };
 
-  /* =========================
-        Auto recalc when cart changes
-  ========================= */
+  /* ================= AUTO RECALC ================= */
   useEffect(() => {
     const quantity = cart.reduce((acc, p) => acc + (p.quantity || 1), 0);
     setCartQuantity(quantity);
   }, [cart]);
 
-  /* =========================
-        🔥 MAIN LOGIC (very important)
-        React to user change
-  ========================= */
+  /* ================= USER CHANGE ================= */
   useEffect(() => {
     if (!currentUser) {
-      clearCart(); // logout → empty instantly
+      clearCart();
       setLoading(false);
       return;
     }
 
-    fetchCart(); // login → fetch cart
+    fetchCart();
   }, [currentUser, fetchCart]);
 
   return (

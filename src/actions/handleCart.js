@@ -59,14 +59,20 @@ export async function fetchCartAction() {
 export async function addToCartAction({
   productId,
   quantity,
-  size,
-  color,
   price,
   offerPrice,
+  size,
+  color,
+  weight,
 }) {
   try {
     const token = await getOwner();
     if (!token) throw new Error("Unauthorized");
+    const payload = { productId, quantity, price, offerPrice };
+
+    if (weight) payload.weight = weight;
+    if (size) payload.size = size;
+    if (color) payload.color = color;
 
     const res = await fetch(`${API_BASE}/api/cart`, {
       method: "POST",
@@ -75,14 +81,7 @@ export async function addToCartAction({
         "Content-Type": "application/json",
         Cookie: `cUser=${token}`,
       },
-      body: JSON.stringify({
-        productId,
-        quantity,
-        size,
-        color,
-        price,
-        offerPrice,
-      }),
+      body: JSON.stringify(payload),
     });
 
     const data = await res.json();
@@ -112,10 +111,16 @@ export async function updateCartItemQuantityAction({
   quantity,
   size,
   color,
+  weight,
 }) {
   try {
     const token = await getOwner();
     if (!token) throw new Error("Unauthorized");
+
+    const payload = { productId, quantity };
+    if (weight) payload.weight = weight;
+    if (size) payload.size = size;
+    if (color) payload.color = color;
 
     const res = await fetch(`${API_BASE}/api/cart`, {
       method: "PUT",
@@ -124,7 +129,7 @@ export async function updateCartItemQuantityAction({
         "Content-Type": "application/json",
         Cookie: `cUser=${token}`,
       },
-      body: JSON.stringify({ productId, quantity, size, color }),
+      body: JSON.stringify(payload),
     });
 
     const data = await res.json();
@@ -149,9 +154,15 @@ export async function updateCartItemQuantityAction({
 /* =========================
       Remove from Cart
 ========================= */
-export async function removeFromCartAction({ productId, size, color }) {
+export async function removeFromCartAction({ productId, size, color, weight }) {
   try {
     const token = await getOwner();
+    if (!token) throw new Error("Unauthorized");
+
+    const payload = { productId };
+    if (weight) payload.weight = weight;
+    if (size) payload.size = size;
+    if (color) payload.color = color;
 
     const res = await fetch(`${API_BASE}/api/cart`, {
       method: "DELETE",
@@ -160,14 +171,14 @@ export async function removeFromCartAction({ productId, size, color }) {
         "Content-Type": "application/json",
         Cookie: `cUser=${token}`,
       },
-      body: JSON.stringify({ productId, size, color }),
+      body: JSON.stringify(payload),
     });
 
     const data = await res.json();
-    console.log(data, "test");
+
     return {
       status: res.status,
-      message: data.message,
+      message: data?.message,
       products: data?.products || [],
       totalPrice: data?.totalPrice || 0,
     };

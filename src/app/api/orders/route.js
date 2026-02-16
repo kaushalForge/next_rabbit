@@ -74,7 +74,7 @@ export async function POST(req) {
       customer,
       delivery,
       products,
-      shipmentTotal, // calculated here
+      shipmentTotal,
       payment,
       status: "Pending",
     };
@@ -180,14 +180,13 @@ export async function GET() {
 
     return NextResponse.json(
       { success: true, orders: transformedOrders },
-      { status: 200 }
+      { status: 200 },
     );
   } catch (err) {
     console.error(err);
     return NextResponse.json(
       { success: false, message: "Server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
-

@@ -14,6 +14,7 @@ const orderItemSchema = new mongoose.Schema(
     offerPrice: Number,
     size: String,
     color: String,
+    mainCategory: String,
     sku: String,
     gender: String,
     foodType: String,

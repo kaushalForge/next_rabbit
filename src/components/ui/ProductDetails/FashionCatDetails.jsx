@@ -1,23 +1,28 @@
 "use client";
 
-import React, { useMemo, useCallback, useState, useEffect } from "react";
+import React, { useMemo, useCallback, useState } from "react";
 import { useAuth } from "@/app/context/AuthContext";
 import { useCart } from "@/app/context/CartContext";
 import { Button } from "@/components/ui/button";
 import { addToCartAction } from "@/actions/handleCart";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { Loader2 } from "lucide-react";
 
 const FashionCatDetails = ({ productId, productDetail }) => {
-  const router = useRouter("");
+  const router = useRouter();
 
-  const { addCart, refreshCart } = useCart();
+  const { refreshCart } = useCart();
   const fashionVariants = productDetail?.fashion || [];
-  const productFetchId = productId || id;
+  const productFetchId = productId;
   const { currentUser } = useAuth();
+
   const [quantity, setQuantity] = useState(1);
   const [selectedSize, setSelectedSize] = useState("");
   const [selectedColor, setSelectedColor] = useState("");
+  const [isAdding, setIsAdding] = useState(false);
+
+  /* ================== VARIANTS ================== */
 
   const allColors = useMemo(
     () => [...new Set(fashionVariants.flatMap((v) => v.color))],
@@ -57,11 +62,17 @@ const FashionCatDetails = ({ productId, productDetail }) => {
   const finalPrice = Number(
     matchedVariant?.price ?? fashionVariants?.[0]?.price ?? 0,
   );
+
   const finalOfferPrice = Number(
     matchedVariant?.offerPrice ?? fashionVariants?.[0]?.offerPrice ?? 0,
   );
 
+  /* ================== ADD TO CART ================== */
+
   const handleAddToCart = async () => {
+    // 🚫 prevent multiple clicks
+    if (isAdding) return;
+
     if (!currentUser) {
       toast.warning("You must login first!");
       router.push("/login");
@@ -74,6 +85,7 @@ const FashionCatDetails = ({ productId, productDetail }) => {
     }
 
     try {
+      setIsAdding(true);
       const { status, message } = await addToCartAction({
         productId: productFetchId,
         quantity,
@@ -91,14 +103,16 @@ const FashionCatDetails = ({ productId, productDetail }) => {
       }
     } catch (error) {
       toast.error(error?.message || "Something went wrong. Please try again.");
+    } finally {
+      setIsAdding(false);
     }
   };
 
   return (
-    <div className="relative md:w-1/2 space-y-6">
+    <div className="relative md:w-1/2 space-y-6 pb-20">
       <h1 className="text-3xl font-semibold">{productDetail?.name}</h1>
 
-      {/* Price */}
+      {/* ================= PRICE ================= */}
       <div className="h-10">
         {finalOfferPrice > 0 && finalOfferPrice < finalPrice && (
           <p className="line-through text-muted-foreground">Rs.{finalPrice}</p>
@@ -108,7 +122,7 @@ const FashionCatDetails = ({ productId, productDetail }) => {
         </p>
       </div>
 
-      {/* Colors */}
+      {/* ================= COLORS ================= */}
       <div>
         <p className="font-medium mb-2">Color</p>
         <div className="flex gap-3">
@@ -128,10 +142,10 @@ const FashionCatDetails = ({ productId, productDetail }) => {
         </div>
       </div>
 
-      {/* Sizes */}
+      {/* ================= SIZES ================= */}
       <div>
         <p className="font-medium mb-2">Size</p>
-        <div className="flex items-center justify-start gap-2 flex-wrap">
+        <div className="flex items-center gap-2 flex-wrap">
           {allSizes.map((size) => (
             <Button
               key={size}
@@ -146,7 +160,7 @@ const FashionCatDetails = ({ productId, productDetail }) => {
         </div>
       </div>
 
-      {/* Quantity */}
+      {/* ================= QUANTITY ================= */}
       <div className="flex items-center gap-4">
         <Button
           variant="outline"
@@ -160,17 +174,20 @@ const FashionCatDetails = ({ productId, productDetail }) => {
         </Button>
       </div>
 
-      {/* Description */}
+      {/* ================= DESCRIPTION ================= */}
       <p className="text-muted-foreground leading-relaxed">
         {productDetail?.description}
       </p>
 
+      {/* ================= ADD TO CART ================= */}
       <Button
         onClick={handleAddToCart}
-        className="absolute w-full left-0 bottom-0"
+        disabled={isAdding}
+        className="absolute w-full left-0 bottom-0 flex items-center justify-center gap-2"
         size="lg"
       >
-        Add To Cart
+        {isAdding && <Loader2 className="h-5 w-5 animate-spin" />}
+        {isAdding ? "Adding..." : "Add To Cart"}
       </Button>
     </div>
   );

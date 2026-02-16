@@ -13,6 +13,7 @@ const cartItemsSchema = new mongoose.Schema(
     offerPrice: Number,
     size: String,
     color: String,
+    weight: String,
     quantity: {
       type: Number,
     },

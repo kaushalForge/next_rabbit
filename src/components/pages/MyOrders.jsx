@@ -164,9 +164,16 @@ const MyOrders = () => {
                             <span className="font-medium text-gray-800">
                               {p.name}
                             </span>
-                            <span className="text-gray-500 text-xs">
-                              X{p.quantity} — {p.size} — {p.color}
-                            </span>
+                            {p.mainCategory === "Fashion" && (
+                              <span className="text-gray-500 text-xs">
+                                X{p.quantity} — {p.size} — {p.color}
+                              </span>
+                            )}
+                            {p.mainCategory === "Food" && (
+                              <span className="text-gray-500 text-xs">
+                                X{p.quantity} — {p.weight}
+                              </span>
+                            )}
                             <div className="flex gap-2 text-xs flex-wrap">
                               <span className="text-gray-500 line-through">
                                 Rs.{p.price || 0}

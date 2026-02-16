@@ -19,7 +19,7 @@ function Loading({ className, ...props }) {
       <Loader2Icon
         role="status"
         aria-label="Loading"
-        className={cn("size-2 animate-spin", className)}
+        className={cn("animate-spin", className)}
         {...props}
       />
     </span>

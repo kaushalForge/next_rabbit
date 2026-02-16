@@ -23,18 +23,31 @@ const getOwner = async () => {
 // Calculate total using offerPrice if available
 const calculateTotalPrice = (products) =>
   products.reduce((sum, item) => {
-    const sellingPrice = Number(item.offerPrice || item.price);
+    const sellingPrice = Number(item.offerPrice ?? item.price);
     return sum + sellingPrice * item.quantity;
   }, 0);
 
-// Find index of a specific product variant
-const findIndex = (products, productId, size, color) =>
-  products.findIndex(
-    (p) =>
-      p.productId.toString() === productId &&
-      p.size === size &&
-      p.color === color,
-  );
+/* ================= Find existing product index dynamically ================= */
+const findIndexByCategory = (products, product, payload) => {
+  if (product.mainCategory === "Fashion") {
+    return products.findIndex(
+      (p) =>
+        p.productId.toString() === payload.productId &&
+        p.size === payload.size &&
+        p.color === payload.color,
+    );
+  } else if (product.mainCategory === "Food") {
+    return products.findIndex(
+      (p) =>
+        p.productId.toString() === payload.productId &&
+        p.weight === payload.weight, // Compare as string to avoid type mismatch
+    );
+  } else {
+    return products.findIndex(
+      (p) => p.productId.toString() === payload.productId,
+    );
+  }
+};
 
 /* ================= GET ================= */
 export const GET = async () => {
@@ -46,12 +59,25 @@ export const GET = async () => {
 
     const cart = await Cart.findOne({ userId: owner.id }).lean();
 
-    const totalPrice = calculateTotalPrice(cart?.products || []);
+    const productsWithCategory = await Promise.all(
+      (cart?.products || []).map(async (item) => {
+        const product = await Product.findById(item.productId)
+          .select("mainCategory")
+          .lean();
+
+        return {
+          ...item,
+          mainCategory: product?.mainCategory || "Unknown",
+        };
+      }),
+    );
+
+    const totalPrice = calculateTotalPrice(productsWithCategory);
 
     return NextResponse.json(
       {
         message: "Cart fetched successfully",
-        products: cart?.products || [],
+        products: productsWithCategory,
         totalPrice,
       },
       { status: 200 },
@@ -73,19 +99,20 @@ export const POST = async (req) => {
     if (!owner)
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
 
+    const payload = await req.json();
     const {
       productId,
       quantity,
       size,
       color,
+      weight,
       price,
-      shipmentTotal,
       offerPrice,
-      shippingFee,
-    } = await req.json();
+      shipmentTotal,
+    } = payload;
 
     const product = await Product.findById(productId)
-      .select("name images")
+      .select("name images mainCategory")
       .lean();
 
     if (!product)
@@ -95,9 +122,7 @@ export const POST = async (req) => {
       );
 
     const image = product.images?.[0]?.url || "";
-
     let cart = await Cart.findOne({ userId: new Types.ObjectId(owner.id) });
-
     if (!cart) {
       cart = new Cart({
         userId: new Types.ObjectId(owner.id),
@@ -106,27 +131,51 @@ export const POST = async (req) => {
       });
     }
 
-    const index = findIndex(cart.products, productId, size, color);
+    // Ensure Food products have weight
+    if (product.mainCategory === "Food" && (!weight || weight === "")) {
+      return NextResponse.json(
+        { message: "Weight is required for Food products" },
+        { status: 400 },
+      );
+    }
+
+    const index = findIndexByCategory(cart.products, product, payload);
 
     if (index > -1) {
+      // Update existing product
       cart.products[index].quantity += quantity;
       cart.products[index].price = price;
       cart.products[index].offerPrice = offerPrice;
+
+      if (product.mainCategory === "Fashion") {
+        cart.products[index].size = size;
+        cart.products[index].color = color;
+      } else if (product.mainCategory === "Food") {
+        cart.products[index].weight = weight;
+      }
     } else {
-      cart.products.push({
+      // Add new product
+      const newProduct = {
         productId,
         name: product.name,
         image,
         price,
         offerPrice,
-        shipmentTotal: shipmentTotal,
-        size,
-        color,
+        shipmentTotal,
         quantity,
-      });
-    }
-    cart.totalPrice = calculateTotalPrice(cart.products, shippingFee);
+      };
 
+      if (product.mainCategory === "Fashion") {
+        newProduct.size = size;
+        newProduct.color = color;
+      } else if (product.mainCategory === "Food") {
+        newProduct.weight = weight; // assign only once
+      }
+
+      cart.products.push(newProduct);
+    }
+
+    cart.totalPrice = calculateTotalPrice(cart.products);
     await cart.save();
 
     return NextResponse.json(
@@ -151,24 +200,44 @@ export const PUT = async (req) => {
     if (!owner)
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
 
-    const { productId, quantity, size, color } = await req.json();
+    const payload = await req.json();
+    const { productId, quantity, size, color, weight } = payload;
 
     const cart = await Cart.findOne({ userId: owner.id });
     if (!cart)
       return NextResponse.json({ message: "Cart not found" }, { status: 404 });
 
-    const index = findIndex(cart.products, productId, size, color);
+    const product = await Product.findById(productId)
+      .select("mainCategory")
+      .lean();
+    if (!product)
+      return NextResponse.json(
+        { message: "Product not found" },
+        { status: 404 },
+      );
+
+    const index = findIndexByCategory(cart.products, product, payload);
     if (index === -1)
       return NextResponse.json({ message: "Item not found" }, { status: 404 });
 
     cart.products[index].quantity = quantity;
 
-    cart.totalPrice = calculateTotalPrice(cart.products);
+    if (product.mainCategory === "Fashion") {
+      cart.products[index].size = size;
+      cart.products[index].color = color;
+    } else if (product.mainCategory === "Food") {
+      cart.products[index].weight = weight;
+    }
 
+    cart.totalPrice = calculateTotalPrice(cart.products);
     await cart.save();
 
     return NextResponse.json(
-      { products: cart.products, totalPrice: cart.totalPrice },
+      {
+        products: cart.products,
+        totalPrice: cart.totalPrice,
+        message: "Quantity updated!",
+      },
       { status: 200 },
     );
   } catch (err) {
@@ -185,20 +254,24 @@ export const DELETE = async (req) => {
     if (!owner)
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
 
-    const { productId, size, color } = await req.json();
+    const payload = await req.json();
+    const { productId, size, color, weight } = payload;
 
     const cart = await Cart.findOne({ userId: owner.id });
     if (!cart)
       return NextResponse.json({ message: "Cart not found" }, { status: 404 });
 
-    cart.products = cart.products.filter(
-      (p) =>
-        !(
-          p.productId.toString() === productId &&
-          p.size === size &&
-          p.color === color
-        ),
-    );
+    const product = await Product.findById(productId)
+      .select("mainCategory")
+      .lean();
+    if (!product)
+      return NextResponse.json(
+        { message: "Product not found" },
+        { status: 404 },
+      );
+
+    const index = findIndexByCategory(cart.products, product, payload);
+    if (index > -1) cart.products.splice(index, 1);
 
     cart.totalPrice = calculateTotalPrice(cart.products);
     await cart.save();

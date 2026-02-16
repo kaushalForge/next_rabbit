@@ -68,7 +68,6 @@ const FoodCatDetails = ({ productId, productDetail }) => {
         offerPrice: finalOfferPrice,
         weight: selectedWeight,
       });
-
       if (status === 200 || status === 201) {
         await refreshCart();
         toast.success(message || "Added to cart!");
