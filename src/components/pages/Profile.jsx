@@ -11,12 +11,15 @@ import { FaBoxOpen } from "react-icons/fa6";
 // import MyOrders from "./MyOrders";
 const MyOrders = lazy(() => import("./MyOrders"));
 import { useAuth } from "@/app/context/AuthContext";
+import { useOrders } from "@/app/context/OrderContext";
 import Link from "next/link";
 import Image from "next/image";
 import { Skeleton } from "../ui/skeleton";
 import { Suspense } from "react";
 const Profile = () => {
-  const { currentUser, refreshCurrentUser, logout, loggingOut } = useAuth();
+  const { currentUser, logout, loggingOut } = useAuth();
+
+  const { totalOrders, pendingOrders, totalSpent } = useOrders();
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -32,53 +35,57 @@ const Profile = () => {
         <div className="flex flex-col lg:flex-row gap-6 h-full items-start lg:items-center">
           {/* Left Column - Stats */}
           <div className="w-full flex-1 flex flex-col gap-6 h-full">
-            <div className="flex-1 rounded-2xl p-6 flex flex-col bg-stone-100/60 border-gray-100 shadow-sm backdrop-blur-md">
-              <h3 className="text-lg font-semibold text-gray-800 mb-4">
-                Account Stats
+            <div className="flex-1 rounded-2xl p-8 bg-white border border-neutral-200 shadow-sm">
+              <h3 className="text-xl font-semibold text-neutral-900 mb-6">
+                Account Overview
               </h3>
 
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 flex-1">
-                {/* RabbitHub */}
-                <div className="relative w-full aspect-square rounded-xl bg-linear-to-br from-blue-200/50 to-blue-400/30 transition-all duration-300 flex items-center justify-center">
-                  <Image
-                    src="/images/RabbitHub.png"
-                    alt="RabbitHub Logo"
-                    fill
-                    preload
-                    className="rounded-md object-cover"
-                  />
-                </div>
-
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
                 {/* Total Orders */}
-                <div className="relative flex flex-col items-center justify-center aspect-square p-4 rounded-xl bg-linear-to-br from-indigo-200/50 to-indigo-400/30 transition-all duration-300">
-                  <span className="flex items-center justify-center text-indigo-700 text-sm gap-1 font-medium">
-                    <FaBoxOpen />
-                    Total Orders
-                  </span>
-                  <span className="text-indigo-900 font-bold text-lg">128</span>
-                  <div className="absolute inset-0 rounded-xl bg-indigo-200/20 blur-xl -z-10"></div>
+                <div className="group rounded-xl border border-neutral-200 p-5 transition-all hover:shadow-md hover:-translate-y-1">
+                  <div className="flex items-center justify-between">
+                    <div className="w-10 h-10 rounded-lg bg-neutral-100 flex items-center justify-center text-neutral-600">
+                      <FaBoxOpen size={16} />
+                    </div>
+                  </div>
+
+                  <p className="text-sm text-neutral-500 mt-4">Total Orders</p>
+
+                  <p className="text-2xl font-semibold text-neutral-900 mt-1">
+                    {totalOrders}
+                  </p>
                 </div>
 
                 {/* Pending Orders */}
-                <div className="relative flex flex-col items-center justify-center aspect-square p-4 rounded-xl bg-linear-to-br from-orange-200/50 to-orange-400/30 transition-all duration-300">
-                  <span className="flex items-center justify-center text-orange-600 text-sm gap-1 font-medium">
-                    <MdAccessTime />
+                <div className="group rounded-xl border border-neutral-200 p-5 transition-all hover:shadow-md hover:-translate-y-1">
+                  <div className="flex items-center justify-between">
+                    <div className="w-10 h-10 rounded-lg bg-neutral-100 flex items-center justify-center text-neutral-600">
+                      <MdAccessTime size={18} />
+                    </div>
+                  </div>
+
+                  <p className="text-sm text-neutral-500 mt-4">
                     Pending Orders
-                  </span>
-                  <span className="text-orange-800 font-bold text-lg">5</span>
-                  <div className="absolute inset-0 rounded-xl bg-orange-200/20 blur-xl -z-10"></div>
+                  </p>
+
+                  <p className="text-2xl font-semibold text-neutral-900 mt-1">
+                    {pendingOrders}
+                  </p>
                 </div>
 
                 {/* Total Spent */}
-                <div className="relative flex flex-col items-center justify-center aspect-square p-4 rounded-xl bg-linear-to-br from-green-200/50 to-green-400/30 transition-all duration-300">
-                  <span className="flex items-center justify-center text-green-700 text-sm gap-1 font-medium">
-                    <MdAttachMoney />
-                    Total Spent
-                  </span>
-                  <span className="text-green-900 font-bold text-lg">
-                    Rs. 54,300
-                  </span>
-                  <div className="absolute inset-0 rounded-xl bg-green-200/20 blur-xl -z-10"></div>
+                <div className="group rounded-xl border border-neutral-200 p-5 transition-all hover:shadow-md hover:-translate-y-1">
+                  <div className="flex items-center justify-between">
+                    <div className="w-10 h-10 rounded-lg bg-neutral-100 flex items-center justify-center text-neutral-600">
+                      <MdAttachMoney size={18} />
+                    </div>
+                  </div>
+
+                  <p className="text-sm text-neutral-500 mt-4">Total Spent</p>
+
+                  <p className="text-2xl font-semibold text-neutral-900 mt-1">
+                    Rs.{totalSpent}
+                  </p>
                 </div>
               </div>
             </div>

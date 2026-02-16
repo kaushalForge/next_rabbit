@@ -9,7 +9,7 @@ import Link from "next/link";
 const Footer = () => {
   return (
     <>
-      <footer className="border-t py-12">
+      <footer className="flex items-center justify-center flex-col w-full border-t px-8 py-12">
         <div className="container mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 px-4 lg:px-0">
           <div>
             <h3 className="text-lg text-gray-800 mb-4">Newsletter</h3>
@@ -24,12 +24,12 @@ const Footer = () => {
               <input
                 type="email"
                 placeholder="Enter your email"
-                className="p-3 w-full text-sm border-t border-l border-b border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-gray-500 transition-all"
+                className="p-3 w-auto text-sm border-t border-l border-b border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-gray-500 transition-all"
                 required
               />
               <button
                 type="submit"
-                className="bg-black text-sm text-white px-6 py-3 rounded-r-md hover:bg-gray-800 transition-all"
+                className="bg-gray-800 text-sm text-white px-6 py-3 rounded-r-md hover:bg-gray-800 transition-all"
               >
                 Subscribe
               </button>
@@ -137,7 +137,7 @@ const Footer = () => {
           </div>
         </div>
         {/* Fottor Bottom */}
-        <div className="container mx-auto my-6 px-4 lg:px-0 border-t border-gray-200 pt-6">
+        <div className="container mx-auto px-4 lg:px-0 border-t border-gray-200 pt-6 mt-6">
           <p className="text-gray-500 text-sm tracking-tigher text-center">
             &copy; 2025, All rights reserved!
           </p>

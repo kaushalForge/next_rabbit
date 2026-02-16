@@ -6,11 +6,12 @@ import {
   useState,
   useEffect,
   useCallback,
+  useMemo,
 } from "react";
 import { useAuth } from "./AuthContext";
 import { fetchOrdersAction } from "@/actions/handleOrder";
 
-const OrderContext = createContext();
+const OrderContext = createContext(null);
 
 export const OrderProvider = ({ children }) => {
   const { currentUser } = useAuth();
@@ -20,7 +21,7 @@ export const OrderProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   /* =========================
-        Fetch orders from API
+        Fetch Orders
   ========================= */
   const fetchOrders = useCallback(async () => {
     if (!currentUser) {
@@ -31,19 +32,17 @@ export const OrderProvider = ({ children }) => {
     }
 
     setLoading(true);
+
     try {
-      // Use success instead of status to match API
-      const { status, orders } = await fetchOrdersAction();
-      if (status === 200) {
-        const allShipments = orders.flatMap((order) => order.shipments || []);
-        setOrders(orders);
-        setAllShipments(allShipments);
-      } else {
-        setOrders([]);
-        setAllShipments([]);
-      }
-    } catch (err) {
-      console.error("fetchOrders error:", err);
+      const response = await fetchOrdersAction();
+      const fetchedOrders = response.orders || [];
+      const shipments = fetchedOrders.flatMap(
+        (order) => order?.shipments || [],
+      );
+      setOrders(fetchedOrders);
+      setAllShipments(shipments);
+    } catch (error) {
+      console.error("fetchOrders error:", error);
       setOrders([]);
       setAllShipments([]);
     } finally {
@@ -52,18 +51,32 @@ export const OrderProvider = ({ children }) => {
   }, [currentUser]);
 
   /* =========================
-        Refresh orders
+        Refresh Orders
   ========================= */
   const refreshOrders = useCallback(async () => {
     await fetchOrders();
   }, [fetchOrders]);
 
-  /* =========================
-        Auto-fetch on login/admin change
-  ========================= */
   useEffect(() => {
     fetchOrders();
   }, [fetchOrders]);
+
+  const totalOrders = useMemo(() => {
+    return allShipments?.length || 0;
+  }, [allShipments]);
+
+  const pendingOrders = useMemo(() => {
+    if (!allShipments || allShipments.length === 0) return 0;
+
+    return allShipments.filter((shipment) =>
+      ["pending", "pending_order"].includes(shipment?.status?.toLowerCase()),
+    ).length;
+  }, [allShipments]);
+
+  const totalSpent = useMemo(() => {
+    if (!allShipments || allShipments.length === 0) return 0;
+    return orders[0]?.totalPrice || 0;
+  }, [allShipments]);
 
   return (
     <OrderContext.Provider
@@ -72,7 +85,9 @@ export const OrderProvider = ({ children }) => {
         allShipments,
         loading,
         refreshOrders,
-        setOrders,
+        totalOrders,
+        pendingOrders,
+        totalSpent,
       }}
     >
       {children}
@@ -80,4 +95,7 @@ export const OrderProvider = ({ children }) => {
   );
 };
 
-export const useOrders = () => useContext(OrderContext);
+export const useOrders = () => {
+  const context = useContext(OrderContext);
+  return context;
+};
