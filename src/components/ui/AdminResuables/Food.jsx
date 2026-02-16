@@ -4,6 +4,13 @@ import { Input } from "../input";
 import { Button } from "../button";
 import { CardHeader, CardTitle } from "../card";
 import ProductDetails from "@/components/pages/ProductDetails";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../select";
 
 // EMPTY_BATCH: Always number for price/offerPrice
 const EMPTY_BATCH = {
@@ -94,13 +101,19 @@ const Food = ({ food, setFood }) => {
             value={b.sku}
             onChange={(e) => updateBatch(i, "sku", e.target.value)}
           />
-
-          <Input
-            label="Food Type"
-            placeholder="Veg, Non-Veg"
-            value={b.foodType}
-            onChange={(e) => updateBatch(i, "foodType", e.target.value)}
-          />
+          <Select
+            value={b.foodType || ""} // empty string shows placeholder
+            onValueChange={(value) => updateBatch(i, "foodType", value)}
+          >
+            <SelectTrigger className="w-full border rounded px-2 py-1">
+              <SelectValue placeholder="Select Food Type" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="Veg">Veg</SelectItem>
+              <SelectItem value="Non-Veg">Non-Veg</SelectItem>
+              <SelectItem value="Vegan">Vegan</SelectItem>
+            </SelectContent>
+          </Select>
 
           {console.log(food?.[0].weight)}
           <Input
@@ -116,12 +129,21 @@ const Food = ({ food, setFood }) => {
             }}
           />
 
-          <Input
-            label="Taste"
-            placeholder="Sweet"
-            value={b.taste}
-            onChange={(e) => updateBatch(i, "taste", e.target.value)}
-          />
+          <Select
+            value={b.taste || ""} // empty string shows placeholder
+            onValueChange={(value) => updateBatch(i, "taste", value)}
+          >
+            <SelectTrigger className="w-full border rounded px-2 py-1">
+              <SelectValue placeholder="Select Taste" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="Sweet">Sweet</SelectItem>
+              <SelectItem value="Salty">Salty</SelectItem>
+              <SelectItem value="Spicy">Spicy</SelectItem>
+              <SelectItem value="Sour">Sour</SelectItem>
+              <SelectItem value="Bitter">Bitter</SelectItem>
+            </SelectContent>
+          </Select>
 
           <Input
             label="Batch Number"

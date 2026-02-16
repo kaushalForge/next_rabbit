@@ -2,6 +2,13 @@
 
 import { Input } from "../input";
 import { useState, useMemo } from "react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../select";
 
 /* =====================================================
  * SAFE HELPERS
@@ -9,20 +16,13 @@ import { useState, useMemo } from "react";
 const safeString = (v) => (typeof v === "string" ? v : "");
 const safeArray = (v) => (Array.isArray(v) ? v : []);
 
-const CATEGORY_OPTIONS = [
-  "Clothing",
-  "Shoes",
-  "Accessories",
-  "Food",
-  "Electronics",
-];
-
 const SectionOne = (props) => {
   const {
     name,
     setName,
     countryOfOrigin,
     setCountryOfOrigin,
+    mainCategory,
     category,
     setCategory,
     weight,
@@ -36,6 +36,33 @@ const SectionOne = (props) => {
     material,
     setMaterial,
   } = props;
+
+  const CATEGORY_OPTIONS =
+    mainCategory === "fashion" || mainCategory === "Fashion"
+      ? [
+          "Top Wear",
+          "Bottom Wear",
+          "Shoes",
+          "Innerwear",
+          "Jackets & Coats",
+          "Ethnic Wear",
+          "Sportswear",
+          "Accessories",
+          "Bags & Wallets",
+          "Hats & Caps",
+        ]
+      : [
+          "Snacks",
+          "Beverages",
+          "Dairy & Eggs",
+          "Fruits & Vegetables",
+          "Grains & Pulses",
+          "Confectionery",
+          "Natural Sweeteners",
+          "Health Foods",
+        ];
+
+  const isPredefined = CATEGORY_OPTIONS.includes(category);
 
   /* ================= TAG STATE ================= */
   const [tagInput, setTagInput] = useState("");
@@ -59,7 +86,6 @@ const SectionOne = (props) => {
   /* ================= CATEGORY LOGIC =================
      Only ONE can control the value
   ===================================================== */
-  const isPredefined = CATEGORY_OPTIONS.includes(category);
 
   return (
     <section className="lg:col-span-2 space-y-8">
@@ -81,18 +107,21 @@ const SectionOne = (props) => {
 
         {/* ============ CATEGORY (MATCHED HEIGHT) ============ */}
         <div className="flex gap-2">
-          <select
+          <Select
             value={isPredefined ? category : ""}
-            onChange={(e) => setCategory(e.target.value)}
-            className="h-10 w-1/2 rounded-md border border-input bg-background px-3 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+            onValueChange={(value) => setCategory(value)}
           >
-            <option value="">Select Category</option>
-            {CATEGORY_OPTIONS.map((opt) => (
-              <option key={opt} value={opt}>
-                {opt}
-              </option>
-            ))}
-          </select>
+            <SelectTrigger className="h-10 w-1/2 rounded-md border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
+              <SelectValue placeholder="Select Category" />
+            </SelectTrigger>
+            <SelectContent>
+              {CATEGORY_OPTIONS.map((opt) => (
+                <SelectItem key={opt} value={opt}>
+                  {opt}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
 
           <Input
             label="Custom Category"
@@ -170,7 +199,7 @@ const SectionOne = (props) => {
             <div
               key={i}
               className="flex items-center gap-2 px-3 py-1.5 rounded-full
-bg-gradient-to-br from-red-400/30 via-rose-300/20 to-red-500/30
+bg-linear-to-br from-red-400/30 via-rose-300/20 to-red-500/30
 backdrop-blur-md border border-red-300/40
 shadow-[0_4px_14px_rgba(239,68,68,0.28)]
 text-red-900 text-xs font-semibold tracking-wide"

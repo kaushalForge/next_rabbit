@@ -146,12 +146,12 @@ const productSchema = new mongoose.Schema(
         },
 
         foodType: {
-          type: String, // Veg, Non-veg, Vegan
+          type: String,
         },
 
         weight: [
           {
-            type: String, // "500gm", "1kg", "2kg"
+            type: String,
           },
         ],
 

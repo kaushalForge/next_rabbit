@@ -324,6 +324,7 @@ const EditProduct = ({ productDetails }) => {
                   setCountryOfOrigin={setCountryOfOrigin}
                   category={category}
                   setCategory={setCategory}
+                  mainCategory={mainCategory}
                   weight={weight}
                   setWeight={setWeight}
                   rating={rating}

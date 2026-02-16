@@ -10,7 +10,7 @@ const Input = React.forwardRef(({ className, type, label, ...props }, ref) => {
           className="
               pointer-events-none
               absolute -top-2 left-3
-              px-2 py-[2px]
+              px-2 py-0.5
               text-xs font-medium tracking-wide
               bg-background
               text-muted-foreground

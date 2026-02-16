@@ -155,19 +155,36 @@ const ProductGrid = ({ products = [] }) => {
                   <div className="mt-4 space-y-4">
                     {/* Price + Colors */}
                     <div className="flex items-center justify-between">
-                      {/* Price */}
-                      <div className="text-xl font-semibold text-gray-900">
-                        {product?.fashion[0]?.offerPrice ? (
-                          <div className="flex items-center gap-2 flex-row">
-                            <span className="text-sm line-through text-red-400">
-                              Rs.{product?.fashion[0]?.price}
-                            </span>
-                            <span>Rs.{product?.fashion[0]?.offerPrice}</span>
-                          </div>
-                        ) : (
-                          <span>Rs.{product?.fashion[0]?.price}</span>
-                        )}
-                      </div>
+                      {/* Fashion Price */}
+                      {product?.mainCategory === "Fashion" && (
+                        <div className="text-xl font-semibold text-gray-900">
+                          {product?.fashion[0]?.offerPrice ? (
+                            <div className="flex items-center gap-2 flex-row">
+                              <span className="text-sm line-through text-red-400">
+                                Rs.{product?.fashion[0]?.price}
+                              </span>
+                              <span>Rs.{product?.fashion[0]?.offerPrice}</span>
+                            </div>
+                          ) : (
+                            <span>Rs.{product?.fashion[0]?.price}</span>
+                          )}
+                        </div>
+                      )}
+                      {/* Food Price */}
+                      {product?.mainCategory === "Food" && (
+                        <div className="text-xl font-semibold text-gray-900">
+                          {product?.food[0]?.offerPrice ? (
+                            <div className="flex items-center gap-2 flex-row">
+                              <span className="text-sm line-through text-red-400">
+                                Rs.{product?.food[0]?.price}
+                              </span>
+                              <span>Rs.{product?.food[0]?.offerPrice}</span>
+                            </div>
+                          ) : (
+                            <span>Rs.{product?.food[0]?.price}</span>
+                          )}
+                        </div>
+                      )}
 
                       {/* Colors */}
                       <div className="flex items-center gap-2">

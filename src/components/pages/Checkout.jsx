@@ -10,7 +10,14 @@ import { useAuth } from "@/app/context/AuthContext";
 import { Input } from "@/components/ui/input";
 import { useRouter } from "next/navigation";
 import { createOrderAction } from "@/actions/handleOrder";
-import { Spinner } from "../ui/spinner";
+import { Loading, Spinner } from "../ui/spinner";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
 
 const Checkout = () => {
   const { cart, totalPrice, refreshCart } = useCart();
@@ -28,17 +35,15 @@ const Checkout = () => {
   const [state, setState] = useState("");
   const [zipCode, setZipCode] = useState("");
   const [finalOrder, setFinalOrder] = useState("");
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const loadCart = async () => {
       await refreshCart();
-      setIsLoading(false);
     };
     loadCart();
   }, []);
 
-  // ---- Calculations ----
   const { subtotalOriginal, subtotalDiscounted, saved } = useMemo(() => {
     let original = 0;
     let discounted = 0;
@@ -107,8 +112,8 @@ const Checkout = () => {
 
       setFinalOrder(orderData);
 
+      setIsLoading(true);
       const { status, message } = await createOrderAction(orderData);
-
       if (status === 200 || status === 201) {
         toast.success(message || "Order placed successfully!");
         setFirstName("");
@@ -122,14 +127,25 @@ const Checkout = () => {
         setAddress("");
         setZipCode("");
         refreshCart();
+        setIsLoading(false);
       } else {
         toast.error(message || "Failed to place order");
+        setIsLoading(false);
       }
     } catch (error) {
+      setIsLoading(false);
       console.error("Order Error:", error);
       toast.error(error.message || "Something went wrong!");
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-black/20">
+        <Spinner className="w-14 h-14 text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 h-full lg:px-8 py-8 lg:py-12">
@@ -142,8 +158,8 @@ const Checkout = () => {
             {/* INPUT GRID */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div>
-                <label className="block mb-2 font-medium">First Name</label>
-                <input
+                <Input
+                  label="First Name"
                   type="text"
                   value={firstName}
                   onChange={(e) => setFirstName(e.target.value)}
@@ -153,8 +169,8 @@ const Checkout = () => {
                 />
               </div>
               <div>
-                <label className="block mb-2 font-medium">Last Name</label>
-                <input
+                <Input
+                  label="Last Name"
                   type="text"
                   value={lastName}
                   onChange={(e) => setLastName(e.target.value)}
@@ -164,8 +180,8 @@ const Checkout = () => {
                 />
               </div>
               <div>
-                <label className="block mb-2 font-medium">Email</label>
                 <Input
+                  label="E-mail"
                   type="email"
                   value={currentUser?.email || "user@example.com"}
                   disabled
@@ -175,39 +191,49 @@ const Checkout = () => {
                 />
               </div>
               <div>
-                <label className="block mb-2 font-medium">Phone</label>
-                <input
-                  type="tel"
+                <Input
+                  label="Phone"
+                  type="number"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  placeholder="Phone"
+                  placeholder="Contact Number"
                   className="w-full border rounded-lg p-3"
                   required
                 />
               </div>
-              <div>
-                <label className="block mb-2 font-medium">State</label>
-                <select
-                  value={state}
-                  onChange={(e) => setState(e.target.value)}
-                  className="w-full border rounded-lg p-3"
-                  required
-                >
-                  <option value="">Select State</option>
-                  <option value="Province No. 1">Koshi Province</option>
-                  <option value="Province No. 2">Province No. 2</option>
-                  <option value="Bagmati Province">Bagmati Province</option>
-                  <option value="Gandaki Province">Gandaki Province</option>
-                  <option value="Lumbini Province">Lumbini Province</option>
-                  <option value="Karnali Province">Karnali Province</option>
-                  <option value="Sudurpashchim Province">
-                    Sudurpashchim Province
-                  </option>
-                </select>
+              <div className="w-full">
+                <Select value={state} onValueChange={setState} required>
+                  <SelectTrigger className="w-full border rounded-lg p-3">
+                    <SelectValue placeholder="Select State" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Province No. 1">
+                      Koshi Province
+                    </SelectItem>
+                    <SelectItem value="Province No. 2">
+                      Province No. 2
+                    </SelectItem>
+                    <SelectItem value="Bagmati Province">
+                      Bagmati Province
+                    </SelectItem>
+                    <SelectItem value="Gandaki Province">
+                      Gandaki Province
+                    </SelectItem>
+                    <SelectItem value="Lumbini Province">
+                      Lumbini Province
+                    </SelectItem>
+                    <SelectItem value="Karnali Province">
+                      Karnali Province
+                    </SelectItem>
+                    <SelectItem value="Sudurpashchim Province">
+                      Sudurpashchim Province
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               <div>
-                <label className="block mb-2 font-medium">District</label>
-                <input
+                <Input
+                  label="District"
                   type="text"
                   value={district}
                   onChange={(e) => setDistrict(e.target.value)}
@@ -217,8 +243,8 @@ const Checkout = () => {
                 />
               </div>
               <div>
-                <label className="block mb-2 font-medium">City</label>
-                <input
+                <Input
+                  label="City"
                   type="text"
                   value={city}
                   onChange={(e) => setCity(e.target.value)}
@@ -229,8 +255,8 @@ const Checkout = () => {
               </div>
 
               <div>
-                <label className="block mb-2 font-medium">Address</label>
-                <input
+                <Input
+                  label="Address"
                   type="text"
                   value={address}
                   onChange={(e) => setAddress(e.target.value)}
@@ -240,8 +266,8 @@ const Checkout = () => {
                 />
               </div>
               <div>
-                <label className="block mb-2 font-medium">Zip Code</label>
-                <input
+                <Input
+                  label="Zip Code"
                   type="text"
                   value={zipCode}
                   onChange={(e) => setZipCode(e.target.value)}
@@ -344,10 +370,16 @@ const Checkout = () => {
                             <h3 className="font-semibold truncate">
                               {item.name}
                             </h3>
-                            <p className="text-xs text-gray-500">
-                              Qty: {item.quantity}
-                            </p>
-
+                            {item.mainCategory === "Fashion" ? (
+                              <p className="text-xs text-gray-500">
+                                Qty: {item.quantity} | Size: {item.size} |
+                                Color: {item.color}
+                              </p>
+                            ) : (
+                              <p className="text-xs text-gray-500">
+                                Qty: {item.quantity} | Weight: {item.weight}
+                              </p>
+                            )}
                             <div className="flex gap-2 mt-1">
                               <span className="line-through text-gray-400 text-xs">
                                 Rs. {original}
