@@ -12,14 +12,14 @@ const GenderCollectionSection = () => {
             <img
               src="/assets/womens-collection.webp"
               alt="Women's Collection"
-              className="w-full h-[700px] object-cover"
+              className="w-full h-175 object-cover"
             />
             <div className="absolute bottom-8 left-8 bg-white bg-opacity-90 p-4">
               <h2 className="text-2xl font-bold text-gray-900 mb-3">
                 Women's Collection
               </h2>
               <Link
-                href="/collections/all?gender=Female"
+                href="/collections/all?mainCategory=Fashion&gender=Female"
                 className="text-gray-900 underline"
               >
                 Shop Now
@@ -31,14 +31,14 @@ const GenderCollectionSection = () => {
             <img
               src="/assets/mens-collection.webp"
               alt="Women's Collection"
-              className="w-full h-[700px] object-cover"
+              className="w-full h-175 object-cover"
             />
             <div className="absolute bottom-8 left-8 bg-white bg-opacity-90 p-4">
               <h2 className="text-2xl font-bold text-gray-900 mb-3">
                 Men's Collection
               </h2>
               <Link
-                href="/collections/all?gender=Male"
+                href="/collections/all?mainCategory=Fashion&gender=Male"
                 className="text-gray-900 underline"
               >
                 Shop Now

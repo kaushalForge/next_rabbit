@@ -123,7 +123,17 @@ const Navbar = () => {
                 }}
                 className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-200 hover:bg-gray-300 transition"
               >
-                <HiOutlineUser className="h-5 w-5 text-gray-700" />
+                {currentUser ? (
+                  <Image
+                    src={currentUser?.avatar}
+                    alt={currentUser?.name || "User Avatar"}
+                    fill
+                    referrerPolicy="no-referrer"
+                    className="rounded-full object-cover border text-gray-700 border-gray-300"
+                  />
+                ) : (
+                  <HiOutlineUser className="h-5 w-5 " />
+                )}
               </button>
 
               {!isLoggedIn && avatarDropdownOpen && (

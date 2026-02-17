@@ -8,25 +8,44 @@ import {
   MdLogout,
 } from "react-icons/md";
 import { FaBoxOpen } from "react-icons/fa6";
-// import MyOrders from "./MyOrders";
-const MyOrders = lazy(() => import("./MyOrders"));
+import { HiOutlineUser } from "react-icons/hi2";
+import { Suspense } from "react";
+import Image from "next/image";
+import { Skeleton } from "../ui/skeleton";
 import { useAuth } from "@/app/context/AuthContext";
 import { useOrders } from "@/app/context/OrderContext";
 import Link from "next/link";
-import Image from "next/image";
-import { Skeleton } from "../ui/skeleton";
-import { Suspense } from "react";
+
+const MyOrders = lazy(() => import("./MyOrders"));
+
 const Profile = () => {
   const { currentUser, logout, loggingOut } = useAuth();
-
   const { totalOrders, pendingOrders, totalSpent } = useOrders();
-  const [loading, setLoading] = useState(true);
 
+  // State to handle UI loading (avatar, name, etc.)
+  const [loadingUser, setLoadingUser] = useState(true);
+
+  // Set loadingUser whenever currentUser changes
   useEffect(() => {
     if (currentUser) {
-      setLoading(false);
+      setLoadingUser(false);
+    } else {
+      // If user logs out, immediately show skeletons/placeholder
+      setLoadingUser(true);
     }
-  }, [loading, currentUser]);
+  }, [currentUser]);
+
+  // Handle logout click
+  const handleLogout = async () => {
+    setLoadingUser(true); // show loading immediately
+    try {
+      await logout();
+    } catch (err) {
+      console.error("Logout failed:", err);
+    } finally {
+      setLoadingUser(false); // ensure UI updates after logout
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
@@ -48,9 +67,7 @@ const Profile = () => {
                       <FaBoxOpen size={16} />
                     </div>
                   </div>
-
                   <p className="text-sm text-neutral-500 mt-4">Total Orders</p>
-
                   <p className="text-2xl font-semibold text-neutral-900 mt-1">
                     {totalOrders}
                   </p>
@@ -63,11 +80,9 @@ const Profile = () => {
                       <MdAccessTime size={18} />
                     </div>
                   </div>
-
                   <p className="text-sm text-neutral-500 mt-4">
                     Pending Orders
                   </p>
-
                   <p className="text-2xl font-semibold text-neutral-900 mt-1">
                     {pendingOrders}
                   </p>
@@ -80,9 +95,7 @@ const Profile = () => {
                       <MdAttachMoney size={18} />
                     </div>
                   </div>
-
                   <p className="text-sm text-neutral-500 mt-4">Total Spent</p>
-
                   <p className="text-2xl font-semibold text-neutral-900 mt-1">
                     Rs.{totalSpent}
                   </p>
@@ -91,22 +104,23 @@ const Profile = () => {
             </div>
           </div>
 
-          {/* Right Column - Minimal User Card */}
+          {/* Right Column - User Card */}
           <div className="w-full lg:w-72 aspect-square shrink-0 flex flex-col max-h-60 lg:h-full self-start lg:self-center">
             <div className="bg-stone-100/80 grow border border-gray-100 rounded-2xl px-4 py-3 flex flex-col items-center justify-center text-center shadow-sm h-full">
               {/* Avatar */}
-              <div className="relative">
-                {loading ? (
-                  <Skeleton className="h-16 w-16 rounded-full bg-stone-300 animate-pulse" />
+              <div className="h-16 w-16 relative">
+                {loadingUser || !currentUser?.avatar ? (
+                  <HiOutlineUser className="h-full w-full rounded-full text-gray-400" />
                 ) : (
-                  <img
-                    src={currentUser?.avatar}
-                    alt={currentUser?.name || "User Avatar"}
+                  <Image
+                    src={currentUser.avatar}
+                    alt={currentUser.name || "User Avatar"}
+                    fill
                     referrerPolicy="no-referrer"
-                    className="h-16 w-16 rounded-full object-cover border border-gray-300"
+                    className="rounded-full object-cover border border-gray-300"
                   />
                 )}
-                {!loading && (
+                {!loadingUser && currentUser && (
                   <span
                     className="absolute bottom-0 right-0 h-3 w-3 bg-green-500 rounded-full ring-2 ring-white"
                     title="Online"
@@ -116,7 +130,7 @@ const Profile = () => {
 
               {/* Name and Email */}
               <div className="mt-2 flex flex-col gap-2 items-center justify-center">
-                {loading ? (
+                {loadingUser || !currentUser ? (
                   <div className="flex flex-col gap-2 items-center">
                     <Skeleton className="h-4 w-24 rounded bg-stone-300 animate-pulse" />
                     <Skeleton className="h-3 w-32 rounded bg-stone-300 animate-pulse" />
@@ -124,10 +138,10 @@ const Profile = () => {
                 ) : (
                   <>
                     <span className="font-semibold text-gray-800 truncate">
-                      {currentUser?.name}
+                      {currentUser.name}
                     </span>
                     <span className="text-gray-500 text-xs truncate">
-                      {currentUser?.email}
+                      {currentUser.email}
                     </span>
                   </>
                 )}
@@ -135,7 +149,7 @@ const Profile = () => {
 
               {/* Role */}
               <div className="mt-2">
-                {!loading && currentUser?.role === "admin" && (
+                {!loadingUser && currentUser?.role === "admin" && (
                   <Link
                     href="/admin"
                     className="inline-flex items-center gap-1 px-2 py-0.5 bg-black text-white rounded-full text-xs"
@@ -147,7 +161,7 @@ const Profile = () => {
 
               {/* Logout Button */}
               <button
-                onClick={logout}
+                onClick={handleLogout}
                 disabled={loggingOut}
                 className="mt-4 w-full flex items-center justify-center gap-2 text-sm bg-red-300/60 hover:bg-red-400/60 text-red-500 font-semibold px-4 py-2 rounded-lg transition disabled:opacity-50"
               >
@@ -162,10 +176,14 @@ const Profile = () => {
           </div>
         </div>
 
-        {/* My Orders Section - dynamic */}
+        {/* My Orders Section */}
         <div className="w-full bg-white shadow-xl rounded-3xl p-4 flex flex-col gap-2">
           <h3 className="text-xl font-bold text-gray-800 mb-2">My Orders</h3>
-          <Suspense>
+          <Suspense
+            fallback={
+              <Skeleton className="h-20 w-full rounded bg-stone-300 animate-pulse" />
+            }
+          >
             <MyOrders />
           </Suspense>
         </div>

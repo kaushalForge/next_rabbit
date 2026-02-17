@@ -36,14 +36,11 @@ export const AuthProvider = ({ children }) => {
         credentials: "include",
         cache: "no-store",
       });
-
       const data = await res.json();
-
       if (res.ok && data.success) {
         toast.success(data.message);
-
         setCurrentUser(null);
-        router.replace("/login");
+        router.push("/login");
       }
     } finally {
       setLoggingOut(false);
