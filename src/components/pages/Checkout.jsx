@@ -151,7 +151,132 @@ const Checkout = () => {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 h-full lg:px-8 py-8 lg:py-12">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start h-full justify-center">
         {/* ================= RIGHT SIDE (FORM FIRST ON MOBILE) ================= */}
-        <div className="lg:col-span-2 order-1">
+        {/* ================= ORDER SUMMARY ================= */}
+        <div className="lg:col-span-1 lg:order-2 order-1">
+          <div className="flex flex-col h-full min-h-125 border rounded-2xl shadow-lg p-4 lg:sticky lg:top-10 bg-white">
+            {/* ================= LOADING ================= */}
+            {isLoading ? (
+              <div className="flex flex-1 items-center justify-center">
+                <Spinner className="w-14 h-14" />
+              </div>
+            ) : cart && cart.length > 0 ? (
+              <>
+                {/* ================= SCROLLABLE ITEMS ================= */}
+                <div className="flex-1 overflow-y-auto pr-2">
+                  <h2 className="text-xl font-bold mb-4">Order Summary</h2>
+
+                  <div className="space-y-4">
+                    {cart.map((item, idx) => {
+                      const original = item.price * item.quantity;
+                      const discounted = item.offerPrice * item.quantity;
+
+                      return (
+                        <div
+                          key={idx}
+                          className="flex gap-4 p-3 rounded-xl hover:bg-gray-50 transition"
+                        >
+                          <div className="w-20 h-20 bg-gray-100 overflow-hidden flex items-center justify-center shrink-0 rounded-lg">
+                            <img
+                              src={item.image}
+                              alt={item.name}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+
+                          <div className="flex-1 text-sm overflow-hidden">
+                            <h3 className="font-semibold truncate">
+                              {item.name}
+                            </h3>
+                            {item.mainCategory === "Fashion" ? (
+                              <p className="text-xs text-gray-500">
+                                Qty: {item.quantity} | Size: {item.size} |
+                                Color: {item.color}
+                              </p>
+                            ) : (
+                              <p className="text-xs text-gray-500">
+                                Qty: {item.quantity} | Weight: {item.weight}
+                              </p>
+                            )}
+                            <div className="flex gap-2 mt-1">
+                              <span className="line-through text-gray-400 text-xs">
+                                Rs. {original}
+                              </span>
+                              <span className="font-bold text-[#ff4500]">
+                                Rs. {discounted}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* ================= PRICE SUMMARY (STICK BOTTOM) ================= */}
+                <div className="pt-6 border-t space-y-3 text-sm">
+                  <div className="flex justify-between text-gray-500">
+                    <span>Original</span>
+                    <span className="line-through">Rs. {subtotalOriginal}</span>
+                  </div>
+
+                  <div className="flex justify-between">
+                    <span>Discounted</span>
+                    <span>Rs. {subtotalDiscounted}</span>
+                  </div>
+
+                  <div className="flex justify-between bg-[#fff1eb] border border-[#ff4500] text-[#ff4500] px-3 py-2 rounded-lg font-semibold">
+                    <span>Saved</span>
+                    <span>Rs. {saved}</span>
+                  </div>
+
+                  <div className="flex justify-between">
+                    <span>Shipping</span>
+                    <span>Rs. {shipping}</span>
+                  </div>
+
+                  <div className="flex justify-between text-lg font-bold pt-4 border-t">
+                    <span>Total</span>
+                    <span className="text-[#ff4500]">Rs. {shipmentTotal}</span>
+                  </div>
+                </div>
+              </>
+            ) : (
+              /* ================= EMPTY CART ================= */
+              <div className="flex flex-1 flex-col items-center justify-center text-center space-y-4">
+                <img
+                  src="/assets/empty-cart.svg"
+                  alt="Empty Cart"
+                  className="w-32 h-32 object-contain"
+                />
+
+                <h3 className="text-lg font-semibold text-gray-700">
+                  Your cart is empty
+                </h3>
+
+                <p className="text-gray-500 text-sm px-4">
+                  Looks like you haven’t added any products yet.
+                </p>
+
+                <div className="flex gap-3 pt-4">
+                  <button
+                    onClick={() => router.push("/collections/all")}
+                    className="bg-[#ff4500] hover:bg-black text-white px-5 py-2 rounded-lg font-semibold transition"
+                  >
+                    Browse Products
+                  </button>
+
+                  <button
+                    onClick={() => router.push("/profile")}
+                    className="bg-black hover:bg-[#ff4500] text-white px-5 py-2 rounded-lg font-semibold transition"
+                  >
+                    My Orders
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+        <div className="lg:col-span-2 lg:order-1 order-2">
           <h2 className="text-2xl font-bold mb-8">Delivery Details</h2>
 
           <form onSubmit={handleOrder} className="space-y-10">
@@ -332,132 +457,6 @@ const Checkout = () => {
               )}
             </Button>
           </form>
-        </div>
-
-        {/* ================= ORDER SUMMARY ================= */}
-        <div className="lg:col-span-1 order-2">
-          <div className="flex flex-col h-full min-h-125 border rounded-2xl shadow-lg p-4 lg:sticky lg:top-10 bg-white">
-            {/* ================= LOADING ================= */}
-            {isLoading ? (
-              <div className="flex flex-1 items-center justify-center">
-                <Spinner className="w-14 h-14" />
-              </div>
-            ) : cart && cart.length > 0 ? (
-              <>
-                {/* ================= SCROLLABLE ITEMS ================= */}
-                <div className="flex-1 overflow-y-auto pr-2">
-                  <h2 className="text-xl font-bold mb-4">Order Summary</h2>
-
-                  <div className="space-y-4">
-                    {cart.map((item, idx) => {
-                      const original = item.price * item.quantity;
-                      const discounted = item.offerPrice * item.quantity;
-
-                      return (
-                        <div
-                          key={idx}
-                          className="flex gap-4 p-3 rounded-xl hover:bg-gray-50 transition"
-                        >
-                          <div className="w-20 h-20 bg-gray-100 overflow-hidden flex items-center justify-center shrink-0 rounded-lg">
-                            <img
-                              src={item.image}
-                              alt={item.name}
-                              className="w-full h-full object-cover"
-                            />
-                          </div>
-
-                          <div className="flex-1 text-sm overflow-hidden">
-                            <h3 className="font-semibold truncate">
-                              {item.name}
-                            </h3>
-                            {item.mainCategory === "Fashion" ? (
-                              <p className="text-xs text-gray-500">
-                                Qty: {item.quantity} | Size: {item.size} |
-                                Color: {item.color}
-                              </p>
-                            ) : (
-                              <p className="text-xs text-gray-500">
-                                Qty: {item.quantity} | Weight: {item.weight}
-                              </p>
-                            )}
-                            <div className="flex gap-2 mt-1">
-                              <span className="line-through text-gray-400 text-xs">
-                                Rs. {original}
-                              </span>
-                              <span className="font-bold text-[#ff4500]">
-                                Rs. {discounted}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* ================= PRICE SUMMARY (STICK BOTTOM) ================= */}
-                <div className="pt-6 border-t space-y-3 text-sm">
-                  <div className="flex justify-between text-gray-500">
-                    <span>Original</span>
-                    <span className="line-through">Rs. {subtotalOriginal}</span>
-                  </div>
-
-                  <div className="flex justify-between">
-                    <span>Discounted</span>
-                    <span>Rs. {subtotalDiscounted}</span>
-                  </div>
-
-                  <div className="flex justify-between bg-[#fff1eb] border border-[#ff4500] text-[#ff4500] px-3 py-2 rounded-lg font-semibold">
-                    <span>Saved</span>
-                    <span>Rs. {saved}</span>
-                  </div>
-
-                  <div className="flex justify-between">
-                    <span>Shipping</span>
-                    <span>Rs. {shipping}</span>
-                  </div>
-
-                  <div className="flex justify-between text-lg font-bold pt-4 border-t">
-                    <span>Total</span>
-                    <span className="text-[#ff4500]">Rs. {shipmentTotal}</span>
-                  </div>
-                </div>
-              </>
-            ) : (
-              /* ================= EMPTY CART ================= */
-              <div className="flex flex-1 flex-col items-center justify-center text-center space-y-4">
-                <img
-                  src="/assets/empty-cart.svg"
-                  alt="Empty Cart"
-                  className="w-32 h-32 object-contain"
-                />
-
-                <h3 className="text-lg font-semibold text-gray-700">
-                  Your cart is empty
-                </h3>
-
-                <p className="text-gray-500 text-sm px-4">
-                  Looks like you haven’t added any products yet.
-                </p>
-
-                <div className="flex gap-3 pt-4">
-                  <button
-                    onClick={() => router.push("/collections/all")}
-                    className="bg-[#ff4500] hover:bg-black text-white px-5 py-2 rounded-lg font-semibold transition"
-                  >
-                    Browse Products
-                  </button>
-
-                  <button
-                    onClick={() => router.push("/profile")}
-                    className="bg-black hover:bg-[#ff4500] text-white px-5 py-2 rounded-lg font-semibold transition"
-                  >
-                    My Orders
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
         </div>
       </div>
     </div>

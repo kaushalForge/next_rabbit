@@ -19,7 +19,6 @@ const FoodCatDetails = ({ productId, productDetail }) => {
 
   const [quantity, setQuantity] = useState(1);
   const [selectedWeight, setSelectedWeight] = useState("");
-
   const allWeights = useMemo(() => {
     // Flatten all weights from all variants and remove duplicates
     const weights = foodVariants.flatMap((v) => v.weight || []);
@@ -46,10 +45,10 @@ const FoodCatDetails = ({ productId, productDetail }) => {
     }
     return foodVariants[0] || null;
   }, [selectedWeight, foodVariants]);
+  const currentStock = displayedVariant?.stock ?? 0;
 
   const handleAddToCart = async () => {
     if (!currentUser) {
-      console.log(currentUser);
       toast.warning("You must login first!");
       router.push("/login");
       return;
@@ -57,6 +56,18 @@ const FoodCatDetails = ({ productId, productDetail }) => {
 
     if (!selectedWeight) {
       toast.error("Please select weight");
+      return;
+    }
+
+    if (currentStock === 0) {
+      toast.warning("No stock available!", {
+        richColors: true,
+      });
+      return;
+    }
+
+    if (quantity > currentStock) {
+      toast.error(`Only ${currentStock} items available`);
       return;
     }
 
@@ -68,6 +79,7 @@ const FoodCatDetails = ({ productId, productDetail }) => {
         offerPrice: finalOfferPrice,
         weight: selectedWeight,
       });
+
       if (status === 200 || status === 201) {
         await refreshCart();
         toast.success(message || "Added to cart!");
@@ -106,29 +118,42 @@ const FoodCatDetails = ({ productId, productDetail }) => {
       </div>
 
       {displayedVariant && (
-        <div className="flex flex-col flex-wrap gap-1">
-          <p className="font-medium mb-1">Details</p>
-          {[
-            { label: "Food Type", value: displayedVariant.foodType || "N/A" },
-            { label: "Taste", value: displayedVariant.taste || "N/A" },
-            {
-              label: "Batch Number",
-              value: displayedVariant.batchNumber || "N/A",
-            },
-            { label: "Stock", value: displayedVariant.stock ?? 0 },
-          ].map((item, idx) => (
-            <div
-              key={idx}
-              className="inline-flex items-center gap-1 rounded-md"
-            >
-              <span className="text-sm font-medium text-gray-700">
-                {item.label}:
-              </span>
-              <span className="text-sm font-semibold bg-[#ff4500]/10 px-2 py-1 rounded-lg text-[#ff4500]">
-                {item.value}
-              </span>
-            </div>
-          ))}
+        <div className="mt-4">
+          <p className="text-sm font-semibold text-gray-800 mb-2">
+            Product Details
+          </p>
+          <div className="flex flex-wrap items-center gap-2">
+            {[
+              ["Food Type", displayedVariant.foodType],
+              ["Taste", displayedVariant.taste],
+              ["Batch", displayedVariant.batchNumber],
+            ].map(([label, value]) => (
+              <div
+                key={label}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-gray-100 text-xs"
+              >
+                <span className="text-gray-500">{label}:</span>
+                <span className="font-semibold text-gray-900">
+                  {value ?? "N/A"}
+                </span>
+              </div>
+            ))}
+
+            {/* Stock Badge Separate */}
+            {selectedWeight && displayedVariant && (
+              <div
+                className={`px-3 py-1.5 rounded-full text-xs border backdrop-blur-sm ${
+                  (displayedVariant.stock ?? 0) > 0
+                    ? "bg-green-500/20 border-green-400 text-green-600"
+                    : "bg-red-500/20 border-red-400 text-red-600"
+                }`}
+              >
+                {(displayedVariant.stock ?? 0) > 0
+                  ? "In Stock"
+                  : "Out of Stock"}
+              </div>
+            )}
+          </div>
         </div>
       )}
 

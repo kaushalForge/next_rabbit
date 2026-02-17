@@ -30,19 +30,19 @@ const Profile = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
-      <div className="container mx-auto p-6 flex flex-col w-full gap-8">
+      <div className="container mx-auto p-4 lg:p-6 flex flex-col w-full gap-8">
         {/* User Card + Stats */}
         <div className="flex flex-col lg:flex-row gap-6 h-full items-start lg:items-center">
           {/* Left Column - Stats */}
-          <div className="w-full flex-1 flex flex-col gap-6 h-full">
-            <div className="flex-1 rounded-2xl p-8 bg-white border border-neutral-200 shadow-sm">
-              <h3 className="text-xl font-semibold text-neutral-900 mb-6">
+          <div className="w-full flex-1 flex flex-col h-full">
+            <div className="flex-1 rounded-2xl p-4 lg:p-8 bg-white border border-neutral-200 shadow-sm">
+              <h3 className="text-xl font-semibold text-neutral-900 mb-4">
                 Account Overview
               </h3>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 lg:gap-4">
                 {/* Total Orders */}
-                <div className="group rounded-xl border border-neutral-200 p-5 transition-all hover:shadow-md hover:-translate-y-1">
+                <div className="group rounded-xl border border-neutral-200 p-3 lg:p-5 transition-all hover:shadow-md hover:-translate-y-1">
                   <div className="flex items-center justify-between">
                     <div className="w-10 h-10 rounded-lg bg-neutral-100 flex items-center justify-center text-neutral-600">
                       <FaBoxOpen size={16} />
@@ -57,7 +57,7 @@ const Profile = () => {
                 </div>
 
                 {/* Pending Orders */}
-                <div className="group rounded-xl border border-neutral-200 p-5 transition-all hover:shadow-md hover:-translate-y-1">
+                <div className="group rounded-xl border border-neutral-200 p-3 lg:p-5 transition-all hover:shadow-md hover:-translate-y-1">
                   <div className="flex items-center justify-between">
                     <div className="w-10 h-10 rounded-lg bg-neutral-100 flex items-center justify-center text-neutral-600">
                       <MdAccessTime size={18} />
@@ -74,7 +74,7 @@ const Profile = () => {
                 </div>
 
                 {/* Total Spent */}
-                <div className="group rounded-xl border border-neutral-200 p-5 transition-all hover:shadow-md hover:-translate-y-1">
+                <div className="group rounded-xl border border-neutral-200 p-3 lg:p-5 transition-all hover:shadow-md hover:-translate-y-1">
                   <div className="flex items-center justify-between">
                     <div className="w-10 h-10 rounded-lg bg-neutral-100 flex items-center justify-center text-neutral-600">
                       <MdAttachMoney size={18} />
@@ -92,7 +92,7 @@ const Profile = () => {
           </div>
 
           {/* Right Column - Minimal User Card */}
-          <div className="w-full lg:w-72 aspect-square shrink-0 flex flex-col h-full self-start lg:self-center">
+          <div className="w-full lg:w-72 aspect-square shrink-0 flex flex-col max-h-60 lg:h-full self-start lg:self-center">
             <div className="bg-stone-100/80 grow border border-gray-100 rounded-2xl px-4 py-3 flex flex-col items-center justify-center text-center shadow-sm h-full">
               {/* Avatar */}
               <div className="relative">
@@ -135,20 +135,14 @@ const Profile = () => {
 
               {/* Role */}
               <div className="mt-2">
-                {!loading &&
-                  (currentUser?.role === "admin" ? (
-                    <Link
-                      href="/admin"
-                      className="inline-flex items-center gap-1 px-2 py-0.5 bg-black text-white rounded-full text-xs"
-                    >
-                      <MdAdminPanelSettings size={14} /> Admin
-                    </Link>
-                  ) : (
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-gray-200 text-gray-700 rounded-full text-xs">
-                      <MdAdminPanelSettings size={14} />{" "}
-                      {currentUser?.role || "User"}
-                    </span>
-                  ))}
+                {!loading && currentUser?.role === "admin" && (
+                  <Link
+                    href="/admin"
+                    className="inline-flex items-center gap-1 px-2 py-0.5 bg-black text-white rounded-full text-xs"
+                  >
+                    <MdAdminPanelSettings size={14} /> Admin
+                  </Link>
+                )}
               </div>
 
               {/* Logout Button */}

@@ -43,21 +43,21 @@ const CollectionPage = ({ products }) => {
 
   return (
     <>
-      <div className="container mx-auto flex flex-col lg:flex-row">
+      <div className="max-w-7xl lg:container mx-auto flex flex-col lg:flex-row">
         {/* Mobile Filter Button */}
         <button
           onClick={() => toggleFilterSidebar()}
-          className="lg:hidden rounded-xl transition-colors duration-200 hover:bg-black hover:text-white border p-2 flex items-center justify-center mb-4"
+          className="lg:hidden mt-4 ml-4 max-w-20 flex items-center justify-start rounded-lg transition-colors duration-200 hover:bg-black hover:text-white border p-1"
         >
-          <FaFilter className="mr-2" />
+          <FaFilter className="mr-1" />
           Filters
         </button>
 
         {/* Sidebar */}
         <div
           ref={sidebarRef}
-          className={`fixed inset-0 bg-black bg-opacity-0 left-0 w-64 transition-transform duration-300
-          ${isSidebarOpen ? "translate-x-0 z-50" : "-translate-x-full"}
+          className={`fixed inset-0 backdrop-blur-sm bg-transparent left-0 transition-transform duration-300
+          ${isSidebarOpen ? "translate-x-0 z-50 w-3/4" : "-translate-x-full"}
           lg:static lg:translate-x-0`}
         >
           <FilterSidebar />
@@ -65,14 +65,21 @@ const CollectionPage = ({ products }) => {
 
         {/* Products */}
         <div className="grow">
-          <div className="flex flex-col md:flex-row md:justify-between mb-4 items-center p-4">
-            <div className="flex items-center justify-center gap-2">
-              <h2 className="text-2xl font-semibold uppercase">
+          <div className="flex flex-row flex-wrap md:flex-nowrap items-center justify-between mb-4 p-4 gap-2">
+            {/* Left side: heading + category */}
+            <div className="flex items-center gap-2 shrink-0 min-w-0">
+              <h2 className="text-lg md:text-xl lg:text-2xl font-semibold uppercase shrink-0">
                 All Collection
               </h2>
-              <p className="text-lg font-medium text-gray-900">({category})</p>
+              <p className="text-xs font-medium text-gray-900 truncate min-w-0">
+                ({category})
+              </p>
             </div>
-            <SortOptions onSortChange={handleSort} />
+
+            {/* Right side: sort options */}
+            <div className="shrink-0">
+              <SortOptions onSortChange={handleSort} />
+            </div>
           </div>
 
           <ProductGrid products={products} />

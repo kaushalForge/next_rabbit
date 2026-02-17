@@ -208,7 +208,7 @@ const FilterSidebar = () => {
         : [...fashionOptions, ...foodOptions];
 
   return (
-    <div className="p-4 z-30 border-r space-y-6 fixed top-0 left-0 h-full w-full bg-white overflow-y-auto shadow-md sm:relative sm:top-auto sm:left-auto sm:h-auto sm:w-auto sm:shadow-none">
+    <div className="p-4 z-30 border-r border-[#eaeaea] space-y-6 fixed top-0 left-0 h-full w-full bg-white overflow-y-auto shadow-md sm:relative sm:top-auto sm:left-auto sm:h-auto sm:w-auto sm:shadow-none">
       <h3 className="text-xl font-medium">Filters</h3>
 
       {/* Main Category */}
