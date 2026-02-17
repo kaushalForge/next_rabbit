@@ -84,7 +84,7 @@ const Navbar = () => {
           {/* Logo */}
           <Link
             href="/"
-            className="absolute -top-8 left-12 -translate-y-1/2 items-center h-6 w-24 justify-center mb-2"
+            className="absolute -top-8 left-0 -translate-y-1/2 items-center h-6 w-24 justify-center mb-2"
           >
             <div ref={logoRef}>
               <Image
@@ -92,7 +92,7 @@ const Navbar = () => {
                 alt="Logo"
                 width={220}
                 height={220}
-                quality={80}
+                quality={75}
                 className="select-none"
                 priority
               />
@@ -179,10 +179,16 @@ const Navbar = () => {
           navDrawerOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        <div className="flex justify-end p-4 border-b">
-          <button onClick={toggleNavDrawer}>
-            <IoMdClose className="h-6 w-6 text-gray-700" />
-          </button>
+        <div className="flex justify-end p-4 border-b border-[#eaeaea]">
+          <div className="flex items-center w-full justify-between gap-1">
+            <div className="flex items-center justify-center gap-0.5">
+              <HiBars3BottomRight className="shrink-0" />
+              <h3>Menu</h3>
+            </div>
+            <button onClick={toggleNavDrawer}>
+              <IoMdClose className="h-6 w-6 text-gray-700" />
+            </button>
+          </div>
         </div>
 
         <div className="p-4 flex flex-col space-y-4 text-gray-800 font-medium">

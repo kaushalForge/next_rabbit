@@ -4,6 +4,7 @@ import { RiDeleteBin3Line } from "react-icons/ri";
 import { toast } from "sonner";
 import { useCart } from "@/app/context/CartContext";
 import { Loading, Spinner } from "../ui/spinner";
+import Image from "next/image";
 
 const CartContents = ({ cart }) => {
   const { removeCart, updateCart } = useCart();
@@ -111,14 +112,23 @@ const CartContents = ({ cart }) => {
           >
             {/* Left */}
             <div className="flex items-start gap-4">
-              <img
-                src={product.image}
-                alt={product.name}
-                className="h-20 w-24 object-cover rounded-lg border border-slate-300"
-              />
+              {/* Image Wrapper */}
+              <div className="relative h-16 w-16 sm:h-20 sm:w-20 md:h-24 md:w-24 lg:h-28 lg:w-28 shrink-0">
+                <Image
+                  src={product.image}
+                  alt={product.name}
+                  fill
+                  quality={80}
+                  sizes="(max-width: 640px) 64px,
+           (max-width: 768px) 80px,
+           (max-width: 1024px) 96px,
+           112px"
+                  className="object-cover rounded-lg border border-slate-300"
+                />
+              </div>
 
               <div className="space-y-1">
-                <h3 className="text-base font-medium text-slate-800">
+                <h3 className="text-xs md:text-base tracking-tight font-medium text-slate-800">
                   {product.name}
                 </h3>
 
@@ -182,7 +192,7 @@ const CartContents = ({ cart }) => {
               <button
                 disabled={isLoading}
                 onClick={() => handleRemoveFromCart(product)}
-                className={`transition-colors
+                className={`transition-colors duration-100
                   ${
                     isLoading
                       ? "opacity-50 cursor-not-allowed"

@@ -56,7 +56,7 @@ const CartDrawer = ({ drawerOpen, toggleCartDrawer }) => {
       </div>
 
       {/* Cart Products */}
-      <div className="cart-products flex-grow px-4 py-2 overflow-y-auto">
+      <div className="cart-products grow px-4 py-2 overflow-y-auto">
         <h2 className="text-lg font-semibold mb-4">Your Cart</h2>
 
         {cart && cart.length > 0 ? (
@@ -68,7 +68,7 @@ const CartDrawer = ({ drawerOpen, toggleCartDrawer }) => {
 
       {/* Checkout & Total */}
       {cart && cart.length > 0 && (
-        <div className="p-4 bg-white sticky bottom-0 border-t">
+        <div className="p-4 bg-white sticky bottom-0 border-[#eaeaea] border-t">
           <div className="flex justify-between items-center mb-2">
             <span className="font-semibold text-lg">Total:</span>
             <span className="font-semibold text-lg">

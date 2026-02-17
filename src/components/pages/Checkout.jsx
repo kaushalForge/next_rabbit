@@ -153,7 +153,7 @@ const Checkout = () => {
         {/* ================= RIGHT SIDE (FORM FIRST ON MOBILE) ================= */}
         {/* ================= ORDER SUMMARY ================= */}
         <div className="lg:col-span-1 lg:order-2 order-1">
-          <div className="flex flex-col h-full min-h-125 border rounded-2xl shadow-lg p-4 lg:sticky lg:top-10 bg-white">
+          <div className="flex flex-col h-full min-h-125 border border-[#eaeaea] rounded-2xl shadow-lg p-4 lg:sticky lg:top-10 bg-white">
             {/* ================= LOADING ================= */}
             {isLoading ? (
               <div className="flex flex-1 items-center justify-center">
@@ -197,12 +197,12 @@ const Checkout = () => {
                                 Qty: {item.quantity} | Weight: {item.weight}
                               </p>
                             )}
-                            <div className="flex gap-2 mt-1">
+                            <div className="flex items-center justify-start gap-1 mt-1">
                               <span className="line-through text-gray-400 text-xs">
-                                Rs. {original}
+                                Rs.{original}
                               </span>
                               <span className="font-bold text-[#ff4500]">
-                                Rs. {discounted}
+                                Rs.{discounted}
                               </span>
                             </div>
                           </div>
@@ -213,7 +213,7 @@ const Checkout = () => {
                 </div>
 
                 {/* ================= PRICE SUMMARY (STICK BOTTOM) ================= */}
-                <div className="pt-6 border-t space-y-3 text-sm">
+                <div className="pt-6 border-t border-[#eaeaea] space-y-3 text-sm">
                   <div className="flex justify-between text-gray-500">
                     <span>Original</span>
                     <span className="line-through">Rs. {subtotalOriginal}</span>
@@ -234,7 +234,7 @@ const Checkout = () => {
                     <span>Rs. {shipping}</span>
                   </div>
 
-                  <div className="flex justify-between text-lg font-bold pt-4 border-t">
+                  <div className="flex justify-between text-lg font-bold pt-4 border-t border-[#eaeaea]">
                     <span>Total</span>
                     <span className="text-[#ff4500]">Rs. {shipmentTotal}</span>
                   </div>

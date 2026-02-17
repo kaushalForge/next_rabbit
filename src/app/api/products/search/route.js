@@ -49,6 +49,7 @@ export async function GET(request) {
         { description: { $regex: search, $options: "i" } },
         { metaTitle: { $regex: search, $options: "i" } },
         { metaDescription: { $regex: search, $options: "i" } },
+        { category: { $regex: search, $options: "i" } },
         { metaKeywords: { $regex: search, $options: "i" } },
       ];
     }

@@ -208,7 +208,15 @@ const FilterSidebar = () => {
         : [...fashionOptions, ...foodOptions];
 
   return (
-    <div className="p-4 z-30 border-r border-[#eaeaea] space-y-6 fixed top-0 left-0 h-full w-full bg-white overflow-y-auto shadow-md sm:relative sm:top-auto sm:left-auto sm:h-auto sm:w-auto sm:shadow-none">
+    <div
+      className="
+    p-4 border-r border-[#eaeaea] space-y-6
+    overflow-y-auto
+    fixed top-0 left-0 h-full
+    shadow-md sm:relative sm:h-auto sm:shadow-none
+    transition-all duration-300 ease-in-out
+  "
+    >
       <h3 className="text-xl font-medium">Filters</h3>
 
       {/* Main Category */}
@@ -235,7 +243,7 @@ const FilterSidebar = () => {
               setFilters(resetFilters);
               router.push(`${pathname}`, { scroll: false });
             }}
-            className="p-2 rounded-lg border hover:bg-[#ff4500] hover:text-white transition-colors duration-200"
+            className="p-2 rounded-lg border hover:bg-[#ff4500] border-[#eaeaea] hover:text-white transition-colors duration-200"
           >
             <MdFilterAltOff />
           </button>
@@ -243,9 +251,24 @@ const FilterSidebar = () => {
         <Select
           value={mainCategory || "default"}
           onValueChange={(value) => {
+            const resetFilters = {
+              category: [],
+              gender: "",
+              color: [],
+              size: [],
+              material: [],
+              brand: [],
+              weight: [],
+              taste: [],
+              foodType: [],
+              minPrice: 0,
+              maxPrice: 100,
+            };
+
             setMainCategory(value);
+
             writeURL({
-              ...filters,
+              ...resetFilters,
               mainCategory: value === "default" ? "" : value,
             });
           }}

@@ -56,9 +56,14 @@ const CollectionPage = ({ products }) => {
         {/* Sidebar */}
         <div
           ref={sidebarRef}
-          className={`fixed inset-0 backdrop-blur-sm bg-transparent left-0 transition-transform duration-300
-          ${isSidebarOpen ? "translate-x-0 z-50 w-3/4" : "-translate-x-full"}
-          lg:static lg:translate-x-0`}
+          className={`
+    fixed top-0 left-0 h-full z-50
+    w-3/4 max-w-[320px]
+    backdrop-blur-sm
+    transition-transform duration-300 ease-in-out
+    ${isSidebarOpen ? "translate-x-0 z-50" : "-translate-x-full"}
+    lg:static lg:translate-x-0 lg:w-70
+  `}
         >
           <FilterSidebar />
         </div>
