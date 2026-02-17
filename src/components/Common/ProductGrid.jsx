@@ -2,15 +2,17 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { Spinner } from "../ui/spinner";
 import { motion } from "framer-motion";
 
 const ProductGrid = ({ products = [] }) => {
   const [loaded, setLoaded] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   return (
     <section className="border-[#f1f1f1] rounded-ss-2xl">
-      <div className="mx-auto max-w-screen-xl px-4">
+      <div className="mx-auto max-w-7xl px-4">
         {Array.isArray(products) && products.length > 0 && (
           <div className="mb-4 grid gap-4 sm:grid-cols-2 md:mb-8 lg:grid-cols-3 xl:grid-cols-4">
             {/* 1number */}
@@ -23,7 +25,7 @@ const ProductGrid = ({ products = [] }) => {
                 <div className="h-56 w-full relative overflow-hidden rounded-xl">
                   {!loaded && (
                     <motion.div
-                      className="absolute inset-0 rounded-xl bg-gradient-to-r from-[#eaf2ff] via-[#fff1e6] to-[#eaf2ff]"
+                      className="absolute inset-0 rounded-xl bg-linear-to-r from-[#eaf2ff] via-[#fff1e6] to-[#eaf2ff]"
                       initial={{ backgroundPosition: "0% 50%" }}
                       animate={{ backgroundPosition: "200% 50%" }}
                       transition={{
@@ -38,7 +40,7 @@ const ProductGrid = ({ products = [] }) => {
                   )}
 
                   <Link href={`/collections/product/${product?._id}`}>
-                    <div className="relative w-full aspect-square md:aspect-[3/4] overflow-hidden">
+                    <div className="relative w-full aspect-square md:aspect-3/4 overflow-hidden">
                       <Image
                         src={product?.images?.[0]?.url}
                         alt={

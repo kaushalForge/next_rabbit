@@ -6,20 +6,36 @@ import ProductGrid from "@/components/Common/ProductGrid";
 import SortOptions from "@/components/Products/SortOptions";
 import { FaFilter } from "react-icons/fa";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import { Spinner } from "@/components/ui/spinner";
 
 const CollectionPage = ({ products }) => {
+  const [loading, setLoading] = useState(true);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const sidebarRef = useRef(null);
+
+  // Current category display
   const category = searchParams.get("category")
     ? searchParams.get("category").split(",").join(", ")
     : "All";
+
   const toggleFilterSidebar = () => {
     setIsSidebarOpen((prev) => !prev);
   };
 
+  // ✅ Set loading true whenever search/filter changes
+  useEffect(() => {
+    setLoading(true);
+  }, [searchParams.toString()]); // triggers on any query param change
+
+  // ✅ Set loading false when products prop updates
+  useEffect(() => {
+    if (products) setLoading(false);
+  }, [products]);
+
+  // Close sidebar on outside click
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (sidebarRef.current && !sidebarRef.current.contains(event.target)) {
@@ -27,10 +43,7 @@ const CollectionPage = ({ products }) => {
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   // Handle sorting
@@ -43,10 +56,17 @@ const CollectionPage = ({ products }) => {
 
   return (
     <>
+      {/* Loading Spinner */}
+      {loading && (
+        <div className="fixed inset-0 z-90 flex items-center justify-center backdrop-blur-sm bg-black/20">
+          <Spinner className="w-14 h-14 text-primary" />
+        </div>
+      )}
+
       <div className="max-w-7xl lg:container mx-auto flex flex-col lg:flex-row">
         {/* Mobile Filter Button */}
         <button
-          onClick={() => toggleFilterSidebar()}
+          onClick={toggleFilterSidebar}
           className="lg:hidden mt-4 ml-4 max-w-20 flex items-center justify-start rounded-lg transition-colors duration-200 hover:bg-black hover:text-white border p-1"
         >
           <FaFilter className="mr-1" />
@@ -57,13 +77,13 @@ const CollectionPage = ({ products }) => {
         <div
           ref={sidebarRef}
           className={`
-    fixed top-0 left-0 h-full z-50
-    w-3/4 max-w-[320px]
-    backdrop-blur-sm
-    transition-transform duration-300 ease-in-out
-    ${isSidebarOpen ? "translate-x-0 z-50" : "-translate-x-full"}
-    lg:static lg:translate-x-0 lg:w-70
-  `}
+            fixed top-0 left-0 h-full z-50
+            w-3/4 max-w-[320px]
+            backdrop-blur-sm
+            transition-transform duration-300 ease-in-out
+            ${isSidebarOpen ? "translate-x-0 z-50" : "bg-white -translate-x-full"}
+            lg:static lg:translate-x-0 lg:w-70
+          `}
         >
           <FilterSidebar />
         </div>
@@ -87,6 +107,7 @@ const CollectionPage = ({ products }) => {
             </div>
           </div>
 
+          {/* Product Grid */}
           <ProductGrid products={products} />
         </div>
       </div>
