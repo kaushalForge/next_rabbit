@@ -110,7 +110,9 @@ const FashionCatDetails = ({ productId, productDetail }) => {
 
   return (
     <div className="relative md:w-1/2 space-y-6">
-      <h1 className="text-3xl font-semibold">{productDetail?.name}</h1>
+      <h1 className="hidden md:inline text-3xl font-semibold">
+        {productDetail?.name}
+      </h1>
 
       {/* ================= PRICE ================= */}
       <div className="h-10">

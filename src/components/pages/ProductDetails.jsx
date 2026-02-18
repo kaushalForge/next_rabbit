@@ -52,6 +52,10 @@ const ProductDetails = ({ productId, productDetail }) => {
           </div>
 
           <div className="md:w-1/2 flex flex-col gap-4">
+            <h1 className="text-2xl font-semibold md:hidden">
+              {productDetail?.name}
+            </h1>
+
             <div className="relative w-full aspect-3/4 rounded-lg overflow-hidden bg-muted">
               {(mainImageLoading || !activeImage) && (
                 <div className="absolute inset-0 bg-gray-200 animate-pulse z-10" />

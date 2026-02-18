@@ -93,8 +93,8 @@ const FoodCatDetails = ({ productId, productDetail }) => {
 
   return (
     <div className="relative md:w-1/2 space-y-6">
-      <h1 className="text-3xl font-semibold">
-        {productDetail?.name || <Skeleton className="h-8 w-40" />}
+      <h1 className="hidden md:inline text-3xl font-semibold">
+        {productDetail?.name}
       </h1>
 
       <div className="flex flex-wrap gap-2">
