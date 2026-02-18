@@ -84,7 +84,7 @@ const Navbar = () => {
           {/* Logo */}
           <Link
             href="/"
-            className="absolute -top-8 left-0 -translate-y-1/2 items-center h-6 w-24 justify-center mb-2"
+            className="absolute outline-none -top-8 left-0 -translate-y-1/2 items-center h-6 w-24 justify-center mb-2"
           >
             <div ref={logoRef}>
               <Image
@@ -93,7 +93,7 @@ const Navbar = () => {
                 width={220}
                 height={220}
                 quality={75}
-                className="select-none"
+                className="select-none outline-none"
                 priority
               />
             </div>

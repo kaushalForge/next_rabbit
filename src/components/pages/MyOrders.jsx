@@ -78,7 +78,7 @@ const MyOrders = () => {
       {Object.entries(ordersMap).map(([orderId, shipments]) => (
         <div
           key={orderId}
-          className="overflow-hidden rounded-xl border border-gray-200"
+          className="overflow-hidden rounded-xl border border-[#eaeaea]"
         >
           {/* Order Header */}
           <div className="p-4 bg-black text-white font-semibold flex justify-between items-center">

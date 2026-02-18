@@ -109,7 +109,7 @@ const FashionCatDetails = ({ productId, productDetail }) => {
   };
 
   return (
-    <div className="relative md:w-1/2 space-y-6 pb-20">
+    <div className="relative md:w-1/2 space-y-6">
       <h1 className="text-3xl font-semibold">{productDetail?.name}</h1>
 
       {/* ================= PRICE ================= */}
@@ -176,14 +176,14 @@ const FashionCatDetails = ({ productId, productDetail }) => {
 
       {/* ================= DESCRIPTION ================= */}
       <p className="text-muted-foreground leading-relaxed">
-        {productDetail?.description}
+        {productDetail?.metaDescription}
       </p>
 
       {/* ================= ADD TO CART ================= */}
       <Button
         onClick={handleAddToCart}
         disabled={isAdding}
-        className="absolute w-full left-0 bottom-0 flex items-center justify-center gap-2"
+        className="w-full flex items-center justify-center gap-2"
         size="lg"
       >
         {isAdding && <Loader2 className="h-5 w-5 animate-spin" />}

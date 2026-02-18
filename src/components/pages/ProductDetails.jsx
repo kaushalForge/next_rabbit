@@ -22,8 +22,8 @@ const ProductDetails = ({ productId, productDetail }) => {
   }, [images]);
 
   return (
-    <section className="p-6">
-      <div className="container mx-auto p-8">
+    <section className="">
+      <div className="max-w-7xl md:container mx-auto p-4 md:p-6">
         <div className="flex flex-col md:flex-row gap-8">
           <div className="hidden md:flex flex-col gap-4">
             {images.map((img, i) => (
@@ -52,7 +52,7 @@ const ProductDetails = ({ productId, productDetail }) => {
           </div>
 
           <div className="md:w-1/2 flex flex-col gap-4">
-            <div className="relative w-full aspect-[3/4] rounded-lg overflow-hidden bg-muted">
+            <div className="relative w-full aspect-3/4 rounded-lg overflow-hidden bg-muted">
               {(mainImageLoading || !activeImage) && (
                 <div className="absolute inset-0 bg-gray-200 animate-pulse z-10" />
               )}
@@ -80,7 +80,7 @@ const ProductDetails = ({ productId, productDetail }) => {
                       setMainImageLoading(true);
                     }
                   }}
-                  className={`relative flex-shrink-0 h-20 w-20 rounded-lg overflow-hidden cursor-pointer border-2 transition-colors ${
+                  className={`relative shrink-0 h-20 w-20 rounded-lg overflow-hidden cursor-pointer border-2 transition-colors ${
                     activeImage?.url === img.url
                       ? "border-black"
                       : "border-gray-300"
