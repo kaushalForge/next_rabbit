@@ -114,6 +114,17 @@ const FashionCatDetails = ({ productId, productDetail }) => {
         {productDetail?.name}
       </h1>
 
+      <div className="mt-0 md:mt-4 flex flex-wrap gap-2">
+        {productDetail?.tags?.map((tag, idx) => (
+          <span
+            key={idx}
+            className="px-3 py-1 text-sm font-medium text-green-800 bg-green-200/50 rounded-full backdrop-blur-sm hover:bg-green-200/70 transition-colors cursor-pointer"
+          >
+            {tag}
+          </span>
+        ))}
+      </div>
+
       {/* ================= PRICE ================= */}
       <div className="h-10">
         {finalOfferPrice > 0 && finalOfferPrice < finalPrice && (
@@ -176,7 +187,7 @@ const FashionCatDetails = ({ productId, productDetail }) => {
         </Button>
       </div>
 
-      {/* ================= DESCRIPTION ================= */}
+      {/* ================= META DESCRIPTION ================= */}
       <p className="text-muted-foreground leading-relaxed">
         {productDetail?.metaDescription}
       </p>

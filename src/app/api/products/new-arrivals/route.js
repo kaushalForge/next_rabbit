@@ -6,7 +6,7 @@ export async function GET() {
   try {
     await dbConnect();
 
-    const newArrivals = await Product.find()
+    const newArrivals = await Product.find({ isPublished: true })
       .sort({ createdAt: -1 })
       .limit(8)
       .lean();

@@ -90,8 +90,8 @@ const Navbar = () => {
               <Image
                 src="/images/RabbitHubLogo.png"
                 alt="Logo"
-                width={220}
-                height={220}
+                width={400}
+                height={400}
                 quality={75}
                 className="select-none outline-none"
                 priority

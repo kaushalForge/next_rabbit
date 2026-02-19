@@ -66,7 +66,7 @@ const shipmentSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      default: "Pending", // Pending, Confirmed, Shipped, Delivered
+      default: "Pending",
     },
     estimatedDelivery: Date,
   },
@@ -81,11 +81,9 @@ const orderSchema = new mongoose.Schema(
       ref: "user",
       required: true,
     },
-
     shipments: [shipmentSchema],
-
-    totalPrice: { type: Number, default: 0 }, // sum of all shipment totals
-
+    totalPrice: { type: Number, default: 0 },
+    cancelledProducts: [],
     orderStatus: {
       type: String,
       default: "Pending", // overall order status

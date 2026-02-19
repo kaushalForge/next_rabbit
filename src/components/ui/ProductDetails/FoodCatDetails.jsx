@@ -6,21 +6,22 @@ import { useAuth } from "@/app/context/AuthContext";
 import { useCart } from "@/app/context/CartContext";
 import { addToCartAction } from "@/actions/handleCart";
 import { toast } from "sonner";
-import { Skeleton } from "@/components/ui/skeleton";
 import { useRouter } from "next/navigation";
+import { Loader2 } from "lucide-react";
 
 const FoodCatDetails = ({ productId, productDetail }) => {
   const { currentUser } = useAuth();
   const { refreshCart } = useCart();
+  const router = useRouter();
 
   const foodVariants = productDetail?.food || [];
   const productFetchId = productId;
-  const router = useRouter();
 
   const [quantity, setQuantity] = useState(1);
   const [selectedWeight, setSelectedWeight] = useState("");
+  const [isAdding, setIsAdding] = useState(false);
+
   const allWeights = useMemo(() => {
-    // Flatten all weights from all variants and remove duplicates
     const weights = foodVariants.flatMap((v) => v.weight || []);
     return Array.from(new Set(weights));
   }, [foodVariants]);
@@ -33,6 +34,7 @@ const FoodCatDetails = ({ productId, productDetail }) => {
   const finalPrice = Number(
     matchedVariant?.price ?? foodVariants?.[0]?.price ?? 0,
   );
+
   const finalOfferPrice = Number(
     matchedVariant?.offerPrice ?? foodVariants?.[0]?.offerPrice ?? 0,
   );
@@ -45,9 +47,14 @@ const FoodCatDetails = ({ productId, productDetail }) => {
     }
     return foodVariants[0] || null;
   }, [selectedWeight, foodVariants]);
+
   const currentStock = displayedVariant?.stock ?? 0;
 
+  /* ================== ADD TO CART ================== */
+
   const handleAddToCart = async () => {
+    if (isAdding) return;
+
     if (!currentUser) {
       toast.warning("You must login first!");
       router.push("/login");
@@ -60,9 +67,7 @@ const FoodCatDetails = ({ productId, productDetail }) => {
     }
 
     if (currentStock === 0) {
-      toast.warning("No stock available!", {
-        richColors: true,
-      });
+      toast.warning("No stock available!", { richColors: true });
       return;
     }
 
@@ -72,6 +77,8 @@ const FoodCatDetails = ({ productId, productDetail }) => {
     }
 
     try {
+      setIsAdding(true);
+
       const { status, message } = await addToCartAction({
         productId: productFetchId,
         quantity,
@@ -88,6 +95,8 @@ const FoodCatDetails = ({ productId, productDetail }) => {
       }
     } catch (error) {
       toast.error(error?.message || "Something went wrong. Please try again.");
+    } finally {
+      setIsAdding(false);
     }
   };
 
@@ -97,7 +106,7 @@ const FoodCatDetails = ({ productId, productDetail }) => {
         {productDetail?.name}
       </h1>
 
-      <div className="flex flex-wrap gap-2">
+      <div className="mt-0 md:mt-4 flex flex-wrap gap-2">
         {productDetail?.tags?.map((tag, idx) => (
           <span
             key={idx}
@@ -108,6 +117,7 @@ const FoodCatDetails = ({ productId, productDetail }) => {
         ))}
       </div>
 
+      {/* ================= PRICE ================= */}
       <div className="h-10">
         {finalOfferPrice > 0 && finalOfferPrice < finalPrice && (
           <p className="line-through text-muted-foreground">Rs.{finalPrice}</p>
@@ -117,11 +127,13 @@ const FoodCatDetails = ({ productId, productDetail }) => {
         </p>
       </div>
 
+      {/* ================= PRODUCT DETAILS ================= */}
       {displayedVariant && (
         <div className="mt-4">
           <p className="text-sm font-semibold text-gray-800 mb-2">
             Product Details
           </p>
+
           <div className="flex flex-wrap items-center gap-2">
             {[
               ["Food Type", displayedVariant.foodType],
@@ -139,28 +151,26 @@ const FoodCatDetails = ({ productId, productDetail }) => {
               </div>
             ))}
 
-            {/* Stock Badge Separate */}
-            {selectedWeight && displayedVariant && (
+            {selectedWeight && (
               <div
                 className={`px-3 py-1.5 rounded-full text-xs border backdrop-blur-sm ${
-                  (displayedVariant.stock ?? 0) > 0
+                  currentStock > 0
                     ? "bg-green-500/20 border-green-400 text-green-600"
                     : "bg-red-500/20 border-red-400 text-red-600"
                 }`}
               >
-                {(displayedVariant.stock ?? 0) > 0
-                  ? "In Stock"
-                  : "Out of Stock"}
+                {currentStock > 0 ? "In Stock" : "Out of Stock"}
               </div>
             )}
           </div>
         </div>
       )}
 
+      {/* ================= WEIGHT ================= */}
       {allWeights.length > 0 && (
         <div>
           <p className="font-medium mb-2">Weight</p>
-          <div className="flex items-center justify-start gap-2 flex-wrap">
+          <div className="flex items-center gap-2 flex-wrap">
             {allWeights.map((weight) => (
               <Button
                 key={weight}
@@ -177,6 +187,7 @@ const FoodCatDetails = ({ productId, productDetail }) => {
         </div>
       )}
 
+      {/* ================= QUANTITY ================= */}
       <div className="flex items-center gap-4">
         <Button
           variant="outline"
@@ -190,20 +201,20 @@ const FoodCatDetails = ({ productId, productDetail }) => {
         </Button>
       </div>
 
+      {/* ================= META DESCRIPTION ================= */}
       <p className="text-muted-foreground leading-relaxed">
-        {productDetail?.description ? (
-          productDetail.description
-        ) : (
-          <Skeleton className="h-20 w-full" />
-        )}
+        {productDetail?.metaDescription}
       </p>
 
+      {/* ================= ADD TO CART ================= */}
       <Button
         onClick={handleAddToCart}
-        className="absolute w-full left-0 bottom-0"
+        disabled={isAdding}
+        className="w-full flex items-center justify-center gap-2"
         size="lg"
       >
-        Add To Cart
+        {isAdding && <Loader2 className="h-5 w-5 animate-spin" />}
+        {isAdding ? "Adding..." : "Add To Cart"}
       </Button>
     </div>
   );
