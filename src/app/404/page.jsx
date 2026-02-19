@@ -4,7 +4,7 @@ import Link from "next/link";
 
 export default function NotFound() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-gray-50 to-gray-100 px-4">
       <div className="max-w-lg w-full text-center">
         {/* Big 404 */}
         <h1 className="text-[120px] sm:text-[160px] font-extrabold text-gray-200 leading-none">

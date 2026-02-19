@@ -7,7 +7,10 @@ export async function GET(request, { params }) {
   try {
     await dbConnect();
 
-    const productData = await Product.findById(id).lean();
+    const productData = await Product.findOne({
+      _id: id,
+      isPublished: true,
+    }).lean();
 
     if (!productData) {
       return NextResponse.json(

@@ -5,7 +5,10 @@ import Product from "@/models/product";
 export async function GET(request) {
   try {
     await dbConnect();
-    const products = await Product.find({}).sort({ createdAt: -1 }).lean();
+    const products = await Product.find({
+      isPublished: -1,
+      createdAt: -1,
+    }).lean();
     return NextResponse.json(
       {
         success: true,
