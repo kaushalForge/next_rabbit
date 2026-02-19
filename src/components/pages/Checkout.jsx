@@ -86,7 +86,7 @@ const Checkout = () => {
           foodType: item.foodType,
           weight: item.weight,
           taste: item.taste,
-          shipmentTotal: shipmentTotal,
+          shippingFee: shipping,
           quantity: item.quantity,
         })),
         totalPrice: shipmentTotal,
@@ -95,7 +95,6 @@ const Checkout = () => {
           email: currentUser?.email,
           phone,
         },
-
         delivery: {
           province: state,
           district: district,
@@ -104,7 +103,6 @@ const Checkout = () => {
           landmark: address,
           notes: "",
         },
-
         payment: {
           method: paymentMethod,
         },

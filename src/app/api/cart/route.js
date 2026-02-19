@@ -140,7 +140,7 @@ export const POST = async (req) => {
     }
 
     const index = findIndexByCategory(cart.products, product, payload);
-
+    let message = "";
     if (index > -1) {
       // Update existing product
       cart.products[index].quantity += quantity;
@@ -153,6 +153,7 @@ export const POST = async (req) => {
       } else if (product.mainCategory === "Food") {
         cart.products[index].weight = weight;
       }
+      message = "Cart Updated!";
     } else {
       // Add new product
       const newProduct = {
@@ -174,7 +175,7 @@ export const POST = async (req) => {
 
       cart.products.push(newProduct);
     }
-
+    message = "Added to Cart!";
     cart.totalPrice = calculateTotalPrice(cart.products);
     await cart.save();
 
@@ -182,7 +183,7 @@ export const POST = async (req) => {
       {
         products: cart.products,
         totalPrice: cart.totalPrice,
-        message: "Cart updated!",
+        message,
       },
       { status: 201 },
     );

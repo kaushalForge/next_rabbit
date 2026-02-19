@@ -97,6 +97,7 @@ const FashionCatDetails = ({ productId, productDetail }) => {
 
       if (status === 200 || status === 201) {
         await refreshCart();
+        console.log(message, "this is message");
         toast.success(message || "Added to cart!");
       } else {
         toast.error(message || "Failed to add to cart");

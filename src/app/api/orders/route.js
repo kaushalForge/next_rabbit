@@ -33,13 +33,14 @@ export async function GET() {
   try {
     await dbConnect();
 
-    // ✅ Fetch only orders of current authenticated user
-    const orders = await Order.find({ userId: auth.id })
+    const orders = await Order.find({
+      userId: new mongoose.Types.ObjectId(auth.id),
+    })
       .sort({ createdAt: -1 })
       .lean();
 
-    // Transform orders to include one image per product
     const transformedOrders = orders.map((order) => {
+      // ✅ Transform shipments
       const shipments = (order.shipments || []).map((shipment) => {
         const products = (shipment.products || []).map((p) => {
           const image =
@@ -53,7 +54,28 @@ export async function GET() {
         return { ...shipment, products };
       });
 
-      return { ...order, shipments };
+      // ✅ Transform cancelledProducts (root-level array)
+      const cancelledProducts = (order.cancelledProducts || []).map(
+        (shipment) => {
+          const products = (shipment.products || []).map((p) => {
+            const image =
+              p.images && Array.isArray(p.images) && p.images.length > 0
+                ? p.images[0].url
+                : p.image || "";
+
+            return { ...p, image };
+          });
+
+          return { ...shipment, products };
+        },
+      );
+
+      // ✅ Return BOTH properly
+      return {
+        ...order,
+        shipments,
+        cancelledProducts,
+      };
     });
 
     return NextResponse.json(
@@ -85,45 +107,47 @@ export async function POST(req) {
     const { products, customer, delivery, payment } = body;
 
     // ---------------- VALIDATIONS ----------------
-    if (!products?.length) {
+    if (!products?.length)
       return NextResponse.json(
         { message: "Products are required" },
         { status: 400 },
       );
-    }
 
-    if (!customer?.fullName || !customer?.phone) {
+    if (!customer?.fullName || !customer?.phone)
       return NextResponse.json(
         { message: "Customer info missing" },
         { status: 400 },
       );
-    }
 
-    if (!delivery?.province || !delivery?.district || !delivery?.city) {
+    if (!delivery?.province || !delivery?.district || !delivery?.city)
       return NextResponse.json(
         { message: "Delivery info missing" },
         { status: 400 },
       );
-    }
 
-    if (!payment?.method) {
+    if (!payment?.method)
       return NextResponse.json(
         { message: "Payment method required" },
         { status: 400 },
       );
-    }
 
-    // ---------------- CALCULATE SHIPMENT TOTAL ----------------
-    const shipmentTotal = products.reduce((sum, item) => {
-      const price = item.offerPrice || item.price || 0;
-      return sum + price * item.quantity;
-    }, 0);
+    // ---------------- CALCULATE TOTALS ----------------
+    const productsTotal = products.reduce(
+      (sum, p) => sum + (p.offerPrice || p.price || 0) * (p.quantity || 1),
+      0,
+    );
+
+    // Sum shipping fees per shipment (assuming all products share the same shipping fee)
+    const shippingFee = products[0]?.shippingFee || 0;
+
+    const shipmentTotal = productsTotal + shippingFee;
 
     // ---------------- CREATE SHIPMENT OBJECT ----------------
     const newShipment = {
       customer,
       delivery,
       products,
+      shippingFee,
       shipmentTotal,
       payment,
       status: "Pending",
@@ -138,7 +162,6 @@ export async function POST(req) {
     let finalOrder;
 
     if (existingOrder) {
-      // Append new shipment
       existingOrder.shipments.push(newShipment);
 
       // Recalculate totalPrice based on all shipment totals
@@ -179,10 +202,8 @@ export async function POST(req) {
 
 export async function PATCH(req) {
   try {
-    // 1️⃣ Connect to MongoDB
     await dbConnect();
 
-    // 2️⃣ Authenticate user
     const user = await getOwner();
     if (!user) {
       return NextResponse.json(
@@ -191,18 +212,8 @@ export async function PATCH(req) {
       );
     }
 
-    // 3️⃣ Parse body
-    let body;
-    try {
-      body = await req.json();
-    } catch (err) {
-      return NextResponse.json(
-        { success: false, message: "Invalid JSON body" },
-        { status: 400 },
-      );
-    }
+    const { shipmentId } = await req.json();
 
-    const shipmentId = body?.shipmentId;
     if (!shipmentId || !mongoose.Types.ObjectId.isValid(shipmentId)) {
       return NextResponse.json(
         { success: false, message: "Invalid or missing shipmentId" },
@@ -210,35 +221,30 @@ export async function PATCH(req) {
       );
     }
 
-    // 4️⃣ Fetch all orders of this user
-    const orders = await Order.find({ userId: user.id });
-    if (!orders || orders.length === 0) {
+    // ✅ Since one order per user
+    const order = await Order.findOne({
+      userId: new mongoose.Types.ObjectId(user.id),
+    });
+
+    if (!order) {
       return NextResponse.json(
-        { success: false, message: "No orders found for this user" },
-        { status: 404 },
-      );
-    }
-    console.log(orders, "orders");
-
-    // 5️⃣ Find the shipment in any order
-    let shipmentFound = null;
-    let orderFound = null;
-
-    const shipment = orders.shipments.id(shipmentId);
-    if (shipment) {
-      shipmentFound = shipment;
-      orderFound = orders;
-    }
-
-    if (!shipmentFound) {
-      return NextResponse.json(
-        { success: false, message: "Shipment not found in any order" },
+        { success: false, message: "Order not found" },
         { status: 404 },
       );
     }
 
-    // 6️⃣ Prevent cancelling shipped/delivered
-    if (["Shipped", "Delivered"].includes(shipmentFound.status)) {
+    // ✅ Find shipment inside shipments array
+    const shipment = order.shipments.id(shipmentId);
+
+    if (!shipment) {
+      return NextResponse.json(
+        { success: false, message: "Shipment not found" },
+        { status: 404 },
+      );
+    }
+
+    // 🚫 Optional safety check
+    if (["Shipped", "Delivered"].includes(shipment.status)) {
       return NextResponse.json(
         {
           success: false,
@@ -248,41 +254,39 @@ export async function PATCH(req) {
       );
     }
 
-    // 7️⃣ Initialize cancelledShipments array if not exists
-    if (!Array.isArray(orderFound.cancelledShipments)) {
-      orderFound.cancelledShipments = [];
+    // ✅ Initialize cancelledProducts if not exists
+    if (!Array.isArray(order.cancelledProducts)) {
+      order.cancelledProducts = [];
     }
 
-    // 8️⃣ Move shipment to cancelledShipments
-    orderFound.cancelledShipments.push({
-      ...shipmentFound.toObject(),
+    // ✅ Move shipment to cancelledProducts
+    order.cancelledProducts.push({
+      ...shipment.toObject(),
       cancelledAt: new Date(),
     });
 
-    // 9️⃣ Remove shipment from shipments array
-    shipmentFound.deleteOne();
+    // ✅ Remove from shipments
+    shipment.deleteOne();
 
-    // 🔟 Recalculate totalPrice
-    orderFound.totalPrice = orderFound.shipments.reduce(
+    // ✅ Recalculate totalPrice (based only on active shipments)
+    order.totalPrice = order.shipments.reduce(
       (sum, s) => sum + (s.shipmentTotal || 0),
       0,
     );
 
-    // 1️⃣1️⃣ Save order
-    await orderFound.save();
+    await order.save();
 
-    // 1️⃣2️⃣ Return success
     return NextResponse.json(
       {
         success: true,
-        message: "Shipment cancelled successfully",
-        cancelledShipment: orderFound.cancelledShipments.slice(-1)[0],
-        order: orderFound,
+        message: "Order cancelled!",
+        cancelledShipment:
+          order.cancelledProducts[order.cancelledProducts.length - 1],
+        order,
       },
       { status: 200 },
     );
   } catch (error) {
-    console.error("Cancel shipment error:", error);
     return NextResponse.json(
       {
         success: false,

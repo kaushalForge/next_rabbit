@@ -21,7 +21,6 @@ const MyOrders = lazy(() => import("./MyOrders"));
 const Profile = () => {
   const { currentUser, logout, loggingOut } = useAuth();
   const { totalOrders, pendingOrders, totalSpent } = useOrders();
-
   // State to handle UI loading (avatar, name, etc.)
   const [loadingUser, setLoadingUser] = useState(true);
 

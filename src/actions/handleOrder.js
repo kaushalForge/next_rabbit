@@ -79,6 +79,49 @@ export async function fetchOrdersAction() {
   }
 }
 
+// Cancel Order
+export async function cancelOrderAction(shipmentId) {
+  try {
+    if (!shipmentId) {
+      return {
+        status: 400,
+        success: false,
+        message: "Shipment ID is required",
+      };
+    }
+
+    const token = await getOwner();
+
+    const res = await fetch(`${API_BASE}/api/orders`, {
+      method: "PATCH", // ✅ changed from GET
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+        Cookie: `cUser=${token}`,
+      },
+      body: JSON.stringify({ shipmentId }), // ✅ send shipmentId
+      cache: "no-store",
+    });
+
+    const data = await res.json();
+
+    return {
+      status: res.status,
+      success: data?.success ?? false,
+      message: data?.message ?? "Something went wrong",
+      cancelledShipment: data?.cancelledShipment ?? null,
+      order: data?.order ?? null,
+    };
+  } catch (err) {
+    console.error("cancelOrderAction error:", err);
+    return {
+      status: 500,
+      success: false,
+      message: "Internal error",
+    };
+  }
+}
+
 /* =========================
       Fetch Single Order
 ========================= */
