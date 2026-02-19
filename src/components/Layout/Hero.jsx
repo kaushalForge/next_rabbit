@@ -2,14 +2,16 @@
 
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 const Hero = () => {
   return (
     <>
-      <section className="relative overflow-hidden">
-        <img
-          className="w-full h-[400px] md:h-[600px] lg:h-[750px] object-cover"
+      <section className="relative overflow-hidden h-[400px] md:h-[600px] lg:h-[750px]">
+        <Image
           src="/assets/rabbit-hero.webp"
           alt="Rabbit"
+          fill
+          className="object-cover"
         />
         <div className="absolute inset-0 bg-opacity-5 flex items-center justify-center">
           <div className="text-center text-white p-6">

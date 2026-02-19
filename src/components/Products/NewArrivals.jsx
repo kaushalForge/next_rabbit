@@ -56,12 +56,12 @@ const NewArrivals = ({ newArrivals }) => {
             {newArrivals.map((product) => (
               <div
                 key={product._id}
-                className="min-w-[100%] sm:min-w-[50%] lg:min-w-[30%] relative select-none"
+                className="min-w-full sm:min-w-[50%] lg:min-w-[30%] relative select-none"
               >
                 <img
                   src={product.images?.[0]?.url}
                   alt={product.images?.[0]?.altText || product.name}
-                  className="w-full h-[500px] object-cover rounded-lg pointer-events-none"
+                  className="w-full h-125 object-cover rounded-lg pointer-events-none"
                 />
                 <div className="absolute bottom-0 left-0 right-0 bg-opacity-50 backdrop-blur-md text-white p-4 rounded-b-lg">
                   <Link

@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from "react";
-import Hero from "../components/Layout/Hero";
+import React, { useState, useEffect, Suspense } from "react";
+import Hero from "../Layout/Hero";
 import GenderCollectionSection from "../components/Layout/GenderCollectionSection";
-import NewArrivals from "../components/Products/NewArrivals";
+
+import NewArrivals from "../Products/NewArrivals";
 import ProductDetails from "../components/Layout/ProductDetails";
 import FeaturedCollection from "../components/Products/FeaturedCollection";
 import FeaturedSection from "../components/Products/FeaturedSection";
@@ -9,6 +10,7 @@ import ProductGrid from "../components/Common/ProductGrid";
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchProductByFilters } from "../redux/slices/productSlice";
+import { Spinner } from "../ui/spinner";
 
 const Home = () => {
   const dispatch = useDispatch();
@@ -40,7 +42,9 @@ const Home = () => {
     <>
       <Hero />
       <GenderCollectionSection />
-      <NewArrivals />
+      <Suspense fallback={<Spinner />}>
+        <NewArrivals />
+      </Suspense>
       {bestSeller ? (
         <ProductDetails productId={bestSeller._id} />
       ) : (
