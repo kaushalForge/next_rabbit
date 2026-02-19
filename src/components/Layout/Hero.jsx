@@ -6,11 +6,12 @@ import Image from "next/image";
 const Hero = () => {
   return (
     <>
-      <section className="relative overflow-hidden h-[400px] md:h-[600px] lg:h-[750px]">
+      <section className="relative overflow-hidden h-100 md:h-150 lg:h-185">
         <Image
           src="/assets/rabbit-hero.webp"
           alt="Rabbit"
           fill
+          quality={100}
           className="object-cover"
         />
         <div className="absolute inset-0 bg-opacity-5 flex items-center justify-center">
