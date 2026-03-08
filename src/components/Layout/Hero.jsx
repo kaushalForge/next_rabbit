@@ -17,19 +17,14 @@ const Hero = () => {
         />
         <div className="absolute inset-0 bg-opacity-5 flex items-center justify-center">
           <div className="text-center p-6">
-            <h1
-              className="text-4xl md:text-9xl font-bold tracking-wider uppercase text-teal-700/70"
-              style={{ WebkitTextStroke: "4px #fafafa" }}
-            >
+            <h1 className="hero-text-stroke text-4xl md:text-9xl md:font-bold tracking-wider uppercase text-teal-700/70">
               Pure
               <br />
               Style
-            </h1>
-            \{" "}
-            <p className="text-lg font-bold md:text-2xl mb-6 text-white whitespace-nowrap">
+            </h1>{" "}
+            <p className="text-xs font-bold md:text-2xl mb-6 text-white whitespace-nowrap">
               Explore our vacation-ready outfits with fast worldwide shipping
-            </p>
-            \{" "}
+            </p>{" "}
             <button className="hover:-translate-y-0.5 duration-150 ease-in-out cursor-pointer">
               <Link
                 href="/collections/all"

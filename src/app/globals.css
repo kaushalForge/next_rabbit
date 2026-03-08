@@ -112,3 +112,19 @@
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
 }
+
+.hero-text-stroke {
+  -webkit-text-stroke: 1px #fafafa;
+}
+
+@media (min-width: 768px) {
+  .hero-text-stroke {
+    -webkit-text-stroke: 2px #fafafa;
+  }
+}
+
+@media (min-width: 1024px) {
+  .hero-text-stroke {
+    -webkit-text-stroke: 3px #fafafa;
+  }
+}
