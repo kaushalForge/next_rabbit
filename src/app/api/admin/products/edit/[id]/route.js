@@ -68,6 +68,7 @@ export const PATCH = async (req, { params }) => {
   const uploadedFiles = formData.getAll("images");
   const existingImagesRaw = formData.getAll("existingImages[]");
 
+  // Convert existing images from frontend (already in new order)
   const existingImages = existingImagesRaw.map((v) => {
     try {
       const parsed = JSON.parse(v);
@@ -79,29 +80,31 @@ export const PATCH = async (req, { params }) => {
     }
   });
 
+  // Handle newly uploaded files
   const buffers = [];
   for (const file of uploadedFiles) {
     if (file instanceof File)
       buffers.push(Buffer.from(await file.arrayBuffer()));
   }
-
   const uploadedUrls = buffers.length
     ? await uploadMultipleToCloudinary(buffers, "Rabbit")
     : [];
 
+  // Remove deleted images from Cloudinary
   const removedImages = product.images
     .filter((img) => !existingImages.some((e) => e.url === (img.url || img)))
     .map((img) => img.url || img);
 
   if (removedImages.length) await deleteMultipleFromCloudinary(removedImages);
 
+  // Combine existing images in the order received from frontend + newly uploaded
   const finalImages = [
-    ...existingImages,
+    ...existingImages, // <-- THIS preserves the frontend order
     ...uploadedUrls.map((url) => ({
       url,
       altText: safeString(formData.get("name")) || product.name,
     })),
-  ].slice(0, 6);
+  ].slice(0, 6); // limit to 6 images
 
   /* ================= FASHION ================= */
   let fashion = [];
@@ -180,6 +183,10 @@ export const PATCH = async (req, { params }) => {
     metaTitle: safeString(formData.get("metaTitle")),
     metaDescription: safeString(formData.get("metaDescription")),
     isFeatured: safeBool(formData.get("isFeatured")),
+    isNewArrival: safeBool(formData.get("isNewArrival")),
+    isBestSeller: safeBool(formData.get("isBestSeller")),
+    isTrending: safeBool(formData.get("isTrending")),
+    isOnSale: safeBool(formData.get("isOnSale")),
     isPublished: safeBool(formData.get("isPublished")),
     rating: safeNumber(formData.get("rating")),
     countryOfOrigin: safeString(formData.get("countryOfOrigin")),

@@ -55,6 +55,14 @@ const EditProduct = ({ productDetails }) => {
 
   /* ---------------- FLAGS ---------------- */
   const [isFeatured, setIsFeatured] = useState(!!productDetails?.isFeatured);
+  const [isNewArrival, setIsNewArrival] = useState(
+    !!productDetails?.isNewArrival,
+  );
+  const [isBestSeller, setIsBestSeller] = useState(
+    !!productDetails?.isBestSeller,
+  );
+  const [isTrending, setIsTrending] = useState(!!productDetails?.isTrending);
+  const [isOnSale, setIsOnSale] = useState(!!productDetails?.isOnSale);
   const [isPublished, setIsPublished] = useState(!!productDetails?.isPublished);
 
   /* ---------------- ARRAYS ---------------- */
@@ -110,6 +118,10 @@ const EditProduct = ({ productDetails }) => {
       formData.append("metaTitle", metaTitle);
       formData.append("metaDescription", metaDescription);
       formData.append("isFeatured", String(isFeatured));
+      formData.append("isNewArrival", String(isNewArrival));
+      formData.append("isBestSeller", String(isBestSeller));
+      formData.append("isTrending", String(isTrending));
+      formData.append("isOnSale", String(isOnSale));
       formData.append("isPublished", String(isPublished));
 
       // Tags
@@ -187,7 +199,6 @@ const EditProduct = ({ productDetails }) => {
 
       // Existing Images
       if (existingImages.length) {
-        console.log("Existing Images:");
         existingImages.forEach((img, i) => {
           console.log(
             i,
@@ -234,7 +245,6 @@ const EditProduct = ({ productDetails }) => {
     toast.success("Product ID copied to clipboard");
   };
 
-  console.log("The id of product is:", productDetails._id);
 
   return (
     <div className="relative min-h-screen bg-muted/40">
@@ -297,14 +307,40 @@ const EditProduct = ({ productDetails }) => {
                 <Checkbox
                   checked={isFeatured}
                   onCheckedChange={setIsFeatured}
-                />{" "}
+                />
                 Featured
+              </label>
+
+              <label className="flex items-center gap-2">
+                <Checkbox
+                  checked={isNewArrival}
+                  onCheckedChange={setIsNewArrival}
+                />
+                New Arrival
+              </label>
+              <label className="flex items-center gap-2">
+                <Checkbox
+                  checked={isBestSeller}
+                  onCheckedChange={setIsBestSeller}
+                />
+                Best Seller
+              </label>
+              <label className="flex items-center gap-2">
+                <Checkbox
+                  checked={isTrending}
+                  onCheckedChange={setIsTrending}
+                />
+                Trending
+              </label>
+              <label className="flex items-center gap-2">
+                <Checkbox checked={isOnSale} onCheckedChange={setIsOnSale} />
+                On Sale
               </label>
               <label className="flex items-center gap-2">
                 <Checkbox
                   checked={isPublished}
                   onCheckedChange={setIsPublished}
-                />{" "}
+                />
                 Published
               </label>
             </div>

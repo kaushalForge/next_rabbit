@@ -150,6 +150,10 @@ export const POST = async (req) => {
     category: safeString(formData.get("category")),
     metaDescription: safeString(formData.get("metaDescription")),
     isFeatured: formData.get("isFeatured") === "true",
+    isNewArrival: formData.get("isNewArrival") === "true",
+    isBestSeller: formData.get("isBestSeller") === "true",
+    isTrending: formData.get("isTrending") === "true",
+    isOnSale: formData.get("isOnSale") === "true",
     isPublished: formData.get("isPublished") === "true",
     rating: parseNumber(formData.get("rating")),
     countryOfOrigin: safeString(formData.get("countryOfOrigin")),
@@ -159,9 +163,6 @@ export const POST = async (req) => {
     fashion: fashion.length ? fashion : undefined,
     food: food.length ? food : undefined,
   };
-
-  // ---------- LOG for debugging ----------
-  console.log("FINAL PRODUCT OBJECT:", JSON.stringify(productObj, null, 2));
 
   const newProduct = await Product.create(productObj);
 

@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useState } from "react";
 import { FaUpload, FaEdit, FaTimes } from "react-icons/fa";
+import { Sortable, MultiDrag } from "sortablejs";
 
 const MAX_IMAGES = 6;
 
@@ -16,7 +17,6 @@ const SectionTwo = ({
   const [replaceIndex, setReplaceIndex] = useState(null);
   const [replaceExisting, setReplaceExisting] = useState(false);
 
-  /* ================= SAFE FALLBACKS (KEY FIX) ================= */
   const safeExistingImages = existingImages || [];
   const safeSetExistingImages = setExistingImages || (() => {});
 
@@ -26,7 +26,7 @@ const SectionTwo = ({
     if (!files.length) return;
 
     if (replaceExisting && replaceIndex !== null) {
-      // Replace existing image (keep object structure)
+      // Replace existing image
       safeSetExistingImages((prev) => {
         const updated = [...prev];
         updated[replaceIndex] = {
@@ -37,7 +37,7 @@ const SectionTwo = ({
         return updated;
       });
     } else if (!replaceExisting && replaceIndex !== null) {
-      // Replace newly added image
+      // Replace new image
       setImages((prev) => {
         const updated = [...prev];
         updated[replaceIndex] = files[0];
@@ -77,9 +77,30 @@ const SectionTwo = ({
   const handleRemoveExisting = (index) => {
     safeSetExistingImages((prev) => prev.filter((_, i) => i !== index));
   };
-
   const handleRemoveNew = (index) => {
     setImages((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  /* ---------------- DRAG & DROP ---------------- */
+  const handleDragEnd = (evt, listType) => {
+    const { oldIndex, newIndex } = evt;
+    if (oldIndex === newIndex) return;
+
+    if (listType === "existing") {
+      safeSetExistingImages((prev) => {
+        const updated = [...prev];
+        const [moved] = updated.splice(oldIndex, 1);
+        updated.splice(newIndex, 0, moved);
+        return updated;
+      });
+    } else {
+      setImages((prev) => {
+        const updated = [...prev];
+        const [moved] = updated.splice(oldIndex, 1);
+        updated.splice(newIndex, 0, moved);
+        return updated;
+      });
+    }
   };
 
   return (
@@ -89,7 +110,14 @@ const SectionTwo = ({
         {safeExistingImages.map((img, i) => (
           <div
             key={`existing-${i}`}
-            className="group relative aspect-square rounded-lg overflow-hidden bg-muted"
+            className="group relative aspect-square rounded-lg overflow-hidden bg-muted cursor-move"
+            draggable
+            onDragStart={(e) => e.dataTransfer.setData("text/plain", i)}
+            onDragOver={(e) => e.preventDefault()}
+            onDrop={(e) => {
+              const oldIndex = Number(e.dataTransfer.getData("text/plain"));
+              handleDragEnd({ oldIndex, newIndex: i }, "existing");
+            }}
           >
             <Image
               height={600}
@@ -123,7 +151,14 @@ const SectionTwo = ({
         {images.map((file, i) => (
           <div
             key={`new-${i}`}
-            className="group relative aspect-square rounded-lg overflow-hidden bg-muted"
+            className="group relative aspect-square rounded-lg overflow-hidden bg-muted cursor-move"
+            draggable
+            onDragStart={(e) => e.dataTransfer.setData("text/plain", i)}
+            onDragOver={(e) => e.preventDefault()}
+            onDrop={(e) => {
+              const oldIndex = Number(e.dataTransfer.getData("text/plain"));
+              handleDragEnd({ oldIndex, newIndex: i }, "new");
+            }}
           >
             <img
               src={URL.createObjectURL(file)}

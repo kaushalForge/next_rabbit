@@ -17,8 +17,6 @@ export async function GET(request, { params }) {
       );
     }
 
-    console.log(productData, "the details of the given product is");
-
     return NextResponse.json(productData, { status: 200 });
   } catch (error) {
     console.error("GET /api/products/[id] error:", error);

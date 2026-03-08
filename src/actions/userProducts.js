@@ -53,6 +53,21 @@ export async function getNewArrivals() {
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_SITE_URL}/api/products/new-arrivals`,
     {
+      method: "GET",
+      credentials: "include",
+      cache: "no-store",
+    },
+  );
+
+  return await res.json();
+}
+
+export async function getFeaturedProducts() {
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_SITE_URL}/api/products/featured-products`,
+    {
+      method: "GET",
+      credentials: "include",
       cache: "no-store",
     },
   );

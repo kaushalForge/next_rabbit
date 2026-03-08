@@ -22,7 +22,17 @@ const Hero = () => {
               <br />
               Style
             </h1>
-            <p className="text-xs font-bold md:text-2xl mb-6 text-white whitespace-nowrap">
+            <p
+              className="text-lg font-medium md:text-2xl mb-6 whitespace-nowrap text-[#ffffff]"
+              style={{
+                textShadow: `
+      0 0 4px rgba(255,69,0,0.6),    /* lighter red-orange */
+      0 0 8px rgba(255,69,0,0.4),
+      0 0 12px rgba(0,200,255,0.3),  /* soft modern blue */
+      0 0 16px rgba(0,200,255,0.2)
+    `,
+              }}
+            >
               Explore our vacation-ready outfits with fast worldwide shipping
             </p>
             <button className="hover:-translate-y-0.5 duration-150 ease-in-out cursor-pointer">

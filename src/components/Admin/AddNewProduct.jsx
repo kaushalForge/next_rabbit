@@ -54,6 +54,10 @@ const AddNewProduct = () => {
 
   /* ---------------- FLAGS ---------------- */
   const [isFeatured, setIsFeatured] = useState(false);
+  const [isNewArrival, setIsNewArrival] = useState(false);
+  const [isBestSeller, setIsBestSeller] = useState(false);
+  const [isTrending, setIsTrending] = useState(false);
+  const [isOnSale, setIsOnSale] = useState(false);
   const [isPublished, setIsPublished] = useState(false);
   /* ---------------- ARRAYS ---------------- */
   const [fashion, setFashion] = useState([]);
@@ -99,6 +103,10 @@ const AddNewProduct = () => {
       formData.append("material", material);
       formData.append("metaDescription", metaDescription);
       formData.append("isFeatured", String(isFeatured));
+      formData.append("isNewArrival", String(isNewArrival));
+      formData.append("isBestSeller", String(isBestSeller));
+      formData.append("isTrending", String(isTrending));
+      formData.append("isOnSale", String(isOnSale));
       formData.append("isPublished", String(isPublished));
 
       // Tags
@@ -227,14 +235,39 @@ const AddNewProduct = () => {
                 <Checkbox
                   checked={isFeatured}
                   onCheckedChange={setIsFeatured}
-                />{" "}
+                />
                 Featured
+              </label>
+              <label className="flex items-center gap-2">
+                <Checkbox
+                  checked={isNewArrival}
+                  onCheckedChange={setIsNewArrival}
+                />
+                New Arrival
+              </label>
+              <label className="flex items-center gap-2">
+                <Checkbox
+                  checked={isBestSeller}
+                  onCheckedChange={setIsBestSeller}
+                />
+                Best Seller
+              </label>
+              <label className="flex items-center gap-2">
+                <Checkbox
+                  checked={isTrending}
+                  onCheckedChange={setIsTrending}
+                />
+                Trending
+              </label>
+              <label className="flex items-center gap-2">
+                <Checkbox checked={isOnSale} onCheckedChange={setIsOnSale} />
+                On Sale
               </label>
               <label className="flex items-center gap-2">
                 <Checkbox
                   checked={isPublished}
                   onCheckedChange={setIsPublished}
-                />{" "}
+                />
                 Published
               </label>
             </div>

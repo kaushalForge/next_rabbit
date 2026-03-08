@@ -6,8 +6,9 @@ export async function GET() {
   try {
     await dbConnect();
 
+    // Fetch only products that are marked as features (new arrivals)
     const newArrivals = await Product.find({
-      isNewArrival: true,
+      isFeatured: true,
       isPublished: true,
     })
       .sort({ createdAt: -1 })

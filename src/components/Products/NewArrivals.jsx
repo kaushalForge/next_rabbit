@@ -127,7 +127,7 @@ const NewArrivals = ({ newArrivals }) => {
                     <img
                       src={product.images?.[0]?.url}
                       alt={product.images?.[0]?.altText || product.name}
-                      className="w-full h-[420px] md:h-[500px] object-cover pointer-events-none transition-transform duration-500 group-hover:scale-105"
+                      className="w-full h-105 md:h-125 object-cover pointer-events-none transition-transform duration-500 group-hover:scale-105"
                       draggable={false}
                     />
 
