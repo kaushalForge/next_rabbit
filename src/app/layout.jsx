@@ -1,4 +1,4 @@
-import { Geist, Geist_Mono } from "next/font/google";
+import { Outfit } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
 import { AuthProvider } from "./context/AuthContext";
@@ -7,14 +7,11 @@ import { OrderProvider } from "./context/OrderContext";
 import { ReactLenis } from "../lib/lenis";
 import { Suspense } from "react";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const outfit = Outfit({
   subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700", "800", "900"],
+  variable: "--font-outfit",
+  display: "swap", // ← prevents invisible text while loading
 });
 
 export const metadata = {
@@ -28,11 +25,11 @@ export const metadata = {
 
 export default async function AdminLayout({ children }) {
   return (
-    <html lang="en">
+    <html lang="en" className={outfit.variable}>
       <ReactLenis root>
         <body
-          suppressHydrationWarning //prevents hydration mismatch error to display on console
-          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+          suppressHydrationWarning
+          className={`${outfit.className} antialiased`}
         >
           <Toaster position="top-right" visibleToasts={4} duration={1200} />
           <Suspense>
