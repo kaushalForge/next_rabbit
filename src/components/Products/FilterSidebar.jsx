@@ -22,7 +22,7 @@ const Section = ({ title, children, defaultOpen = true }) => {
         onClick={() => setOpen(!open)}
         className="flex items-center justify-between w-full py-1.5 group"
       >
-        <span className="text-[11px] font-black uppercase tracking-[0.18em] text-gray-800 group-hover:text-black transition-colors duration-200">
+        <span className="text-[11px] font-medium uppercase tracking-[0.18em] text-gray-800 group-hover:text-black transition-colors duration-200">
           {title}
         </span>
         <HiChevronDown
@@ -257,11 +257,11 @@ const FilterSidebar = () => {
       <div className="sticky top-0 bg-white z-10 px-5 pt-6 pb-4 border-b border-gray-100">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <h3 className="text-sm font-black uppercase tracking-[0.2em] text-gray-900">
+            <h3 className="text-sm font-medium uppercase tracking-[0.2em] text-gray-900">
               Filters
             </h3>
             {activeCount > 0 && (
-              <span className="flex items-center justify-center w-5 h-5 rounded-full bg-gray-900 text-white text-[10px] font-black">
+              <span className="flex items-center justify-center w-5 h-5 rounded-full bg-gray-900 text-white text-[10px] font-medium">
                 {activeCount}
               </span>
             )}
@@ -286,7 +286,7 @@ const FilterSidebar = () => {
               setFilters(resetFilters);
               router.push(`${pathname}`, { scroll: false });
             }}
-            className="flex items-center gap-1.5 text-[11px] font-bold text-gray-500 hover:text-red-500 px-2.5 py-1.5 rounded-lg hover:bg-red-50 transition-all duration-200"
+            className="flex items-center gap-1.5 text-[11px] font-medium text-gray-500 hover:text-red-500 px-2.5 py-1.5 rounded-lg hover:bg-red-50 transition-all duration-200"
           >
             <MdFilterAltOff className="w-3.5 h-3.5" />
             Clear all
@@ -321,7 +321,7 @@ const FilterSidebar = () => {
               });
             }}
           >
-            <SelectTrigger className="w-full text-xs font-bold border border-gray-200 bg-gray-50 rounded-xl px-3 py-2.5 text-gray-900 hover:bg-white focus:ring-2 focus:ring-gray-900 transition-all">
+            <SelectTrigger className="w-full text-xs font-medium border border-gray-200 bg-gray-50 rounded-xl px-3 py-2.5 text-gray-900 hover:bg-white focus:ring-2 focus:ring-gray-900 transition-all">
               <SelectValue placeholder="Default" />
             </SelectTrigger>
             <SelectContent>
@@ -364,7 +364,7 @@ const FilterSidebar = () => {
                     key={g}
                     type="button"
                     onClick={() => toggleSingle("gender", g)}
-                    className={`flex-1 text-[11px] font-bold py-2 rounded-xl border transition-all duration-200
+                    className={`flex-1 text-[11px] font-medium py-2 rounded-xl border transition-all duration-200
                       ${
                         filters.gender === g
                           ? "bg-gray-900 text-white border-gray-900"
@@ -406,7 +406,7 @@ const FilterSidebar = () => {
                     key={s}
                     type="button"
                     onClick={() => toggleMulti("size", s)}
-                    className={`w-12 h-10 text-xs font-black rounded-xl border transition-all duration-200
+                    className={`w-12 h-10 text-xs font-medium rounded-xl border transition-all duration-200
                       ${
                         filters.size.includes(s)
                           ? "bg-gray-900 text-white border-gray-900"
@@ -514,17 +514,17 @@ const FilterSidebar = () => {
         <Section title="Price Range">
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-black text-gray-900">
+              <span className="text-xs font-medium text-gray-900">
                 Rs.{filters.minPrice}
               </span>
               <span className="text-[10px] text-gray-400 font-medium">—</span>
-              <span className="text-xs font-black text-gray-900">
+              <span className="text-xs font-medium text-gray-900">
                 Rs.{filters.maxPrice}
               </span>
             </div>
             <div className="flex gap-2">
               <div className="flex-1">
-                <label className="block text-[10px] font-black uppercase tracking-widest text-gray-600 mb-1">
+                <label className="block text-[10px] font-medium uppercase tracking-widest text-gray-600 mb-1">
                   Min
                 </label>
                 <input
@@ -534,11 +534,11 @@ const FilterSidebar = () => {
                   max={filters.maxPrice ?? 100}
                   value={filters.minPrice ?? 0}
                   onChange={(e) => handleMinPrice(Number(e.target.value))}
-                  className="w-full border border-gray-200 bg-gray-50 rounded-xl px-3 py-2 text-xs font-bold text-gray-900 outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition-all"
+                  className="w-full border border-gray-200 bg-gray-50 rounded-xl px-3 py-2 text-xs font-medium text-gray-900 outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition-all"
                 />
               </div>
               <div className="flex-1">
-                <label className="block text-[10px] font-black uppercase tracking-widest text-gray-600 mb-1">
+                <label className="block text-[10px] font-medium uppercase tracking-widest text-gray-600 mb-1">
                   Max
                 </label>
                 <input
@@ -548,7 +548,7 @@ const FilterSidebar = () => {
                   max={100}
                   value={filters.maxPrice ?? 100}
                   onChange={(e) => handleMaxPrice(Number(e.target.value))}
-                  className="w-full border border-gray-200 bg-gray-50 rounded-xl px-3 py-2 text-xs font-bold text-gray-900 outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition-all"
+                  className="w-full border border-gray-200 bg-gray-50 rounded-xl px-3 py-2 text-xs font-medium text-gray-900 outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition-all"
                 />
               </div>
             </div>
