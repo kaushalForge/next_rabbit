@@ -62,9 +62,10 @@ const NewArrivals = ({ newArrivals }) => {
       {newArrivals?.length > 0 && (
         <section className="mb-12 px-4 lg:px-8">
           {/* Header */}
-          <div className="container mx-auto mb-8">
-            <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
-              <div className="flex items-center justify-center flex-col w-full">
+          <div className="container mx-auto mb-8 px-4">
+            <div className="flex flex-col items-center gap-4">
+              {/* Text — centered */}
+              <div className="flex flex-col items-center text-center w-full">
                 <p className="text-xs uppercase tracking-[0.3em] text-gray-400 mb-2 font-medium">
                   Just Dropped
                 </p>
@@ -77,12 +78,12 @@ const NewArrivals = ({ newArrivals }) => {
                 </p>
               </div>
 
-              {/* Desktop Arrows */}
-              <div className="hidden md:flex items-center gap-2">
+              {/* Arrows — shown on all screen sizes, centered on mobile */}
+              <div className="flex items-center justify-end w-full gap-2">
                 <button
                   onClick={() => scrollBy(-1)}
                   disabled={!canScrollLeft}
-                  className="w-11 h-11 rounded-full border border-gray-200 flex items-center justify-center text-gray-700 hover:bg-gray-900 hover:text-white hover:border-gray-900 disabled:opacity-25 disabled:cursor-not-allowed transition-all duration-200"
+                  className="w-10 h-10 md:w-11 md:h-11 rounded-full border border-gray-200 flex items-center justify-center text-gray-700 hover:bg-gray-900 hover:text-white hover:border-gray-900 disabled:opacity-25 disabled:cursor-not-allowed transition-all duration-200"
                   aria-label="Scroll left"
                 >
                   ←
@@ -90,7 +91,7 @@ const NewArrivals = ({ newArrivals }) => {
                 <button
                   onClick={() => scrollBy(1)}
                   disabled={!canScrollRight}
-                  className="w-11 h-11 rounded-full border border-gray-200 flex items-center justify-center text-gray-700 hover:bg-gray-900 hover:text-white hover:border-gray-900 disabled:opacity-25 disabled:cursor-not-allowed transition-all duration-200"
+                  className="w-10 h-10 md:w-11 md:h-11 rounded-full border border-gray-200 flex items-center justify-center text-gray-700 hover:bg-gray-900 hover:text-white hover:border-gray-900 disabled:opacity-25 disabled:cursor-not-allowed transition-all duration-200"
                   aria-label="Scroll right"
                 >
                   →
@@ -156,24 +157,6 @@ const NewArrivals = ({ newArrivals }) => {
                   </div>
                 </div>
               ))}
-            </div>
-
-            {/* Mobile bottom arrows */}
-            <div className="flex md:hidden justify-center gap-3 mt-5">
-              <button
-                onClick={() => scrollBy(-1)}
-                disabled={!canScrollLeft}
-                className="w-10 h-10 rounded-full border border-gray-200 flex items-center justify-center text-gray-700 active:bg-gray-900 active:text-white disabled:opacity-25 transition-all"
-              >
-                ←
-              </button>
-              <button
-                onClick={() => scrollBy(1)}
-                disabled={!canScrollRight}
-                className="w-10 h-10 rounded-full border border-gray-200 flex items-center justify-center text-gray-700 active:bg-gray-900 active:text-white disabled:opacity-25 transition-all"
-              >
-                →
-              </button>
             </div>
           </div>
         </section>

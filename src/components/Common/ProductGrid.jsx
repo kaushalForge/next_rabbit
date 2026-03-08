@@ -189,13 +189,7 @@ const ProductGrid = ({ products = [] }) => {
       `}</style>
 
       <section className="w-full">
-        <div className="mx-auto max-w-7xl px-3 sm:px-4">
-          {/*
-            Mobile  : 2 cols, gap-4 (increased from gap-2)
-            Tablet  : 3 cols, gap-4
-            Desktop : 4 cols, gap-5
-            XL      : 5 cols, gap-5
-          */}
+        <div className="mx-auto container px-3 sm:px-4">
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4 lg:gap-5 xl:grid-cols-5 mb-10">
             {products.map((product, index) => (
               <ProductCard

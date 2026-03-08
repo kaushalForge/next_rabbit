@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import {
   Select,
@@ -12,20 +12,21 @@ import {
 import { MdFilterAltOff } from "react-icons/md";
 import { HiChevronDown } from "react-icons/hi2";
 
-/* ── Collapsible section ── */
+/* ── Collapsible Section ── */
 const Section = ({ title, children, defaultOpen = true }) => {
   const [open, setOpen] = useState(defaultOpen);
   return (
     <div className="border-b border-gray-100 pb-4">
       <button
+        type="button"
         onClick={() => setOpen(!open)}
-        className="flex items-center justify-between w-full py-1 group"
+        className="flex items-center justify-between w-full py-1.5 group"
       >
-        <span className="text-xs font-black uppercase tracking-[0.15em] text-gray-700 group-hover:text-gray-900 transition-colors duration-200">
+        <span className="text-[11px] font-black uppercase tracking-[0.18em] text-gray-800 group-hover:text-black transition-colors duration-200">
           {title}
         </span>
         <HiChevronDown
-          className={`w-4 h-4 text-gray-400 transition-transform duration-300 ${open ? "rotate-180" : ""}`}
+          className={`w-4 h-4 text-gray-500 transition-transform duration-300 ${open ? "rotate-180" : ""}`}
         />
       </button>
       {open && <div className="mt-3">{children}</div>}
@@ -37,8 +38,12 @@ const FilterSidebar = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
+  const searchParamsKey = searchParams.toString();
 
+  // ===== Main Category =====
   const [mainCategory, setMainCategory] = useState("default");
+
+  // ===== Filters =====
   const [filters, setFilters] = useState({
     category: [],
     gender: "",
@@ -56,6 +61,7 @@ const FilterSidebar = () => {
   const minPriceRef = useRef(null);
   const maxPriceRef = useRef(null);
 
+  // ===== Options =====
   const fashionOptions = [
     "Top Wear",
     "Bottom Wear",
@@ -95,10 +101,11 @@ const FilterSidebar = () => {
   const tasteOptions = ["Sweet", "Salty", "Spicy"];
   const foodTypeOptions = ["Veg", "Non-veg", "Vegan"];
 
+  // ===== Load URL params into filters =====
   useEffect(() => {
     const mc = searchParams.get("mainCategory") || "default";
-    setMainCategory(mc);
-    setFilters({
+
+    const nextFilters = {
       category: searchParams.get("category")?.split(",").filter(Boolean) || [],
       gender: searchParams.get("gender") || "",
       color: searchParams.get("color")?.split(",").filter(Boolean) || [],
@@ -114,18 +121,30 @@ const FilterSidebar = () => {
       maxPrice: searchParams.get("maxPrice")
         ? Number(searchParams.get("maxPrice"))
         : 100,
-    });
-  }, [searchParams]);
+    };
 
+    setMainCategory((prev) => (prev !== mc ? mc : prev));
+
+    setFilters((prev) => {
+      if (JSON.stringify(prev) === JSON.stringify(nextFilters)) {
+        return prev;
+      }
+      return nextFilters;
+    });
+  }, [searchParamsKey]);
+
+  // ===== Write URL =====
   const writeURL = (next) => {
     const params = new URLSearchParams();
-    const isAnyFilterSelected = Object.entries(next).some(
-      ([k, v]) =>
+
+    const isAnyFilterSelected = Object.entries(next).some(([k, v]) => {
+      return (
         (Array.isArray(v) && v.length > 0) ||
         (typeof v === "string" && v.trim() !== "") ||
         (k === "minPrice" && v !== 0) ||
-        (k === "maxPrice" && v !== 100),
-    );
+        (k === "maxPrice" && v !== 100)
+      );
+    });
 
     let nextMainCategory = mainCategory;
     if (isAnyFilterSelected) {
@@ -156,15 +175,16 @@ const FilterSidebar = () => {
       params.set("mainCategory", nextMainCategory);
 
     Object.entries(next).forEach(([key, value]) => {
-      if (Array.isArray(value) && value.length > 0)
+      if (Array.isArray(value) && value.length > 0) {
         params.set(key, value.join(","));
-      else if (typeof value === "string" && value.trim() !== "")
+      } else if (typeof value === "string" && value.trim() !== "") {
         params.set(key, value);
-      else if (
+      } else if (
         (key === "minPrice" && value !== 0) ||
-        (key === "maxPrice" && value !== 0)
-      )
+        (key === "maxPrice" && value !== 100)
+      ) {
         params.set(key, value);
+      }
     });
 
     router.push(
@@ -174,8 +194,11 @@ const FilterSidebar = () => {
     setFilters(next);
   };
 
-  const toggleSingle = (key, value) =>
+  // ===== Generic toggle handlers =====
+  const toggleSingle = (key, value) => {
     writeURL({ ...filters, [key]: filters[key] === value ? "" : value });
+  };
+
   const toggleMulti = (key, value) => {
     const exists = filters[key].includes(value);
     writeURL({
@@ -185,9 +208,19 @@ const FilterSidebar = () => {
         : [...filters[key], value],
     });
   };
-  const handleMinPrice = (value) => writeURL({ ...filters, minPrice: value });
-  const handleMaxPrice = (value) => writeURL({ ...filters, maxPrice: value });
 
+  // ===== Price handlers =====
+  const handleMinPrice = (value) => {
+    const min = Math.min(value, filters.maxPrice ?? 100);
+    writeURL({ ...filters, minPrice: min });
+  };
+
+  const handleMaxPrice = (value) => {
+    const max = Math.max(value, filters.minPrice ?? 0);
+    writeURL({ ...filters, maxPrice: max });
+  };
+
+  // ===== Determine current categoryOptions dynamically =====
   const categoryOptions =
     mainCategory === "Fashion"
       ? fashionOptions
@@ -195,7 +228,7 @@ const FilterSidebar = () => {
         ? foodOptions
         : [...fashionOptions, ...foodOptions];
 
-  /* active filter count */
+  // ===== Active filter count =====
   const activeCount =
     filters.category.length +
     filters.color.length +
@@ -212,20 +245,19 @@ const FilterSidebar = () => {
   return (
     <div
       className="
-      w-full bg-white
-      border-r border-gray-100
+      w-full bg-white border-r border-gray-100
       overflow-y-auto
       fixed top-0 left-0 h-full z-30
       sm:relative sm:h-auto sm:z-auto
-      shadow-xl sm:shadow-none
-      transition-all duration-300
+      shadow-2xl sm:shadow-none
+      transition-all duration-300 ease-in-out
     "
     >
-      {/* ── Header ── */}
+      {/* ── Sticky Header ── */}
       <div className="sticky top-0 bg-white z-10 px-5 pt-6 pb-4 border-b border-gray-100">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <h3 className="text-base font-black uppercase tracking-[0.2em] text-gray-900">
+          <div className="flex items-center gap-2">
+            <h3 className="text-sm font-black uppercase tracking-[0.2em] text-gray-900">
               Filters
             </h3>
             {activeCount > 0 && (
@@ -234,11 +266,11 @@ const FilterSidebar = () => {
               </span>
             )}
           </div>
-
           <button
+            type="button"
             onClick={() => {
               setMainCategory("default");
-              const reset = {
+              const resetFilters = {
                 category: [],
                 gender: "",
                 color: [],
@@ -251,10 +283,10 @@ const FilterSidebar = () => {
                 minPrice: 0,
                 maxPrice: 100,
               };
-              setFilters(reset);
-              router.push(pathname, { scroll: false });
+              setFilters(resetFilters);
+              router.push(`${pathname}`, { scroll: false });
             }}
-            className="flex items-center gap-1.5 text-[11px] font-bold text-gray-500 hover:text-red-500 transition-colors duration-200 px-2.5 py-1.5 rounded-lg hover:bg-red-50"
+            className="flex items-center gap-1.5 text-[11px] font-bold text-gray-500 hover:text-red-500 px-2.5 py-1.5 rounded-lg hover:bg-red-50 transition-all duration-200"
           >
             <MdFilterAltOff className="w-3.5 h-3.5" />
             Clear all
@@ -263,13 +295,13 @@ const FilterSidebar = () => {
       </div>
 
       {/* ── Body ── */}
-      <div className="px-5 py-4 space-y-4">
+      <div className="px-5 py-4 space-y-4 pb-24">
         {/* Main Category */}
-        <Section title="Category" defaultOpen={true}>
+        <Section title="Main Category" defaultOpen={true}>
           <Select
             value={mainCategory || "default"}
             onValueChange={(value) => {
-              const reset = {
+              const resetFilters = {
                 category: [],
                 gender: "",
                 color: [],
@@ -284,34 +316,35 @@ const FilterSidebar = () => {
               };
               setMainCategory(value);
               writeURL({
-                ...reset,
+                ...resetFilters,
                 mainCategory: value === "default" ? "" : value,
               });
             }}
           >
-            <SelectTrigger className="w-full text-xs font-semibold border border-gray-200 bg-gray-50 rounded-xl px-3 py-2.5 hover:bg-white transition-colors focus:ring-2 focus:ring-gray-900">
-              <SelectValue placeholder="All Categories" />
+            <SelectTrigger className="w-full text-xs font-bold border border-gray-200 bg-gray-50 rounded-xl px-3 py-2.5 text-gray-900 hover:bg-white focus:ring-2 focus:ring-gray-900 transition-all">
+              <SelectValue placeholder="Default" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="default">All Categories</SelectItem>
+              <SelectItem value="default">Default</SelectItem>
               <SelectItem value="Fashion">Fashion</SelectItem>
               <SelectItem value="Food">Food</SelectItem>
             </SelectContent>
           </Select>
         </Section>
 
-        {/* Sub Category */}
-        <Section title="Sub Category">
+        {/* Category */}
+        <Section title="Category">
           <div className="flex flex-wrap gap-2">
             {categoryOptions.map((c) => (
               <button
                 key={c}
+                type="button"
                 onClick={() => toggleMulti("category", c)}
                 className={`text-[11px] font-semibold px-3 py-1.5 rounded-full border transition-all duration-200
                   ${
                     filters.category.includes(c)
                       ? "bg-gray-900 text-white border-gray-900"
-                      : "bg-white text-gray-800 border-gray-300 hover:border-gray-600"
+                      : "bg-white text-gray-800 border-gray-300 hover:border-gray-700 hover:text-gray-900"
                   }`}
               >
                 {c}
@@ -320,6 +353,7 @@ const FilterSidebar = () => {
           </div>
         </Section>
 
+        {/* ── Fashion Filters ── */}
         {(mainCategory === "Fashion" || mainCategory === "default") && (
           <>
             {/* Gender */}
@@ -328,12 +362,13 @@ const FilterSidebar = () => {
                 {genderOptions.map((g) => (
                   <button
                     key={g}
+                    type="button"
                     onClick={() => toggleSingle("gender", g)}
                     className={`flex-1 text-[11px] font-bold py-2 rounded-xl border transition-all duration-200
                       ${
                         filters.gender === g
                           ? "bg-gray-900 text-white border-gray-900"
-                          : "bg-white text-gray-800 border-gray-300 hover:border-gray-600"
+                          : "bg-white text-gray-800 border-gray-300 hover:border-gray-700"
                       }`}
                   >
                     {g}
@@ -348,13 +383,14 @@ const FilterSidebar = () => {
                 {colorOptions.map((c) => (
                   <button
                     key={c}
+                    type="button"
                     onClick={() => toggleMulti("color", c)}
                     title={c}
                     className={`w-7 h-7 rounded-full border-2 transition-all duration-200
                       ${
                         filters.color.includes(c)
                           ? "border-gray-900 scale-110 shadow-md"
-                          : "border-transparent hover:border-gray-400"
+                          : "border-gray-200 hover:border-gray-500"
                       }`}
                     style={{ backgroundColor: c.toLowerCase() }}
                   />
@@ -368,12 +404,13 @@ const FilterSidebar = () => {
                 {sizeOptions.map((s) => (
                   <button
                     key={s}
+                    type="button"
                     onClick={() => toggleMulti("size", s)}
-                    className={`w-12 h-10 text-xs font-bold rounded-xl border transition-all duration-200
+                    className={`w-12 h-10 text-xs font-black rounded-xl border transition-all duration-200
                       ${
                         filters.size.includes(s)
                           ? "bg-gray-900 text-white border-gray-900"
-                          : "bg-white text-gray-800 border-gray-300 hover:border-gray-600"
+                          : "bg-white text-gray-800 border-gray-300 hover:border-gray-700"
                       }`}
                   >
                     {s}
@@ -388,12 +425,13 @@ const FilterSidebar = () => {
                 {materialOptions.map((m) => (
                   <button
                     key={m}
+                    type="button"
                     onClick={() => toggleMulti("material", m)}
                     className={`text-[11px] font-semibold px-3 py-1.5 rounded-full border transition-all duration-200
                       ${
                         filters.material.includes(m)
                           ? "bg-gray-900 text-white border-gray-900"
-                          : "bg-white text-gray-800 border-gray-300 hover:border-gray-600"
+                          : "bg-white text-gray-800 border-gray-300 hover:border-gray-700"
                       }`}
                   >
                     {m}
@@ -404,6 +442,7 @@ const FilterSidebar = () => {
           </>
         )}
 
+        {/* ── Food Filters ── */}
         {(mainCategory === "Food" || mainCategory === "default") && (
           <>
             {/* Weight */}
@@ -412,12 +451,13 @@ const FilterSidebar = () => {
                 {weightOptions.map((w) => (
                   <button
                     key={w}
+                    type="button"
                     onClick={() => toggleMulti("weight", w)}
                     className={`text-[11px] font-semibold px-3 py-1.5 rounded-full border transition-all duration-200
                       ${
                         filters.weight.includes(w)
                           ? "bg-gray-900 text-white border-gray-900"
-                          : "bg-white text-gray-800 border-gray-300 hover:border-gray-600"
+                          : "bg-white text-gray-800 border-gray-300 hover:border-gray-700"
                       }`}
                   >
                     {w}
@@ -432,12 +472,13 @@ const FilterSidebar = () => {
                 {tasteOptions.map((t) => (
                   <button
                     key={t}
+                    type="button"
                     onClick={() => toggleMulti("taste", t)}
                     className={`text-[11px] font-semibold px-3 py-1.5 rounded-full border transition-all duration-200
                       ${
                         filters.taste.includes(t)
                           ? "bg-gray-900 text-white border-gray-900"
-                          : "bg-white text-gray-800 border-gray-300 hover:border-gray-600"
+                          : "bg-white text-gray-800 border-gray-300 hover:border-gray-700"
                       }`}
                   >
                     {t}
@@ -448,16 +489,17 @@ const FilterSidebar = () => {
 
             {/* Food Type */}
             <Section title="Food Type" defaultOpen={false}>
-              <div className="flex gap-2 flex-wrap">
+              <div className="flex flex-wrap gap-2">
                 {foodTypeOptions.map((f) => (
                   <button
                     key={f}
+                    type="button"
                     onClick={() => toggleMulti("foodType", f)}
                     className={`text-[11px] font-semibold px-3 py-1.5 rounded-full border transition-all duration-200
                       ${
                         filters.foodType.includes(f)
                           ? "bg-gray-900 text-white border-gray-900"
-                          : "bg-white text-gray-800 border-gray-300 hover:border-gray-600"
+                          : "bg-white text-gray-800 border-gray-300 hover:border-gray-700"
                       }`}
                   >
                     {f}
@@ -475,36 +517,38 @@ const FilterSidebar = () => {
               <span className="text-xs font-black text-gray-900">
                 Rs.{filters.minPrice}
               </span>
-              <span className="text-[10px] text-gray-500 font-bold">to</span>
+              <span className="text-[10px] text-gray-400 font-medium">—</span>
               <span className="text-xs font-black text-gray-900">
                 Rs.{filters.maxPrice}
               </span>
             </div>
             <div className="flex gap-2">
               <div className="flex-1">
-                <label className="text-[10px] text-gray-600 font-black uppercase tracking-wider mb-1 block">
+                <label className="block text-[10px] font-black uppercase tracking-widest text-gray-600 mb-1">
                   Min
                 </label>
                 <input
                   ref={minPriceRef}
                   type="number"
                   min={0}
+                  max={filters.maxPrice ?? 100}
                   value={filters.minPrice ?? 0}
                   onChange={(e) => handleMinPrice(Number(e.target.value))}
-                  className="w-full border border-gray-200 bg-gray-50 rounded-xl px-3 py-2 text-xs font-semibold text-gray-900 outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition-all"
+                  className="w-full border border-gray-200 bg-gray-50 rounded-xl px-3 py-2 text-xs font-bold text-gray-900 outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition-all"
                 />
               </div>
               <div className="flex-1">
-                <label className="text-[10px] text-gray-600 font-black uppercase tracking-wider mb-1 block">
+                <label className="block text-[10px] font-black uppercase tracking-widest text-gray-600 mb-1">
                   Max
                 </label>
                 <input
                   ref={maxPriceRef}
                   type="number"
                   min={filters.minPrice ?? 0}
-                  value={filters.maxPrice ?? 0}
+                  max={100}
+                  value={filters.maxPrice ?? 100}
                   onChange={(e) => handleMaxPrice(Number(e.target.value))}
-                  className="w-full border border-gray-200 bg-gray-50 rounded-xl px-3 py-2 text-xs font-semibold text-gray-900 outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition-all"
+                  className="w-full border border-gray-200 bg-gray-50 rounded-xl px-3 py-2 text-xs font-bold text-gray-900 outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition-all"
                 />
               </div>
             </div>
