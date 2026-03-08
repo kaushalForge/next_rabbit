@@ -52,8 +52,8 @@ const PreFooter = () => {
         <div className="mx-auto max-w-7xl px-4 md:px-8 pb-12">
           <div className="relative rounded-3xl overflow-hidden bg-white border border-gray-100 shadow-[0_8px_60px_rgba(0,0,0,0.06)] p-10 md:p-16">
             {/* Subtle orange glow top-right */}
-            <div className="absolute -top-24 -right-24 w-[400px] h-[400px] rounded-full bg-orange-100 blur-[100px] pointer-events-none opacity-60" />
-            <div className="absolute -bottom-16 -left-16 w-[300px] h-[300px] rounded-full bg-amber-50 blur-[80px] pointer-events-none" />
+            <div className="absolute -top-24 -right-24 w-100 h-100 rounded-full bg-orange-100 blur-[100px] pointer-events-none opacity-60" />
+            <div className="absolute -bottom-16 -left-16 w-75 h-75 rounded-full bg-amber-50 blur-[80px] pointer-events-none" />
 
             <div className="relative z-10 flex flex-col lg:flex-row items-center gap-14">
               {/* Left — Logo */}
@@ -113,9 +113,11 @@ const PreFooter = () => {
                   transition={{ duration: 0.45, delay: 0.15 }}
                   className="text-gray-400 text-sm md:text-base leading-relaxed max-w-md mx-auto lg:mx-0 mb-10"
                 >
-                  At Rabbit, we believe clothing is more than fabric — it's how
-                  you show up to the world. Every piece is crafted for the
-                  modern wardrobe, built to move with you, not against you.
+                  At Rabbit, we believe clothing is more than a fabric, it's a
+                  silent language that speaks before you do. Every piece we
+                  craft carries its own story, connecting with the person who
+                  wears it. Designed to move with your life, built to express
+                  who you are, and made to last beyond the moment.
                 </motion.p>
 
                 <motion.div
@@ -155,7 +157,7 @@ const PreFooter = () => {
                 ].map((badge) => (
                   <div
                     key={badge.label}
-                    className="flex items-center gap-3 px-4 py-3.5 rounded-2xl bg-gray-50 border border-gray-100 min-w-[150px] hover:border-orange-100 hover:bg-orange-50/50 transition-all duration-200"
+                    className="flex items-center gap-3 px-4 py-3.5 rounded-2xl bg-gray-50 border border-gray-100 min-w-37.5 hover:border-orange-100 hover:bg-orange-50/50 transition-all duration-200"
                   >
                     <span className="text-xl">{badge.icon}</span>
                     <div>
