@@ -17,7 +17,7 @@ const Hero = () => {
         />
         <div className="absolute inset-0 bg-opacity-5 flex items-center justify-center">
           <div className="text-center p-6">
-            <h1 className="hero-text-stroke text-4xl md:text-9xl md:font-bold tracking-wider uppercase text-teal-700/70">
+            <h1 className="hero-text-stroke text-6xl md:text-9xl font-bold tracking-wider uppercase text-teal-700/70">
               Pure
               <br />
               Style
