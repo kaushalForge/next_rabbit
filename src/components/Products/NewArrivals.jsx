@@ -1,17 +1,42 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import Link from "next/link";
 
 const NewArrivals = ({ newArrivals }) => {
   const scrollRef = useRef(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
+  const [isDragging, setIsDragging] = useState(false);
 
   let isDown = false;
   let startX;
   let scrollLeft;
 
+  const updateScrollButtons = () => {
+    const el = scrollRef.current;
+    if (!el) return;
+    setCanScrollLeft(el.scrollLeft > 0);
+    setCanScrollRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 1);
+  };
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    el.addEventListener("scroll", updateScrollButtons);
+    updateScrollButtons();
+    return () => el.removeEventListener("scroll", updateScrollButtons);
+  }, [newArrivals]);
+
+  const scrollBy = (dir) => {
+    const el = scrollRef.current;
+    if (!el) return;
+    el.scrollBy({ left: dir * el.clientWidth * 0.8, behavior: "smooth" });
+  };
+
   const onMouseDown = (e) => {
     isDown = true;
+    setIsDragging(false);
     startX = e.pageX - scrollRef.current.offsetLeft;
     scrollLeft = scrollRef.current.scrollLeft;
   };
@@ -19,7 +44,6 @@ const NewArrivals = ({ newArrivals }) => {
   const onMouseLeave = () => {
     isDown = false;
   };
-
   const onMouseUp = () => {
     isDown = false;
   };
@@ -27,53 +51,130 @@ const NewArrivals = ({ newArrivals }) => {
   const onMouseMove = (e) => {
     if (!isDown) return;
     e.preventDefault();
+    setIsDragging(true);
     const x = e.pageX - scrollRef.current.offsetLeft;
-    const walk = (x - startX) * 1.2; // scroll speed
+    const walk = (x - startX) * 1.2;
     scrollRef.current.scrollLeft = scrollLeft - walk;
   };
 
   return (
     <>
       {newArrivals?.length > 0 && (
-        <section className="px-4 lg:px-6">
-          <div className="container mx-auto text-center mb-10 relative">
-            <h2 className="text-3xl font-bold mb-4">Explore New Arrivals</h2>
-            <p className="text-lg text-gray-600 mb-8">
-              Discover the latest styles straight off the runway, freshly added
-              to keep your wardrobe on the cutting edge of fashion.
-            </p>
+        <section className="mb-12 px-4 lg:px-8">
+          {/* Header */}
+          <div className="container mx-auto mb-8">
+            <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+              <div className="flex items-center justify-center flex-col w-full">
+                <p className="text-xs uppercase tracking-[0.3em] text-gray-400 mb-2 font-medium">
+                  Just Dropped
+                </p>
+                <h2 className="text-3xl md:text-5xl font-bold tracking-tight text-gray-900">
+                  New Arrivals
+                </h2>
+                <p className="text-gray-500 mt-2 text-sm md:text-base max-w-2xl">
+                  Discover the latest styles, freshly added to keep your
+                  wardrobe on the cutting edge of fashion.
+                </p>
+              </div>
+
+              {/* Desktop Arrows */}
+              <div className="hidden md:flex items-center gap-2">
+                <button
+                  onClick={() => scrollBy(-1)}
+                  disabled={!canScrollLeft}
+                  className="w-11 h-11 rounded-full border border-gray-200 flex items-center justify-center text-gray-700 hover:bg-gray-900 hover:text-white hover:border-gray-900 disabled:opacity-25 disabled:cursor-not-allowed transition-all duration-200"
+                  aria-label="Scroll left"
+                >
+                  ←
+                </button>
+                <button
+                  onClick={() => scrollBy(1)}
+                  disabled={!canScrollRight}
+                  className="w-11 h-11 rounded-full border border-gray-200 flex items-center justify-center text-gray-700 hover:bg-gray-900 hover:text-white hover:border-gray-900 disabled:opacity-25 disabled:cursor-not-allowed transition-all duration-200"
+                  aria-label="Scroll right"
+                >
+                  →
+                </button>
+              </div>
+            </div>
           </div>
 
-          {/* Drag Scroll Container */}
-          <div
-            ref={scrollRef}
-            className="hide-scrollbar container mx-auto overflow-x-scroll flex space-x-6 relative mb-12 cursor-grab active:cursor-grabbing"
-            onMouseDown={onMouseDown}
-            onMouseLeave={onMouseLeave}
-            onMouseUp={onMouseUp}
-            onMouseMove={onMouseMove}
-          >
-            {newArrivals.map((product) => (
-              <div
-                key={product._id}
-                className="min-w-full sm:min-w-[50%] lg:min-w-[30%] relative select-none"
-              >
-                <img
-                  src={product.images?.[0]?.url}
-                  alt={product.images?.[0]?.altText || product.name}
-                  className="w-full h-125 object-cover rounded-lg pointer-events-none"
-                />
-                <div className="absolute bottom-0 left-0 right-0 bg-opacity-50 backdrop-blur-md text-white p-4 rounded-b-lg">
-                  <Link
-                    href={`/collections/product/${product._id}`}
-                    className="block pointer-events-auto"
-                  >
-                    <h4 className="font-medium">{product.name}</h4>
-                    <p className="mt-1">{product.price}</p>
-                  </Link>
+          {/* Scroll Container */}
+          <div className="relative container mx-auto">
+            <div
+              ref={scrollRef}
+              className={`hide-scrollbar overflow-x-scroll flex gap-4 md:gap-6 pb-4 snap-x snap-mandatory
+                ${isDragging ? "cursor-grabbing" : "cursor-grab"}`}
+              onMouseDown={onMouseDown}
+              onMouseLeave={onMouseLeave}
+              onMouseUp={onMouseUp}
+              onMouseMove={onMouseMove}
+            >
+              {newArrivals.map((product, index) => (
+                <div
+                  key={product._id}
+                  className="snap-start shrink-0 w-[78vw] sm:w-[45vw] lg:w-[30%] relative select-none group"
+                >
+                  {/* Badge */}
+                  <div className="absolute top-3 left-3 z-10">
+                    <span className="bg-white text-gray-900 text-[10px] font-semibold uppercase tracking-widest px-2.5 py-1 rounded-full shadow-sm">
+                      New
+                    </span>
+                  </div>
+
+                  {/* Image */}
+                  <div className="relative overflow-hidden rounded-2xl">
+                    <img
+                      src={product.images?.[0]?.url}
+                      alt={product.images?.[0]?.altText || product.name}
+                      className="w-full h-[420px] md:h-[500px] object-cover pointer-events-none transition-transform duration-500 group-hover:scale-105"
+                      draggable={false}
+                    />
+
+                    {/* Overlay */}
+                    <div className="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-transparent rounded-2xl" />
+
+                    {/* Product Info */}
+                    <div className="absolute bottom-0 left-0 right-0 p-4 md:p-5">
+                      <Link
+                        href={`/collections/product/${product._id}`}
+                        className={`block pointer-events-auto ${isDragging ? "pointer-events-none" : ""}`}
+                      >
+                        <h4 className="text-white font-semibold text-base md:text-lg leading-tight mb-1 truncate">
+                          {product.name}
+                        </h4>
+                        <div className="flex items-center justify-between">
+                          <p className="text-white/80 text-sm font-medium">
+                            Rs.{product?.fashion[0]?.offerPrice}
+                          </p>
+                          <span className="text-[11px] text-white/70 bg-white/10 backdrop-blur-sm border border-white/20 px-3 py-1 rounded-full transition-all duration-200 group-hover:bg-white group-hover:text-gray-900">
+                            View →
+                          </span>
+                        </div>
+                      </Link>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
+
+            {/* Mobile bottom arrows */}
+            <div className="flex md:hidden justify-center gap-3 mt-5">
+              <button
+                onClick={() => scrollBy(-1)}
+                disabled={!canScrollLeft}
+                className="w-10 h-10 rounded-full border border-gray-200 flex items-center justify-center text-gray-700 active:bg-gray-900 active:text-white disabled:opacity-25 transition-all"
+              >
+                ←
+              </button>
+              <button
+                onClick={() => scrollBy(1)}
+                disabled={!canScrollRight}
+                className="w-10 h-10 rounded-full border border-gray-200 flex items-center justify-center text-gray-700 active:bg-gray-900 active:text-white disabled:opacity-25 transition-all"
+              >
+                →
+              </button>
+            </div>
           </div>
         </section>
       )}

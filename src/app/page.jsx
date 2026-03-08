@@ -8,6 +8,7 @@ import FeaturedSection from "@/components/Products/FeaturedSection";
 import Header from "@/components/Common/Header";
 import Footer from "@/components/Common/Footer";
 import React, { Suspense } from "react";
+import MenCollectionRouting from "./(main)/men-collection/page";
 
 const page = () => {
   return (
@@ -16,6 +17,7 @@ const page = () => {
       <Hero />
       <GenderCollectionSection />
       <NewArrivalRouting />
+      <MenCollectionRouting />
       <WomenCollectionRouting />
       <FeaturedCollection />
       <FeaturedSection />

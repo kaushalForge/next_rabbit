@@ -36,6 +36,19 @@ export async function getWomenCollections() {
   return await res.json();
 }
 
+export async function getMenCollections() {
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_SITE_URL}/api/products/men-collections`,
+    {
+      method: "GET",
+      credentials: "include",
+      cache: "no-store",
+    },
+  );
+
+  return await res.json();
+}
+
 export async function getNewArrivals() {
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_SITE_URL}/api/products/new-arrivals`,

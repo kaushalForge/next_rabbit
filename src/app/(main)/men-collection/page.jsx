@@ -1,18 +1,20 @@
+import { getMenCollections } from "@/actions/userProducts";
+import { Suspense } from "react";
 import MenCollection from "@/components/Layout/MenCollection";
-export const dynamic = "force-dynamic";
 
 const MenCollectionRouting = async () => {
-  try {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/products/men-collection`,
-      { cache: "no-store", credentials: "include" },
-    );
-
-    const menCollection = await res.json();
-    return <MenCollection products={menCollection} />;
-  } catch (error) {
-    console.log(error, "error occured");
-  }
+  const menCollection = await getMenCollections();
+  return (
+    <>
+      <Suspense>
+        <MenCollection products={menCollection} />
+      </Suspense>
+    </>
+  );
 };
 
 export default MenCollectionRouting;
+
+
+
+

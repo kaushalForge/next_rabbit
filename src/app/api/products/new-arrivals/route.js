@@ -6,7 +6,11 @@ export async function GET() {
   try {
     await dbConnect();
 
-    const newArrivals = await Product.find({ isPublished: true })
+    // Fetch only products that are marked as features (new arrivals)
+    const newArrivals = await Product.find({
+      isFeatured: true,
+      isPublished: true,
+    })
       .sort({ createdAt: -1 })
       .limit(8)
       .lean();
@@ -20,7 +24,7 @@ export async function GET() {
 
     return NextResponse.json(newArrivals, { status: 200 });
   } catch (error) {
-    console.error("GET error:", error);
+    console.error("GET /api/products/new-arrivals error:", error);
     return NextResponse.json(
       { message: "Server Error", error: error.message },
       { status: 500 },

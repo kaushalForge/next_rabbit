@@ -6,14 +6,14 @@ export async function GET() {
   try {
     await dbConnect();
 
-    // Fetch women's products and select only required fields
-    const womenProducts = await Product.find(
-      { "fashion.gender": "Female" },
+    // Fetch men's products and select only required fields
+    const menProducts = await Product.find(
+      { "fashion.gender": "Male" },
       {
         _id: 1,
         name: 1,
         rating: 1,
-        images: { $slice: 1 },
+        images: { $slice: 1 }, // only first image
         "fashion.price": 1,
         "fashion.offerPrice": 1,
       },
@@ -21,15 +21,15 @@ export async function GET() {
       .limit(8)
       .lean();
 
-    if (!womenProducts || womenProducts.length === 0) {
+    if (!menProducts || menProducts.length === 0) {
       return NextResponse.json(
-        { message: "No women's collection found" },
+        { message: "No men's collection found" },
         { status: 404 },
       );
     }
 
     // Map products to required structure
-    const formattedProducts = womenProducts.map((p) => ({
+    const formattedProducts = menProducts.map((p) => ({
       _id: p._id,
       name: p.name,
       rating: p.rating || 0,
@@ -42,7 +42,7 @@ export async function GET() {
 
     return NextResponse.json(formattedProducts, { status: 200 });
   } catch (error) {
-    console.error("GET /api/products/women error:", error);
+    console.error("GET /api/products/men error:", error);
 
     return NextResponse.json(
       { message: "Server Error", error: error.message },
