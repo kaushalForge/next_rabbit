@@ -8,28 +8,36 @@ const Hero = () => {
     <>
       <section className="relative overflow-hidden h-100 md:h-150 lg:h-185">
         <Image
-          src="/assets/rabbit-hero.webp"
+          src="/assets/hero-banner.jpg"
           alt="Rabbit"
           fill
+          priority
           quality={100}
-          className="object-cover"
+          className="object-cover object-center"
         />
         <div className="absolute inset-0 bg-opacity-5 flex items-center justify-center">
-          <div className="text-center text-white p-6">
-            <h1 className="text-4xl md:text-9xl font-bold tracking-tighter uppercase">
-              Vacation
-              <br />
-              Ready
-            </h1>
-            <p className="text-sm tracking-tighte md:text-lg mb-6">
-              Explore our vacation-ready outfits with fast worldwide shipping.
-            </p>
-            <Link
-              href="/collections/all"
-              className="bg-white px-6 py-2 rounded-sm text-gray-950 text-lg"
+          <div className="text-center p-6">
+            <h1
+              className="text-4xl md:text-9xl font-bold tracking-wider uppercase text-teal-700/70"
+              style={{ WebkitTextStroke: "4px #fafafa" }}
             >
-              Shop Now
-            </Link>
+              Pure
+              <br />
+              Style
+            </h1>
+            \{" "}
+            <p className="text-lg font-bold md:text-2xl mb-6 text-white whitespace-nowrap">
+              Explore our vacation-ready outfits with fast worldwide shipping
+            </p>
+            \{" "}
+            <button className="hover:-translate-y-0.5 duration-150 ease-in-out cursor-pointer">
+              <Link
+                href="/collections/all"
+                className="bg-white px-6 py-2 rounded-sm text-gray-950 text-lg font-bold"
+              >
+                Shop Now
+              </Link>
+            </button>
           </div>
         </div>
       </section>
