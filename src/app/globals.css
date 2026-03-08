@@ -114,17 +114,29 @@
 }
 
 .hero-text-stroke {
-  -webkit-text-stroke: 1px #fafafa;
+  text-shadow:
+    -1px -1px 0 #fafafa,
+    1px -1px 0 #fafafa,
+    -1px 1px 0 #fafafa,
+    1px 1px 0 #fafafa;
 }
 
 @media (min-width: 768px) {
   .hero-text-stroke {
-    -webkit-text-stroke: 2px #fafafa;
+    text-shadow:
+      -2px -2px 0 #fafafa,
+      2px -2px 0 #fafafa,
+      -2px 2px 0 #fafafa,
+      2px 2px 0 #fafafa;
   }
 }
 
 @media (min-width: 1024px) {
   .hero-text-stroke {
-    -webkit-text-stroke: 3px #fafafa;
+    text-shadow:
+      -3px -3px 0 #fafafa,
+      3px -3px 0 #fafafa,
+      -3px 3px 0 #fafafa,
+      3px 3px 0 #fafafa;
   }
 }

@@ -5,7 +5,7 @@ import { SiFacebook } from "react-icons/si";
 
 const Topbar = () => {
   return (
-    <div className="bg-[#ea2e0e] w-full text-white p-2 relative">
+    <div className="bg-[#ea2e0e] w-full p-3 text-white relative">
       <div className="container mx-auto flex items-center justify-between relative">
         {/* Social Icons */}
         <div className="hidden md:flex items-center space-x-4 z-10">
@@ -32,12 +32,12 @@ const Topbar = () => {
         </div>
 
         {/* Center Text (does NOT block clicks now) */}
-        <div className="absolute left-1/2 -translate-x-1/2 text-sm pointer-events-none">
-          Hello there! You can contact us through
+        <div className="absolute left-1/2 -translate-x-1/2 text-sm whitespace-nowrap pointer-events-none">
+          Rabbit - Dress well, live better
         </div>
 
         {/* Contact */}
-        <div className="hidden md:flex z-10">+977 970-4063469</div>
+        <div className="hidden md:flex z-10">+977 97xxxxxxxx</div>
       </div>
     </div>
   );

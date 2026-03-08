@@ -66,7 +66,7 @@ const Navbar = () => {
       scrollTrigger: {
         trigger: document.documentElement,
         start: "top top",
-        end: "top -4",
+        end: "top -3",
         scrub: 2,
         markers: false,
       },
