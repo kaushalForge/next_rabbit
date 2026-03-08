@@ -88,7 +88,7 @@ const CollectionPage = ({ products }) => {
       />
 
       {/* Root layout */}
-      <div className="w-full flex flex-col lg:flex-row items-start">
+      <div className="w-full container mx-auto flex flex-col lg:flex-row items-start">
         {/* Mobile filter button */}
         <button
           onClick={() => setIsSidebarOpen((p) => !p)}
@@ -111,12 +111,6 @@ const CollectionPage = ({ products }) => {
           <FilterSidebar />
         </div>
 
-        {/*
-          Desktop sidebar — sticky so it follows scroll,
-          but height is auto (grows with content, never clips).
-          Width animates w-72 ↔ w-12.
-          No overflow, no absolute children — pure normal flow.
-        */}
         <div
           className={`
             hidden lg:block shrink-0 sticky top-0
@@ -127,15 +121,7 @@ const CollectionPage = ({ products }) => {
         >
           {/* ── Full sidebar ── */}
           {isDesktopSidebarOpen && (
-            <div className="relative w-72">
-              {/* Collapse button on right edge */}
-              <button
-                onClick={() => setIsDesktopSidebarOpen(false)}
-                title="Hide filters"
-                className={`${!isDesktopSidebarOpen && "hidden"} absolute -right-3.5 top-6 z-100 w-7 h-7 rounded-full bg-white border border-gray-200 shadow-sm flex items-center justify-center text-gray-500 hover:bg-gray-900 hover:text-white hover:border-gray-900 transition-all duration-200`}
-              >
-                <HiChevronLeft className="w-3.5 h-3.5" />
-              </button>
+            <div className="w-72">
               <FilterSidebar />
             </div>
           )}
@@ -171,7 +157,14 @@ const CollectionPage = ({ products }) => {
         </div>
 
         {/* Product area */}
-        <div className="flex-1 min-w-0 w-full">
+        <div className="relative flex-1 min-w-0 w-full">
+          <button
+            onClick={() => setIsDesktopSidebarOpen(false)}
+            title="Hide filters"
+            className={`${!isDesktopSidebarOpen && "hidden"} absolute top-5 -left-3.5 w-7 h-7 rounded-full bg-white border border-gray-200 shadow-sm flex items-center justify-center text-gray-500 hover:bg-gray-900 hover:text-white hover:border-gray-900 transition-all duration-200`}
+          >
+            <HiChevronLeft className="w-3.5 h-3.5" />
+          </button>
           {/* Toolbar */}
           <div className="flex flex-row flex-wrap md:flex-nowrap items-center justify-between p-4 mb-4 gap-2 border-b border-gray-100">
             <div className="flex items-center gap-2 shrink-0 min-w-0">

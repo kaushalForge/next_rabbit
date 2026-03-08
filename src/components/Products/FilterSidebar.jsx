@@ -115,23 +115,13 @@ const FilterSidebar = () => {
       weight: searchParams.get("weight")?.split(",").filter(Boolean) || [],
       taste: searchParams.get("taste")?.split(",").filter(Boolean) || [],
       foodType: searchParams.get("foodType")?.split(",").filter(Boolean) || [],
-      minPrice: searchParams.get("minPrice")
-        ? Number(searchParams.get("minPrice"))
-        : 0,
-      maxPrice: searchParams.get("maxPrice")
-        ? Number(searchParams.get("maxPrice"))
-        : 100,
+      minPrice: Number(searchParams.get("minPrice") ?? 0),
+      maxPrice: Number(searchParams.get("maxPrice") ?? 100),
     };
 
-    setMainCategory((prev) => (prev !== mc ? mc : prev));
-
-    setFilters((prev) => {
-      if (JSON.stringify(prev) === JSON.stringify(nextFilters)) {
-        return prev;
-      }
-      return nextFilters;
-    });
-  }, [searchParamsKey]);
+    setMainCategory(mc);
+    setFilters(nextFilters);
+  }, [searchParams]);
 
   // ===== Write URL =====
   const writeURL = (next) => {
@@ -147,6 +137,7 @@ const FilterSidebar = () => {
     });
 
     let nextMainCategory = mainCategory;
+
     if (isAnyFilterSelected) {
       if (mainCategory === "default") {
         if (
@@ -171,8 +162,10 @@ const FilterSidebar = () => {
     }
 
     setMainCategory(nextMainCategory);
-    if (nextMainCategory !== "default")
+
+    if (nextMainCategory !== "default") {
       params.set("mainCategory", nextMainCategory);
+    }
 
     Object.entries(next).forEach(([key, value]) => {
       if (Array.isArray(value) && value.length > 0) {
@@ -187,13 +180,18 @@ const FilterSidebar = () => {
       }
     });
 
-    router.push(
-      params.toString() ? `${pathname}?${params.toString()}` : pathname,
-      { scroll: false },
-    );
+    const newQuery = params.toString();
+    const newUrl = newQuery ? `${pathname}?${newQuery}` : pathname;
+
+    const currentUrl = `${pathname}${searchParamsKey ? `?${searchParamsKey}` : ""}`;
+
+    // 🚀 Prevent infinite navigation loop
+    if (newUrl !== currentUrl) {
+      router.replace(newUrl, { scroll: false });
+    }
+
     setFilters(next);
   };
-
   // ===== Generic toggle handlers =====
   const toggleSingle = (key, value) => {
     writeURL({ ...filters, [key]: filters[key] === value ? "" : value });
