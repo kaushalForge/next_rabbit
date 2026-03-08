@@ -234,6 +234,8 @@ const EditProduct = ({ productDetails }) => {
     toast.success("Product ID copied to clipboard");
   };
 
+  console.log("The id of product is:", productDetails._id);
+
   return (
     <div className="relative min-h-screen bg-muted/40">
       {loading && (
@@ -338,23 +340,22 @@ const EditProduct = ({ productDetails }) => {
                 />
               </CardContent>
             </Card>
-
-            {mainCategory === "fashion" && (
-              <Card>
-                <CardContent>
-                  <Fashion fashion={fashion} setFashion={setFashion} />
-                </CardContent>
-              </Card>
-            )}
-
-            {mainCategory === "food" && (
-              <Card>
-                <CardContent>
-                  <Food food={food} setFood={setFood} />
-                </CardContent>
-              </Card>
-            )}
-
+            {mainCategory === "Fashion" ||
+              (mainCategory === "fashion" && (
+                <Card>
+                  <CardContent>
+                    <Fashion fashion={fashion} setFashion={setFashion} />
+                  </CardContent>
+                </Card>
+              ))}
+            {mainCategory === "Food" ||
+              (mainCategory === "food" && (
+                <Card>
+                  <CardContent>
+                    <Food food={food} setFood={setFood} />
+                  </CardContent>
+                </Card>
+              ))}
             <Card>
               <CardContent>
                 <Descriptions
@@ -371,7 +372,6 @@ const EditProduct = ({ productDetails }) => {
                 />
               </CardContent>
             </Card>
-
             <Card>
               <CardHeader>
                 <CardTitle>Images</CardTitle>

@@ -1,29 +1,40 @@
 "use client";
 
-import React from "react";
-import { FaBox, FaCheckCircle, FaTruck, FaTimesCircle } from "react-icons/fa";
-
-const orders = [
-  {
-    _id: 1234,
-    user: { name: "John Doe" },
-    totalPrice: 123,
-    status: "Processing",
-  },
-];
+import React, { useState } from "react";
+import { FaBox, FaCheckCircle } from "react-icons/fa";
+import { toast } from "sonner";
 
 const statusStyles = {
+  Pending: "bg-yellow-100 text-yellow-700",
   Processing: "bg-yellow-100 text-yellow-700",
   Shipped: "bg-blue-100 text-blue-700",
   Delivered: "bg-green-100 text-green-700",
   Cancelled: "bg-red-100 text-red-700",
 };
 
-const handleStatusChange = (orderID, status) => {
-  // console.log({ orderID, status });
-};
+const OrderManagement = ({ orderDetails = [] }) => {
+  // Initialize state directly from props
+  const [orders, setOrders] = useState(orderDetails?.orders);
 
-const OrderManagement = () => {
+  const handleStatusChange = async (orderID, newStatus) => {
+    try {
+      // Optimistic UI update
+      setOrders((prev) =>
+        prev.map((order) =>
+          order._id === orderID ? { ...order, orderStatus: newStatus } : order,
+        ),
+      );
+
+      // TODO: Replace with your backend API call
+      // await fetch(`/api/admin/orders/${orderID}`, { method: 'PATCH', body: JSON.stringify({ status: newStatus }) });
+
+      toast.success("Order status updated");
+    } catch (error) {
+      toast.error("Failed to update order status");
+      console.error(error);
+    }
+  };
+
   return (
     <div className="container mx-auto px-4 py-8 space-y-8">
       {/* Header */}
@@ -43,7 +54,7 @@ const OrderManagement = () => {
           <thead className="bg-gray-50 text-gray-600">
             <tr>
               <th className="px-6 py-4 text-left">Order</th>
-              <th className="px-6 py-4 text-left">Customer</th>
+              <th className="px-6 py-4 text-left">Customer ID</th>
               <th className="px-6 py-4 text-left">Total</th>
               <th className="px-6 py-4 text-left">Status</th>
               <th className="px-6 py-4 text-right">Action</th>
@@ -51,38 +62,44 @@ const OrderManagement = () => {
           </thead>
 
           <tbody>
-            {orders.length ? (
+            {orders.length > 0 ? (
               orders.map((order) => (
                 <tr
                   key={order._id}
                   className="border-t hover:bg-gray-50 transition"
                 >
                   <td className="px-6 py-4 font-medium text-gray-900">
-                    #{order._id}
+                    #{order._id.slice(-6)}
                   </td>
 
-                  <td className="px-6 py-4 text-gray-700">{order.user.name}</td>
+                  <td className="px-6 py-4 text-gray-700">
+                    {order.userId?.slice(-6) || "N/A"}
+                  </td>
 
                   <td className="px-6 py-4 font-semibold text-gray-900">
-                    Rs. {order.totalPrice}
+                    Rs. {order.totalPrice || 0}
                   </td>
 
                   {/* Status */}
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-2">
                       <span
-                        className={`px-3 py-1 rounded-full text-xs font-semibold ${statusStyles[order.status]}`}
+                        className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                          statusStyles[order.orderStatus] ||
+                          "bg-gray-100 text-gray-600"
+                        }`}
                       >
-                        {order.status}
+                        {order.orderStatus}
                       </span>
 
                       <select
-                        value={order.status}
+                        value={order.orderStatus}
                         onChange={(e) =>
                           handleStatusChange(order._id, e.target.value)
                         }
                         className="border rounded-lg px-2 py-1 text-sm focus:ring-2 focus:ring-blue-500"
                       >
+                        <option value="Pending">Pending</option>
                         <option value="Processing">Processing</option>
                         <option value="Shipped">Shipped</option>
                         <option value="Delivered">Delivered</option>

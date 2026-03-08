@@ -16,6 +16,7 @@ export async function GET() {
   try {
     await dbConnect();
     const orders = await Order.find().sort({ createdAt: -1 }).lean();
+    console.log(orders);
     return NextResponse.json({ success: true, orders }, { status: 200 });
   } catch (err) {
     console.error(err);

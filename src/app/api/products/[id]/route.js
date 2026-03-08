@@ -6,10 +6,8 @@ export async function GET(request, { params }) {
   const { id } = await params;
   try {
     await dbConnect();
-
     const productData = await Product.findOne({
       _id: id,
-      isPublished: true,
     }).lean();
 
     if (!productData) {
@@ -18,6 +16,9 @@ export async function GET(request, { params }) {
         { status: 404 },
       );
     }
+
+    console.log(productData, "the details of the given product is");
+
     return NextResponse.json(productData, { status: 200 });
   } catch (error) {
     console.error("GET /api/products/[id] error:", error);

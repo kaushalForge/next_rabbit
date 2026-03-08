@@ -297,18 +297,3 @@ export async function PATCH(req) {
     );
   }
 }
-
-// GET ALL ORDERS (admin)
-// export async function GET() {
-//   try {
-//     await dbConnect();
-
-//     const orders = await Order.find()
-//       .sort({ createdAt: -1 })
-//       .populate("userId", "name email");
-
-//     return NextResponse.json(orders);
-//   } catch (error) {
-//     return NextResponse.json({ error: error.message }, { status: 500 });
-//   }
-// }
