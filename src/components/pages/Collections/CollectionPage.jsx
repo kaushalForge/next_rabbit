@@ -40,7 +40,8 @@ const CollectionPage = ({ products }) => {
 
   useEffect(() => {
     setLoading(true);
-  }, [searchParams]);
+  }, [searchParams.toString()]);
+
   useEffect(() => {
     if (products) setLoading(false);
   }, [products]);

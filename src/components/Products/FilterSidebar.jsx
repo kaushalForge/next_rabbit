@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef, useMemo } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import {
   Select,
@@ -12,14 +12,137 @@ import {
 import { MdFilterAltOff } from "react-icons/md";
 import { HiChevronDown } from "react-icons/hi2";
 
-/* ── Collapsible Section ── */
+// ─────────────────────────────────────────────────────────────────────────────
+// STATIC DATA — module-level, allocated once, never recreated on re-render
+// ─────────────────────────────────────────────────────────────────────────────
+const FASHION_OPTIONS = [
+  "Top Wear",
+  "Bottom Wear",
+  "Shoes",
+  "Innerwear",
+  "Jackets & Coats",
+  "Ethnic Wear",
+  "Sportswear",
+  "Accessories",
+  "Bags & Wallets",
+  "Hats & Caps",
+];
+const FOOD_OPTIONS = [
+  "Snacks",
+  "Beverages",
+  "Dairy & Eggs",
+  "Fruits & Vegetables",
+  "Grains & Pulses",
+  "Confectionery",
+  "Natural Sweeteners",
+  "Health Foods",
+];
+const ALL_OPTIONS = [...FASHION_OPTIONS, ...FOOD_OPTIONS];
+const GENDER_OPTIONS = ["Male", "Female", "Unisex"];
+const COLOR_OPTIONS = [
+  "Red",
+  "Blue",
+  "Black",
+  "Green",
+  "Yellow",
+  "Gray",
+  "White",
+];
+const SIZE_OPTIONS = ["XS", "S", "M", "L", "XL"];
+const MATERIAL_OPTIONS = ["Cotton", "Polyester", "Wool"];
+const WEIGHT_OPTIONS = ["250gm", "500gm", "1kg", "2kg"];
+const TASTE_OPTIONS = ["Sweet", "Salty", "Spicy"];
+const FOOD_TYPE_OPTIONS = ["Veg", "Non-veg", "Vegan"];
+
+// Sets for O(1) membership checks instead of Array.includes
+const FASHION_SET = new Set(FASHION_OPTIONS);
+const FOOD_SET = new Set(FOOD_OPTIONS);
+
+const RESET_FILTERS = Object.freeze({
+  category: [],
+  gender: "",
+  color: [],
+  size: [],
+  material: [],
+  brand: [],
+  weight: [],
+  taste: [],
+  foodType: [],
+  minPrice: 0,
+  maxPrice: 100,
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Pure helpers — no hooks, safe to call anywhere
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** Parse URLSearchParams → filter state object */
+const parseParams = (sp) => ({
+  category: sp.get("category")?.split(",").filter(Boolean) ?? [],
+  gender: sp.get("gender") ?? "",
+  color: sp.get("color")?.split(",").filter(Boolean) ?? [],
+  size: sp.get("size")?.split(",").filter(Boolean) ?? [],
+  brand: sp.get("brand")?.split(",").filter(Boolean) ?? [],
+  material: sp.get("material")?.split(",").filter(Boolean) ?? [],
+  weight: sp.get("weight")?.split(",").filter(Boolean) ?? [],
+  taste: sp.get("taste")?.split(",").filter(Boolean) ?? [],
+  foodType: sp.get("foodType")?.split(",").filter(Boolean) ?? [],
+  minPrice: Number(sp.get("minPrice") ?? 0),
+  maxPrice: Number(sp.get("maxPrice") ?? 100),
+});
+
+/** Build query string from filters + mainCategory */
+const buildQuery = (filters, mc) => {
+  const p = new URLSearchParams();
+  if (mc !== "default") p.set("mainCategory", mc);
+  Object.entries(filters).forEach(([k, v]) => {
+    if (Array.isArray(v) && v.length) p.set(k, v.join(","));
+    else if (typeof v === "string" && v) p.set(k, v);
+    else if (k === "minPrice" && v !== 0) p.set(k, String(v));
+    else if (k === "maxPrice" && v !== 100) p.set(k, String(v));
+  });
+  return p.toString();
+};
+
+/** Auto-detect mainCategory from active filters when user is on "default" */
+const inferMC = (filters, currentMC) => {
+  const hasFilter = Object.entries(filters).some(
+    ([k, v]) =>
+      (Array.isArray(v) && v.length) ||
+      (typeof v === "string" && v) ||
+      (k === "minPrice" && v !== 0) ||
+      (k === "maxPrice" && v !== 100),
+  );
+  if (!hasFilter) return "default";
+  if (currentMC !== "default") return currentMC;
+  if (
+    filters.category.some((c) => FASHION_SET.has(c)) ||
+    filters.gender ||
+    filters.color.length ||
+    filters.size.length ||
+    filters.material.length
+  )
+    return "Fashion";
+  if (
+    filters.category.some((c) => FOOD_SET.has(c)) ||
+    filters.weight.length ||
+    filters.taste.length ||
+    filters.foodType.length
+  )
+    return "Food";
+  return "default";
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Section — collapsible wrapper
+// ─────────────────────────────────────────────────────────────────────────────
 const Section = ({ title, children, defaultOpen = true }) => {
   const [open, setOpen] = useState(defaultOpen);
   return (
     <div className="border-b border-gray-100 pb-4">
       <button
         type="button"
-        onClick={() => setOpen(!open)}
+        onClick={() => setOpen((o) => !o)}
         className="flex items-center justify-between w-full py-1.5 group"
       >
         <span className="text-[11px] font-medium uppercase tracking-[0.18em] text-gray-800 group-hover:text-black transition-colors duration-200">
@@ -34,199 +157,123 @@ const Section = ({ title, children, defaultOpen = true }) => {
   );
 };
 
+// ─────────────────────────────────────────────────────────────────────────────
+// FilterSidebar
+// ─────────────────────────────────────────────────────────────────────────────
 const FilterSidebar = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
-  const searchParamsKey = searchParams.toString();
 
-  // ===== Main Category =====
-  const [mainCategory, setMainCategory] = useState("default");
+  /**
+   * skipSync = true  →  the next searchParams change was caused by US (router.replace)
+   *                      so useEffect must skip it to prevent the infinite loop.
+   * skipSync = false →  change came externally (back/forward navigation)
+   *                      so useEffect should sync state from the URL.
+   */
+  const skipSync = useRef(false);
 
-  // ===== Filters =====
-  const [filters, setFilters] = useState({
-    category: [],
-    gender: "",
-    color: [],
-    size: [],
-    material: [],
-    brand: [],
-    weight: [],
-    taste: [],
-    foodType: [],
-    minPrice: 0,
-    maxPrice: 100,
-  });
+  // Lazy-init state directly from URL — zero extra renders on mount
+  const [mainCategory, setMainCategory] = useState(
+    () => searchParams.get("mainCategory") || "default",
+  );
+  const [filters, setFilters] = useState(() => parseParams(searchParams));
 
-  const minPriceRef = useRef(null);
-  const maxPriceRef = useRef(null);
+  // Price uses local state so every keystroke is instant;
+  // the URL is only updated on blur (commitPrice)
+  const [localMin, setLocalMin] = useState(() =>
+    Number(searchParams.get("minPrice") ?? 0),
+  );
+  const [localMax, setLocalMax] = useState(() =>
+    Number(searchParams.get("maxPrice") ?? 100),
+  );
 
-  // ===== Options =====
-  const fashionOptions = [
-    "Top Wear",
-    "Bottom Wear",
-    "Shoes",
-    "Innerwear",
-    "Jackets & Coats",
-    "Ethnic Wear",
-    "Sportswear",
-    "Accessories",
-    "Bags & Wallets",
-    "Hats & Caps",
-  ];
-  const foodOptions = [
-    "Snacks",
-    "Beverages",
-    "Dairy & Eggs",
-    "Fruits & Vegetables",
-    "Grains & Pulses",
-    "Confectionery",
-    "Natural Sweeteners",
-    "Health Foods",
-  ];
-  const genderOptions = ["Male", "Female", "Unisex"];
-  const colorOptions = [
-    "Red",
-    "Blue",
-    "Black",
-    "Green",
-    "Yellow",
-    "Gray",
-    "White",
-  ];
-  const sizeOptions = ["XS", "S", "M", "L", "XL"];
-  const brandOptions = ["Urban Threads", "Modern Fit"];
-  const materialOptions = ["Cotton", "Polyester", "Wool"];
-  const weightOptions = ["250gm", "500gm", "1kg", "2kg"];
-  const tasteOptions = ["Sweet", "Salty", "Spicy"];
-  const foodTypeOptions = ["Veg", "Non-veg", "Vegan"];
-
-  // ===== Load URL params into filters =====
+  // ── Sync FROM URL — only for external navigation (browser back / forward) ──
   useEffect(() => {
+    if (skipSync.current) {
+      skipSync.current = false; // we caused this → ignore it
+      return;
+    }
     const mc = searchParams.get("mainCategory") || "default";
-
-    const nextFilters = {
-      category: searchParams.get("category")?.split(",").filter(Boolean) || [],
-      gender: searchParams.get("gender") || "",
-      color: searchParams.get("color")?.split(",").filter(Boolean) || [],
-      size: searchParams.get("size")?.split(",").filter(Boolean) || [],
-      brand: searchParams.get("brand")?.split(",").filter(Boolean) || [],
-      material: searchParams.get("material")?.split(",").filter(Boolean) || [],
-      weight: searchParams.get("weight")?.split(",").filter(Boolean) || [],
-      taste: searchParams.get("taste")?.split(",").filter(Boolean) || [],
-      foodType: searchParams.get("foodType")?.split(",").filter(Boolean) || [],
-      minPrice: Number(searchParams.get("minPrice") ?? 0),
-      maxPrice: Number(searchParams.get("maxPrice") ?? 100),
-    };
-
+    const next = parseParams(searchParams);
     setMainCategory(mc);
-    setFilters(nextFilters);
+    setFilters(next);
+    setLocalMin(next.minPrice);
+    setLocalMax(next.maxPrice);
   }, [searchParams]);
 
-  // ===== Write URL =====
-  const writeURL = (next) => {
-    const params = new URLSearchParams();
+  // ── Single source of truth: apply filters + push URL atomically ───────────
+  const applyFilters = useCallback(
+    (nextFilters, overrideMC) => {
+      const nextMC = overrideMC ?? inferMC(nextFilters, mainCategory);
+      const query = buildQuery(nextFilters, nextMC);
+      const nextUrl = query ? `${pathname}?${query}` : pathname;
+      const currUrl =
+        pathname +
+        (searchParams.toString() ? `?${searchParams.toString()}` : "");
 
-    const isAnyFilterSelected = Object.entries(next).some(([k, v]) => {
-      return (
-        (Array.isArray(v) && v.length > 0) ||
-        (typeof v === "string" && v.trim() !== "") ||
-        (k === "minPrice" && v !== 0) ||
-        (k === "maxPrice" && v !== 100)
-      );
-    });
+      // Update React state immediately for zero-latency UI feedback
+      setMainCategory(nextMC);
+      setFilters(nextFilters);
 
-    let nextMainCategory = mainCategory;
-
-    if (isAnyFilterSelected) {
-      if (mainCategory === "default") {
-        if (
-          next.category?.some((c) => fashionOptions.includes(c)) ||
-          next.gender ||
-          next.color?.length > 0 ||
-          next.size?.length > 0 ||
-          next.material?.length > 0
-        ) {
-          nextMainCategory = "Fashion";
-        } else if (
-          next.category?.some((c) => foodOptions.includes(c)) ||
-          next.weight?.length > 0 ||
-          next.taste?.length > 0 ||
-          next.foodType?.length > 0
-        ) {
-          nextMainCategory = "Food";
-        }
+      // Push URL only if it actually changed
+      if (nextUrl !== currUrl) {
+        skipSync.current = true; // suppress the useEffect
+        router.replace(nextUrl, { scroll: false }); // replace = no history spam
       }
-    } else {
-      nextMainCategory = "default";
-    }
+    },
+    [mainCategory, pathname, router, searchParams],
+  );
 
-    setMainCategory(nextMainCategory);
+  // ── Handlers ──────────────────────────────────────────────────────────────
+  const toggleSingle = useCallback(
+    (key, value) =>
+      applyFilters({ ...filters, [key]: filters[key] === value ? "" : value }),
+    [filters, applyFilters],
+  );
 
-    if (nextMainCategory !== "default") {
-      params.set("mainCategory", nextMainCategory);
-    }
+  const toggleMulti = useCallback(
+    (key, value) => {
+      const arr = filters[key];
+      applyFilters({
+        ...filters,
+        [key]: arr.includes(value)
+          ? arr.filter((v) => v !== value)
+          : [...arr, value],
+      });
+    },
+    [filters, applyFilters],
+  );
 
-    Object.entries(next).forEach(([key, value]) => {
-      if (Array.isArray(value) && value.length > 0) {
-        params.set(key, value.join(","));
-      } else if (typeof value === "string" && value.trim() !== "") {
-        params.set(key, value);
-      } else if (
-        (key === "minPrice" && value !== 0) ||
-        (key === "maxPrice" && value !== 100)
-      ) {
-        params.set(key, value);
-      }
-    });
+  // Price inputs: instant local state, commits URL only on blur
+  const commitPrice = useCallback(() => {
+    const min = Math.min(localMin, localMax);
+    const max = Math.max(localMin, localMax);
+    applyFilters({ ...filters, minPrice: min, maxPrice: max });
+  }, [localMin, localMax, filters, applyFilters]);
 
-    const newQuery = params.toString();
-    const newUrl = newQuery ? `${pathname}?${newQuery}` : pathname;
+  const handleClearAll = useCallback(() => {
+    skipSync.current = true;
+    setMainCategory("default");
+    setFilters(RESET_FILTERS);
+    setLocalMin(0);
+    setLocalMax(100);
+    router.replace(pathname, { scroll: false });
+  }, [router, pathname]);
 
-    const currentUrl = `${pathname}${searchParamsKey ? `?${searchParamsKey}` : ""}`;
+  const handleMainCategoryChange = useCallback(
+    (value) => applyFilters({ ...RESET_FILTERS }, value),
+    [applyFilters],
+  );
 
-    // 🚀 Prevent infinite navigation loop
-    if (newUrl !== currentUrl) {
-      router.replace(newUrl, { scroll: false });
-    }
-
-    setFilters(next);
-  };
-  // ===== Generic toggle handlers =====
-  const toggleSingle = (key, value) => {
-    writeURL({ ...filters, [key]: filters[key] === value ? "" : value });
-  };
-
-  const toggleMulti = (key, value) => {
-    const exists = filters[key].includes(value);
-    writeURL({
-      ...filters,
-      [key]: exists
-        ? filters[key].filter((v) => v !== value)
-        : [...filters[key], value],
-    });
-  };
-
-  // ===== Price handlers =====
-  const handleMinPrice = (value) => {
-    const min = Math.min(value, filters.maxPrice ?? 100);
-    writeURL({ ...filters, minPrice: min });
-  };
-
-  const handleMaxPrice = (value) => {
-    const max = Math.max(value, filters.minPrice ?? 0);
-    writeURL({ ...filters, maxPrice: max });
-  };
-
-  // ===== Determine current categoryOptions dynamically =====
+  // ── Derived (no useMemo needed — these are O(1) or tiny arrays) ───────────
   const categoryOptions =
     mainCategory === "Fashion"
-      ? fashionOptions
+      ? FASHION_OPTIONS
       : mainCategory === "Food"
-        ? foodOptions
-        : [...fashionOptions, ...foodOptions];
+        ? FOOD_OPTIONS
+        : ALL_OPTIONS;
 
-  // ===== Active filter count =====
   const activeCount =
     filters.category.length +
     filters.color.length +
@@ -240,18 +287,15 @@ const FilterSidebar = () => {
     (filters.minPrice !== 0 ? 1 : 0) +
     (filters.maxPrice !== 100 ? 1 : 0);
 
+  const showFashion = mainCategory === "Fashion" || mainCategory === "default";
+  const showFood = mainCategory === "Food" || mainCategory === "default";
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Render
+  // ─────────────────────────────────────────────────────────────────────────
   return (
-    <div
-      className="
-      w-full bg-white border-r border-gray-100
-      overflow-y-auto
-      fixed top-0 left-0 h-full z-30
-      sm:relative sm:h-auto sm:z-auto
-      shadow-2xl sm:shadow-none
-      transition-all duration-300 ease-in-out
-    "
-    >
-      {/* ── Sticky Header ── */}
+    <div className="w-full bg-white border-r border-gray-100 overflow-y-auto fixed top-0 left-0 h-full z-30 sm:relative sm:h-auto sm:z-auto shadow-2xl sm:shadow-none transition-all duration-300 ease-in-out">
+      {/* Sticky Header */}
       <div className="sticky top-0 bg-white z-10 px-5 pt-6 pb-4 border-b border-gray-100">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -266,24 +310,7 @@ const FilterSidebar = () => {
           </div>
           <button
             type="button"
-            onClick={() => {
-              setMainCategory("default");
-              const resetFilters = {
-                category: [],
-                gender: "",
-                color: [],
-                size: [],
-                material: [],
-                brand: [],
-                weight: [],
-                taste: [],
-                foodType: [],
-                minPrice: 0,
-                maxPrice: 100,
-              };
-              setFilters(resetFilters);
-              router.push(`${pathname}`, { scroll: false });
-            }}
+            onClick={handleClearAll}
             className="flex items-center gap-1.5 text-[11px] font-medium text-gray-500 hover:text-red-500 px-2.5 py-1.5 rounded-lg hover:bg-red-50 transition-all duration-200"
           >
             <MdFilterAltOff className="w-3.5 h-3.5" />
@@ -292,33 +319,11 @@ const FilterSidebar = () => {
         </div>
       </div>
 
-      {/* ── Body ── */}
+      {/* Body */}
       <div className="px-5 py-4 space-y-4 pb-24">
         {/* Main Category */}
-        <Section title="Main Category" defaultOpen={true}>
-          <Select
-            value={mainCategory || "default"}
-            onValueChange={(value) => {
-              const resetFilters = {
-                category: [],
-                gender: "",
-                color: [],
-                size: [],
-                material: [],
-                brand: [],
-                weight: [],
-                taste: [],
-                foodType: [],
-                minPrice: 0,
-                maxPrice: 100,
-              };
-              setMainCategory(value);
-              writeURL({
-                ...resetFilters,
-                mainCategory: value === "default" ? "" : value,
-              });
-            }}
-          >
+        <Section title="Main Category">
+          <Select value={mainCategory} onValueChange={handleMainCategoryChange}>
             <SelectTrigger className="w-full text-xs font-medium border border-gray-200 bg-gray-50 rounded-xl px-3 py-2.5 text-gray-900 hover:bg-white focus:ring-2 focus:ring-gray-900 transition-all">
               <SelectValue placeholder="Default" />
             </SelectTrigger>
@@ -338,12 +343,11 @@ const FilterSidebar = () => {
                 key={c}
                 type="button"
                 onClick={() => toggleMulti("category", c)}
-                className={`text-[11px] font-semibold px-3 py-1.5 rounded-full border transition-all duration-200
-                  ${
-                    filters.category.includes(c)
-                      ? "bg-gray-900 text-white border-gray-900"
-                      : "bg-white text-gray-800 border-gray-300 hover:border-gray-700 hover:text-gray-900"
-                  }`}
+                className={`text-[11px] font-semibold px-3 py-1.5 rounded-full border transition-all duration-200 ${
+                  filters.category.includes(c)
+                    ? "bg-gray-900 text-white border-gray-900"
+                    : "bg-white text-gray-800 border-gray-300 hover:border-gray-700 hover:text-gray-900"
+                }`}
               >
                 {c}
               </button>
@@ -351,23 +355,21 @@ const FilterSidebar = () => {
           </div>
         </Section>
 
-        {/* ── Fashion Filters ── */}
-        {(mainCategory === "Fashion" || mainCategory === "default") && (
+        {/* Fashion filters */}
+        {showFashion && (
           <>
-            {/* Gender */}
             <Section title="Gender">
               <div className="flex gap-2">
-                {genderOptions.map((g) => (
+                {GENDER_OPTIONS.map((g) => (
                   <button
                     key={g}
                     type="button"
                     onClick={() => toggleSingle("gender", g)}
-                    className={`flex-1 text-[11px] font-medium py-2 rounded-xl border transition-all duration-200
-                      ${
-                        filters.gender === g
-                          ? "bg-gray-900 text-white border-gray-900"
-                          : "bg-white text-gray-800 border-gray-300 hover:border-gray-700"
-                      }`}
+                    className={`flex-1 text-[11px] font-medium py-2 rounded-xl border transition-all duration-200 ${
+                      filters.gender === g
+                        ? "bg-gray-900 text-white border-gray-900"
+                        : "bg-white text-gray-800 border-gray-300 hover:border-gray-700"
+                    }`}
                   >
                     {g}
                   </button>
@@ -375,41 +377,37 @@ const FilterSidebar = () => {
               </div>
             </Section>
 
-            {/* Color */}
             <Section title="Color">
               <div className="flex flex-wrap gap-2.5">
-                {colorOptions.map((c) => (
+                {COLOR_OPTIONS.map((c) => (
                   <button
                     key={c}
                     type="button"
                     onClick={() => toggleMulti("color", c)}
                     title={c}
-                    className={`w-7 h-7 rounded-full border-2 transition-all duration-200
-                      ${
-                        filters.color.includes(c)
-                          ? "border-gray-900 scale-110 shadow-md"
-                          : "border-gray-200 hover:border-gray-500"
-                      }`}
+                    className={`w-7 h-7 rounded-full border-2 transition-all duration-200 ${
+                      filters.color.includes(c)
+                        ? "border-gray-900 scale-110 shadow-md"
+                        : "border-gray-200 hover:border-gray-500"
+                    }`}
                     style={{ backgroundColor: c.toLowerCase() }}
                   />
                 ))}
               </div>
             </Section>
 
-            {/* Size */}
             <Section title="Size">
               <div className="flex gap-2 flex-wrap">
-                {sizeOptions.map((s) => (
+                {SIZE_OPTIONS.map((s) => (
                   <button
                     key={s}
                     type="button"
                     onClick={() => toggleMulti("size", s)}
-                    className={`w-12 h-10 text-xs font-medium rounded-xl border transition-all duration-200
-                      ${
-                        filters.size.includes(s)
-                          ? "bg-gray-900 text-white border-gray-900"
-                          : "bg-white text-gray-800 border-gray-300 hover:border-gray-700"
-                      }`}
+                    className={`w-12 h-10 text-xs font-medium rounded-xl border transition-all duration-200 ${
+                      filters.size.includes(s)
+                        ? "bg-gray-900 text-white border-gray-900"
+                        : "bg-white text-gray-800 border-gray-300 hover:border-gray-700"
+                    }`}
                   >
                     {s}
                   </button>
@@ -417,20 +415,18 @@ const FilterSidebar = () => {
               </div>
             </Section>
 
-            {/* Material */}
             <Section title="Material" defaultOpen={false}>
               <div className="flex flex-wrap gap-2">
-                {materialOptions.map((m) => (
+                {MATERIAL_OPTIONS.map((m) => (
                   <button
                     key={m}
                     type="button"
                     onClick={() => toggleMulti("material", m)}
-                    className={`text-[11px] font-semibold px-3 py-1.5 rounded-full border transition-all duration-200
-                      ${
-                        filters.material.includes(m)
-                          ? "bg-gray-900 text-white border-gray-900"
-                          : "bg-white text-gray-800 border-gray-300 hover:border-gray-700"
-                      }`}
+                    className={`text-[11px] font-semibold px-3 py-1.5 rounded-full border transition-all duration-200 ${
+                      filters.material.includes(m)
+                        ? "bg-gray-900 text-white border-gray-900"
+                        : "bg-white text-gray-800 border-gray-300 hover:border-gray-700"
+                    }`}
                   >
                     {m}
                   </button>
@@ -440,23 +436,21 @@ const FilterSidebar = () => {
           </>
         )}
 
-        {/* ── Food Filters ── */}
-        {(mainCategory === "Food" || mainCategory === "default") && (
+        {/* Food filters */}
+        {showFood && (
           <>
-            {/* Weight */}
             <Section title="Weight" defaultOpen={false}>
               <div className="flex flex-wrap gap-2">
-                {weightOptions.map((w) => (
+                {WEIGHT_OPTIONS.map((w) => (
                   <button
                     key={w}
                     type="button"
                     onClick={() => toggleMulti("weight", w)}
-                    className={`text-[11px] font-semibold px-3 py-1.5 rounded-full border transition-all duration-200
-                      ${
-                        filters.weight.includes(w)
-                          ? "bg-gray-900 text-white border-gray-900"
-                          : "bg-white text-gray-800 border-gray-300 hover:border-gray-700"
-                      }`}
+                    className={`text-[11px] font-semibold px-3 py-1.5 rounded-full border transition-all duration-200 ${
+                      filters.weight.includes(w)
+                        ? "bg-gray-900 text-white border-gray-900"
+                        : "bg-white text-gray-800 border-gray-300 hover:border-gray-700"
+                    }`}
                   >
                     {w}
                   </button>
@@ -464,20 +458,18 @@ const FilterSidebar = () => {
               </div>
             </Section>
 
-            {/* Taste */}
             <Section title="Taste" defaultOpen={false}>
               <div className="flex flex-wrap gap-2">
-                {tasteOptions.map((t) => (
+                {TASTE_OPTIONS.map((t) => (
                   <button
                     key={t}
                     type="button"
                     onClick={() => toggleMulti("taste", t)}
-                    className={`text-[11px] font-semibold px-3 py-1.5 rounded-full border transition-all duration-200
-                      ${
-                        filters.taste.includes(t)
-                          ? "bg-gray-900 text-white border-gray-900"
-                          : "bg-white text-gray-800 border-gray-300 hover:border-gray-700"
-                      }`}
+                    className={`text-[11px] font-semibold px-3 py-1.5 rounded-full border transition-all duration-200 ${
+                      filters.taste.includes(t)
+                        ? "bg-gray-900 text-white border-gray-900"
+                        : "bg-white text-gray-800 border-gray-300 hover:border-gray-700"
+                    }`}
                   >
                     {t}
                   </button>
@@ -485,20 +477,18 @@ const FilterSidebar = () => {
               </div>
             </Section>
 
-            {/* Food Type */}
             <Section title="Food Type" defaultOpen={false}>
               <div className="flex flex-wrap gap-2">
-                {foodTypeOptions.map((f) => (
+                {FOOD_TYPE_OPTIONS.map((f) => (
                   <button
                     key={f}
                     type="button"
                     onClick={() => toggleMulti("foodType", f)}
-                    className={`text-[11px] font-semibold px-3 py-1.5 rounded-full border transition-all duration-200
-                      ${
-                        filters.foodType.includes(f)
-                          ? "bg-gray-900 text-white border-gray-900"
-                          : "bg-white text-gray-800 border-gray-300 hover:border-gray-700"
-                      }`}
+                    className={`text-[11px] font-semibold px-3 py-1.5 rounded-full border transition-all duration-200 ${
+                      filters.foodType.includes(f)
+                        ? "bg-gray-900 text-white border-gray-900"
+                        : "bg-white text-gray-800 border-gray-300 hover:border-gray-700"
+                    }`}
                   >
                     {f}
                   </button>
@@ -508,16 +498,16 @@ const FilterSidebar = () => {
           </>
         )}
 
-        {/* Price */}
+        {/* Price Range */}
         <Section title="Price Range">
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <span className="text-xs font-medium text-gray-900">
-                Rs.{filters.minPrice}
+                Rs.{localMin}
               </span>
               <span className="text-[10px] text-gray-400 font-medium">—</span>
               <span className="text-xs font-medium text-gray-900">
-                Rs.{filters.maxPrice}
+                Rs.{localMax}
               </span>
             </div>
             <div className="flex gap-2">
@@ -526,12 +516,12 @@ const FilterSidebar = () => {
                   Min
                 </label>
                 <input
-                  ref={minPriceRef}
                   type="number"
                   min={0}
-                  max={filters.maxPrice ?? 100}
-                  value={filters.minPrice ?? 0}
-                  onChange={(e) => handleMinPrice(Number(e.target.value))}
+                  max={localMax}
+                  value={localMin}
+                  onChange={(e) => setLocalMin(Number(e.target.value))}
+                  onBlur={commitPrice}
                   className="w-full border border-gray-200 bg-gray-50 rounded-xl px-3 py-2 text-xs font-medium text-gray-900 outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition-all"
                 />
               </div>
@@ -540,12 +530,12 @@ const FilterSidebar = () => {
                   Max
                 </label>
                 <input
-                  ref={maxPriceRef}
                   type="number"
-                  min={filters.minPrice ?? 0}
+                  min={localMin}
                   max={100}
-                  value={filters.maxPrice ?? 100}
-                  onChange={(e) => handleMaxPrice(Number(e.target.value))}
+                  value={localMax}
+                  onChange={(e) => setLocalMax(Number(e.target.value))}
+                  onBlur={commitPrice}
                   className="w-full border border-gray-200 bg-gray-50 rounded-xl px-3 py-2 text-xs font-medium text-gray-900 outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition-all"
                 />
               </div>

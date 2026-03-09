@@ -13,7 +13,6 @@ import CartDrawer from "../Layout/CartDrawer";
 import { useAuth } from "@/app/context/AuthContext";
 import Image from "next/image";
 import { useCart } from "@/app/context/CartContext";
-
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
@@ -84,7 +83,9 @@ const Navbar = () => {
           {/* Logo */}
           <Link
             href="/"
+            aria-label="Rabbit"
             className="absolute outline-none -top-8 left-0 -translate-y-1/2 items-center h-6 w-24 justify-center mb-2"
+            tabIndex={-1}
           >
             <div ref={logoRef}>
               <Image
