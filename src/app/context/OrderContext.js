@@ -20,6 +20,7 @@ export const OrderProvider = ({ children }) => {
   const [allShipments, setAllShipments] = useState([]);
   const [cancelledShipments, setCancelledShipments] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [cancelling, setCancelling] = useState(false);
 
   /* =========================
         Fetch Orders
@@ -33,20 +34,29 @@ export const OrderProvider = ({ children }) => {
       return;
     }
 
-    setLoading(true);
-
     try {
-      const response = await fetchOrdersAction();
-      const fetchedOrders = Array.isArray(response?.orders)
-        ? response.orders
-        : [];
+      setLoading(true);
 
-      // ✅ Extract active shipments safely
+      const response = await fetchOrdersAction();
+
+      // ✅ Handle ANY possible response structure
+      let fetchedOrders = [];
+
+      if (Array.isArray(response)) {
+        fetchedOrders = response;
+      } else if (Array.isArray(response?.orders)) {
+        fetchedOrders = response.orders;
+      } else if (Array.isArray(response?.data?.orders)) {
+        fetchedOrders = response.data.orders;
+      }
+
+      console.log("Orders fetched:", fetchedOrders);
+
+      // Extract shipments
       const extractedActive = fetchedOrders.flatMap((order) =>
         Array.isArray(order?.shipments) ? order.shipments : [],
       );
 
-      // ✅ Extract cancelled shipments safely
       const extractedCancelled = fetchedOrders.flatMap((order) =>
         Array.isArray(order?.cancelledProducts) ? order.cancelledProducts : [],
       );
@@ -56,6 +66,7 @@ export const OrderProvider = ({ children }) => {
       setCancelledShipments(extractedCancelled);
     } catch (error) {
       console.error("fetchOrders error:", error);
+
       setOrders([]);
       setAllShipments([]);
       setCancelledShipments([]);
@@ -77,96 +88,102 @@ export const OrderProvider = ({ children }) => {
         };
       }
 
-      setLoading(true);
+      setCancelling(true);
+
       try {
-        // Call the API
         const response = await cancelOrderAction(shipmentId);
-        if (response.success) {
+
+        if (response?.success) {
           await fetchOrders();
         }
+
         return {
-          success: response.success ?? false,
-          status: response.status ?? 500,
-          message: response.message ?? "Something went wrong",
-          cancelledShipment: response.cancelledShipment ?? null,
-          order: response.order ?? null,
+          success: response?.success ?? false,
+          status: response?.status ?? 500,
+          message: response?.message ?? "Something went wrong",
         };
       } catch (err) {
         console.error("cancelShipment error:", err);
+
         return {
           success: false,
           status: 500,
           message: "Internal error",
         };
       } finally {
-        setLoading(false);
+        setCancelling(false);
       }
     },
     [fetchOrders],
   );
 
   /* =========================
-        Refresh Orders
+        Load orders when user changes
   ========================= */
-  const refreshOrders = useCallback(async () => {
-    await fetchOrders();
-  }, [fetchOrders]);
-
   useEffect(() => {
-    fetchOrders();
-  }, [fetchOrders]);
+    if (currentUser) {
+      fetchOrders();
+    }
+  }, [currentUser, fetchOrders]);
 
   /* =========================
         Derived Values
   ========================= */
 
-  // Total active shipments count
-  const totalOrders = useMemo(() => {
-    return allShipments.length;
-  }, [allShipments]);
+  const totalOrders = allShipments.length;
 
-  // Pending shipments count
   const pendingOrders = useMemo(() => {
-    if (!allShipments.length) return 0;
-
     return allShipments.filter((shipment) => {
-      const status = shipment?.status?.toLowerCase?.() || "";
+      const status = shipment?.status?.toLowerCase?.() ?? "";
       return ["pending", "pending_order"].includes(status);
     }).length;
   }, [allShipments]);
 
-  // Total spent (based on order documents)
   const totalSpent = useMemo(() => {
-    if (!orders.length) return 0;
-
     return orders.reduce((sum, order) => {
-      return sum + (order?.totalPrice || 0);
+      return sum + (order?.totalPrice ?? 0);
     }, 0);
   }, [orders]);
 
+  const value = useMemo(
+    () => ({
+      orders,
+      allShipments,
+      cancelledShipments,
+      loading,
+      cancelling,
+      refreshOrders: fetchOrders,
+      cancelShipment,
+      totalOrders,
+      pendingOrders,
+      totalSpent,
+    }),
+    [
+      orders,
+      allShipments,
+      cancelledShipments,
+      loading,
+      cancelling,
+      fetchOrders,
+      cancelShipment,
+      totalOrders,
+      pendingOrders,
+      totalSpent,
+    ],
+  );
+  console.log(allShipments, "test");
+
   return (
-    <OrderContext.Provider
-      value={{
-        orders,
-        allShipments,
-        cancelledShipments,
-        loading,
-        refreshOrders,
-        cancelShipment, // ✅ Expose cancel function
-        totalOrders,
-        pendingOrders,
-        totalSpent,
-      }}
-    >
-      {children}
-    </OrderContext.Provider>
+    <OrderContext.Provider value={value}>{children}</OrderContext.Provider>
   );
 };
 
 export const useOrders = () => {
   const context = useContext(OrderContext);
+
   if (!context) {
     throw new Error("useOrders must be used within OrderProvider");
   }
+
   return context;
 };

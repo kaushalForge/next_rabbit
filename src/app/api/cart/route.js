@@ -13,7 +13,7 @@ const getOwner = async () => {
     const token = cookieStore.get("cUser")?.value;
     if (!token) return null;
     const owner = await verifyJWT(token);
-    return owner;
+    return owner.payload;
   } catch (error) {
     console.error("getOwner error:", error);
     return null;
@@ -114,7 +114,6 @@ export const POST = async (req) => {
     const product = await Product.findById(productId)
       .select("name images mainCategory")
       .lean();
-
     if (!product)
       return NextResponse.json(
         { message: "Product not found" },
@@ -122,16 +121,17 @@ export const POST = async (req) => {
       );
 
     const image = product.images?.[0]?.url || "";
+    // Always find cart by ObjectId
     let cart = await Cart.findOne({ userId: new Types.ObjectId(owner.id) });
     if (!cart) {
       cart = new Cart({
         userId: new Types.ObjectId(owner.id),
         products: [],
-        shipmentTotal: shipmentTotal || 0,
+        totalPrice: 0,
       });
     }
 
-    // Ensure Food products have weight
+    // Food product must have weight
     if (product.mainCategory === "Food" && (!weight || weight === "")) {
       return NextResponse.json(
         { message: "Weight is required for Food products" },
@@ -139,14 +139,27 @@ export const POST = async (req) => {
       );
     }
 
-    const index = findIndexByCategory(cart.products, product, payload);
+    // Find existing product index
+    const index = cart.products.findIndex((p) => {
+      if (product.mainCategory === "Fashion") {
+        return (
+          p.productId.toString() === productId &&
+          p.size === size &&
+          p.color === color
+        );
+      } else if (product.mainCategory === "Food") {
+        return p.productId.toString() === productId && p.weight === weight;
+      } else {
+        return p.productId.toString() === productId;
+      }
+    });
+
     let message = "";
     if (index > -1) {
-      // Update existing product
+      // Update quantity & price if already exists
       cart.products[index].quantity += quantity;
       cart.products[index].price = price;
       cart.products[index].offerPrice = offerPrice;
-
       if (product.mainCategory === "Fashion") {
         cart.products[index].size = size;
         cart.products[index].color = color;
@@ -162,29 +175,28 @@ export const POST = async (req) => {
         image,
         price,
         offerPrice,
-        shipmentTotal,
         quantity,
       };
-
       if (product.mainCategory === "Fashion") {
         newProduct.size = size;
         newProduct.color = color;
       } else if (product.mainCategory === "Food") {
-        newProduct.weight = weight; // assign only once
+        newProduct.weight = weight;
       }
-
       cart.products.push(newProduct);
+      message = "Added to Cart!";
     }
-    message = "Added to Cart!";
-    cart.totalPrice = calculateTotalPrice(cart.products);
+
+    // Recalculate total price
+    cart.totalPrice = cart.products.reduce((sum, item) => {
+      const sellingPrice = Number(item.offerPrice ?? item.price ?? 0);
+      return sum + sellingPrice * item.quantity;
+    }, 0);
+
     await cart.save();
 
     return NextResponse.json(
-      {
-        products: cart.products,
-        totalPrice: cart.totalPrice,
-        message,
-      },
+      { products: cart.products, totalPrice: cart.totalPrice, message },
       { status: 201 },
     );
   } catch (err) {

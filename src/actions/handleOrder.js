@@ -55,30 +55,51 @@ export async function createOrderAction(orderData) {
 export async function fetchOrdersAction() {
   try {
     const token = await getOwner();
+
+    // FIX #3: guard before making the request
+    if (!token) {
+      return { status: 401, orders: [], message: "Not authenticated" };
+    }
+
     const res = await fetch(`${API_BASE}/api/orders`, {
       method: "GET",
       credentials: "include",
-      headers: {
-        Cookie: `cUser=${token}`,
-      },
+      headers: { Cookie: `cUser=${token}` },
       cache: "no-store",
     });
 
-    const data = await res.json();
-    const ordersArray = data.orders || [];
+    // FIX #2: parse JSON safely before checking status
+    let data;
+    try {
+      data = await res.json();
+    } catch {
+      return {
+        status: res.status,
+        orders: [],
+        message: "Invalid server response",
+      };
+    }
+
+    // FIX #1: handle non-OK HTTP responses explicitly
+    if (!res.ok) {
+      return {
+        status: res.status,
+        orders: [],
+        // FIX #4: surface the actual server message instead of hiding it
+        message:
+          data?.message || data?.error || `Request failed (${res.status})`,
+      };
+    }
+
     return {
       status: res.status,
-      orders: ordersArray,
+      orders: Array.isArray(data.orders) ? data.orders : [],
     };
   } catch (err) {
-    console.error("fetchMyOrdersAction error:", err);
-    return {
-      status: 500,
-      orders: [],
-    };
+    console.error("fetchOrdersAction error:", err);
+    return { status: 500, orders: [], message: "Network error" };
   }
 }
-
 // Cancel Order
 export async function cancelOrderAction(shipmentId) {
   try {
