@@ -11,7 +11,6 @@ import {
   TbChevronDown,
   TbChevronUp,
   TbMail,
-  TbMailForward,
   TbSearch,
   TbFilter,
   TbRefresh,
@@ -20,11 +19,13 @@ import {
   TbSend,
   TbUsers,
   TbLoader2,
+  TbArrowBackUp,
 } from "react-icons/tb";
 import {
   fetchOrdersAdminAction,
   updateOrderStatusAction,
   cancelShipmentAction,
+  restoreShipmentAction, // ← implement this server action (see note at bottom)
   sendOrderEmailAction,
 } from "@/actions/adminOrder";
 
@@ -32,6 +33,42 @@ import {
 // Constants
 // ─────────────────────────────────────────────
 const STATUSES = ["Pending", "Processing", "Shipped", "Delivered", "Cancelled"];
+const PAYMENT_METHODS = ["COD", "eSewa", "Khalti", "Online", "Card"];
+
+const PAYMENT_METHOD_CFG = {
+  COD: {
+    label: "Cash on Delivery",
+    pill: "bg-zinc-100 text-zinc-600 ring-zinc-200",
+  },
+  eSewa: {
+    label: "eSewa",
+    pill: "bg-green-50 text-green-600 ring-green-200",
+  },
+  Khalti: {
+    label: "Khalti",
+    pill: "bg-purple-50 text-purple-600 ring-purple-200",
+  },
+  Online: {
+    label: "Online",
+    pill: "bg-blue-50 text-blue-600 ring-blue-200",
+  },
+  Card: {
+    label: "Card",
+    pill: "bg-yellow-50 text-yellow-600 ring-yellow-200",
+  },
+};
+const PAYMENT_STATUS_CFG = {
+  Pending: {
+    pill: "bg-amber-50 text-amber-600 ring-amber-200",
+    dot: "#f59e0b",
+  },
+  Paid: {
+    pill: "bg-emerald-50 text-emerald-600 ring-emerald-200",
+    dot: "#10b981",
+  },
+  Failed: { pill: "bg-red-50 text-red-600 ring-red-200", dot: "#ef4444" },
+  Returned: { pill: "bg-rose-50 text-rose-500 ring-rose-200", dot: "#f43f5e" },
+};
 
 const STATUS_CFG = {
   Pending: {
@@ -108,7 +145,22 @@ const StatusPill = ({ status }) => {
   const cfg = STATUS_CFG[status] ?? STATUS_CFG.Pending;
   return (
     <span
-      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wide ring-1 ${cfg.pill}`}
+      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-medium uppercase tracking-wide ring-1 ${cfg.pill}`}
+    >
+      <span
+        className="w-1.5 h-1.5 rounded-full shrink-0"
+        style={{ backgroundColor: cfg.dot }}
+      />
+      {status || "Pending"}
+    </span>
+  );
+};
+
+const PaymentPill = ({ status }) => {
+  const cfg = PAYMENT_STATUS_CFG[status] ?? PAYMENT_STATUS_CFG.Pending;
+  return (
+    <span
+      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-medium uppercase tracking-wide ring-1 ${cfg.pill}`}
     >
       <span
         className="w-1.5 h-1.5 rounded-full shrink-0"
@@ -129,7 +181,6 @@ const Spinner = ({ size = "sm" }) => (
 // Email Modal
 // ─────────────────────────────────────────────
 const EmailModal = ({ target, onClose }) => {
-  // target = { type: "single" | "bulk", orderId?, userId?, label }
   const [templateIdx, setTemplateIdx] = useState(0);
   const [subject, setSubject] = useState(EMAIL_TEMPLATES[0].subject);
   const [message, setMessage] = useState(EMAIL_TEMPLATES[0].message);
@@ -154,11 +205,9 @@ const EmailModal = ({ target, onClose }) => {
         message,
       });
       if (status === 200 || status === 201) {
-        toast.success(data?.message || "Email sent successfully!");
+        toast.success(data?.message || "Email sent!");
         onClose();
-      } else {
-        toast.error(data?.message || "Failed to send email");
-      }
+      } else toast.error(data?.message || "Failed to send email");
     } catch {
       toast.error("Failed to send email");
     } finally {
@@ -168,22 +217,19 @@ const EmailModal = ({ target, onClose }) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      {/* backdrop */}
       <div
         className="absolute inset-0 bg-zinc-950/60 backdrop-blur-sm"
         onClick={onClose}
       />
-
       <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden">
-        {/* header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-zinc-100 bg-zinc-50">
           <div>
-            <p className="text-[10px] font-black uppercase tracking-[0.25em] text-zinc-500">
+            <p className="text-[10px] font-medium uppercase tracking-[0.25em] text-zinc-500">
               {target.type === "bulk"
                 ? "Bulk Email · All Customers"
                 : `Email · Order #${target.orderId?.slice(-8).toUpperCase()}`}
             </p>
-            <p className="text-sm font-bold text-zinc-800 mt-0.5">
+            <p className="text-sm font-medium text-zinc-800 mt-0.5">
               {target.label}
             </p>
           </div>
@@ -196,9 +242,8 @@ const EmailModal = ({ target, onClose }) => {
         </div>
 
         <div className="p-5 space-y-4">
-          {/* template picker */}
           <div>
-            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 mb-2">
+            <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-zinc-500 mb-2">
               Quick Templates
             </p>
             <div className="flex flex-wrap gap-2">
@@ -206,21 +251,15 @@ const EmailModal = ({ target, onClose }) => {
                 <button
                   key={t.label}
                   onClick={() => applyTemplate(i)}
-                  className={`px-2.5 py-1 rounded-lg text-[10px] font-bold border transition ${
-                    templateIdx === i
-                      ? "bg-zinc-900 text-white border-zinc-900"
-                      : "bg-white text-zinc-600 border-zinc-200 hover:border-zinc-400"
-                  }`}
+                  className={`px-2.5 py-1 rounded-lg text-[10px] font-medium border transition ${templateIdx === i ? "bg-zinc-900 text-white border-zinc-900" : "bg-white text-zinc-600 border-zinc-200 hover:border-zinc-400"}`}
                 >
                   {t.label}
                 </button>
               ))}
             </div>
           </div>
-
-          {/* subject */}
           <div>
-            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 mb-1.5">
+            <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-zinc-500 mb-1.5">
               Subject
             </p>
             <input
@@ -231,10 +270,8 @@ const EmailModal = ({ target, onClose }) => {
               className="w-full px-3 py-2 rounded-xl border border-zinc-200 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-900 bg-zinc-50"
             />
           </div>
-
-          {/* message */}
           <div>
-            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 mb-1.5">
+            <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-zinc-500 mb-1.5">
               Message
             </p>
             <textarea
@@ -247,7 +284,6 @@ const EmailModal = ({ target, onClose }) => {
           </div>
         </div>
 
-        {/* footer */}
         <div className="flex items-center justify-between px-5 py-4 border-t border-zinc-100 bg-zinc-50">
           <p className="text-[10px] text-zinc-400 font-medium">
             {target.type === "bulk"
@@ -257,14 +293,14 @@ const EmailModal = ({ target, onClose }) => {
           <div className="flex items-center gap-2">
             <button
               onClick={onClose}
-              className="px-4 py-2 text-xs font-bold text-zinc-500 hover:text-zinc-800 transition"
+              className="px-4 py-2 text-xs font-medium text-zinc-500 hover:text-zinc-800 transition"
             >
               Cancel
             </button>
             <button
               onClick={handleSend}
               disabled={sending}
-              className="flex items-center gap-2 px-4 py-2 bg-zinc-900 text-white rounded-xl text-xs font-bold hover:bg-zinc-700 transition disabled:opacity-50"
+              className="flex items-center gap-2 px-4 py-2 bg-zinc-900 text-white rounded-xl text-xs font-medium hover:bg-zinc-700 transition disabled:opacity-50"
             >
               {sending ? <Spinner /> : <TbSend className="w-3.5 h-3.5" />}
               {sending ? "Sending..." : "Send Email"}
@@ -277,47 +313,223 @@ const EmailModal = ({ target, onClose }) => {
 };
 
 // ─────────────────────────────────────────────
-// Shipment Row (inside expanded order)
+// Payment Controls
+// Extracted as its own component so it works identically on both
+// active AND cancelled shipments — payment is always manually editable.
+// ─────────────────────────────────────────────
+const PaymentControls = ({
+  orderId,
+  shipmentId,
+  initialStatus,
+  initialMethod,
+}) => {
+  const [paymentStatus, setPaymentStatus] = useState(
+    initialStatus || "Pending",
+  );
+  const [paymentMethod, setPaymentMethod] = useState(initialMethod || "COD");
+  const [updatingPayment, setUpdatingPayment] = useState(false);
+
+  // Sends only paymentStatus — does NOT touch paymentMethod
+  const handlePaymentStatusUpdate = async (newPaymentStatus) => {
+    if (newPaymentStatus === paymentStatus) return;
+    setUpdatingPayment(true);
+    try {
+      const { status, data } = await updateOrderStatusAction({
+        orderId,
+        shipmentId,
+        paymentStatus: newPaymentStatus,
+      });
+      if (status === 200 || status === 201) {
+        setPaymentStatus(newPaymentStatus);
+        toast.success(`Payment marked as ${newPaymentStatus}`);
+      } else {
+        toast.error(data?.message || "Failed to update payment status");
+      }
+    } catch {
+      toast.error("Failed to update payment status");
+    } finally {
+      setUpdatingPayment(false);
+    }
+  };
+
+  // Sends only paymentMethod — does NOT touch paymentStatus
+  const handlePaymentMethodUpdate = async (newPaymentMethod) => {
+    if (newPaymentMethod === paymentMethod) return;
+    setUpdatingPayment(true);
+    try {
+      const { status, data } = await updateOrderStatusAction({
+        orderId,
+        shipmentId,
+        paymentMethod: newPaymentMethod,
+      });
+      if (status === 200 || status === 201) {
+        setPaymentMethod(newPaymentMethod);
+        toast.success("Payment method updated");
+      } else {
+        toast.error(data?.message || "Failed to update payment method");
+      }
+    } catch {
+      toast.error("Failed to update payment method");
+    } finally {
+      setUpdatingPayment(false);
+    }
+  };
+
+  return (
+    <div className="flex items-center justify-between flex-wrap gap-3 px-3 py-2.5 rounded-lg bg-zinc-50 border border-zinc-100">
+      {/* Current state */}
+      <div className="flex items-center gap-2 flex-wrap">
+        <p className="text-[9px] font-medium uppercase tracking-[0.2em] text-zinc-400">
+          Payment
+        </p>
+        <PaymentPill status={paymentStatus} />
+        <span
+          className={`text-[10px] font-medium px-2 py-0.5 rounded ring-1 ${PAYMENT_METHOD_CFG[paymentMethod]?.pill ?? "bg-zinc-100 text-zinc-600 ring-zinc-200"}`}
+        >
+          {PAYMENT_METHOD_CFG[paymentMethod]?.label ?? paymentMethod}
+        </span>
+        {updatingPayment && <Spinner />}
+      </div>
+
+      {/* Controls — always editable, even on cancelled shipments */}
+      <div className="flex items-center gap-2 flex-wrap">
+        <select
+          value={paymentMethod}
+          disabled={updatingPayment}
+          onChange={(e) => handlePaymentMethodUpdate(e.target.value)}
+          className="text-[11px] font-medium border border-zinc-200 rounded-lg px-2 py-1 bg-white focus:outline-none focus:ring-2 focus:ring-zinc-900 disabled:opacity-50 cursor-pointer"
+        >
+          {PAYMENT_METHODS.map((m) => (
+            <option key={m} value={m}>
+              {PAYMENT_METHOD_CFG[m]?.label ?? m}
+            </option>
+          ))}
+        </select>
+
+        {/* Dynamic buttons — hides current status, shows all others */}
+        {paymentStatus !== "Pending" && (
+          <button
+            onClick={() => handlePaymentStatusUpdate("Pending")}
+            disabled={updatingPayment}
+            className="flex items-center gap-1.5 px-2.5 py-1 bg-amber-50 text-amber-600 rounded-lg text-[10px] font-medium hover:bg-amber-100 transition disabled:opacity-50 ring-1 ring-amber-200"
+          >
+            <TbClockHour4 className="w-3 h-3" /> Pending
+          </button>
+        )}
+        {paymentStatus !== "Paid" && (
+          <button
+            onClick={() => handlePaymentStatusUpdate("Paid")}
+            disabled={updatingPayment}
+            className="flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 text-emerald-600 rounded-lg text-[10px] font-medium hover:bg-emerald-100 transition disabled:opacity-50 ring-1 ring-emerald-200"
+          >
+            <TbCircleCheck className="w-3 h-3" /> Mark Paid
+          </button>
+        )}
+        {paymentStatus !== "Failed" && (
+          <button
+            onClick={() => handlePaymentStatusUpdate("Failed")}
+            disabled={updatingPayment}
+            className="flex items-center gap-1.5 px-2.5 py-1 bg-red-50 text-red-600 rounded-lg text-[10px] font-medium hover:bg-red-100 transition disabled:opacity-50 ring-1 ring-red-200"
+          >
+            <TbCircleX className="w-3 h-3" /> Failed
+          </button>
+        )}
+        {paymentStatus !== "Returned" && (
+          <button
+            onClick={() => handlePaymentStatusUpdate("Returned")}
+            disabled={updatingPayment}
+            className="flex items-center gap-1.5 px-2.5 py-1 bg-rose-50 text-rose-500 rounded-lg text-[10px] font-medium hover:bg-rose-100 transition disabled:opacity-50 ring-1 ring-rose-200"
+          >
+            <TbCircleX className="w-3 h-3" /> Returned
+          </button>
+        )}
+      </div>
+    </div>
+  );
+};
+
+// ─────────────────────────────────────────────
+// Shipment Row
 // ─────────────────────────────────────────────
 const ShipmentRow = ({
   shipment,
   orderId,
   onStatusChange,
   onCancel,
+  onRestore,
   isCancelled,
 }) => {
   const [updating, setUpdating] = useState(false);
   const [cancelling, setCancelling] = useState(false);
+  const [restoring, setRestoring] = useState(false);
+  const [localStatus, setLocalStatus] = useState(shipment.status || "Pending");
 
   const handleStatus = async (newStatus) => {
+    if (newStatus === localStatus) return;
     setUpdating(true);
-    await onStatusChange(orderId, shipment._id, newStatus);
-    setUpdating(false);
+    try {
+      const { status, data } = await updateOrderStatusAction({
+        orderId,
+        shipmentId: shipment._id,
+        status: newStatus,
+      });
+      if (status === 200 || status === 201) {
+        setLocalStatus(newStatus);
+        toast.success(`Shipment marked as ${newStatus}`);
+        onStatusChange?.(orderId, shipment._id, newStatus);
+      } else {
+        toast.error(data?.message || "Failed to update status");
+      }
+    } catch {
+      toast.error("Failed to update status");
+    } finally {
+      setUpdating(false);
+    }
   };
 
   const handleCancel = async () => {
-    if (!window.confirm("Cancel this shipment? This cannot be undone.")) return;
+    if (
+      !window.confirm(
+        "Cancel this shipment?\n\nPayment status will NOT be changed automatically — update it manually after cancellation.",
+      )
+    )
+      return;
     setCancelling(true);
     await onCancel(orderId, shipment._id);
     setCancelling(false);
   };
 
+  const handleRestore = async () => {
+    if (
+      !window.confirm(
+        "Restore this shipment to active? It will return to Pending status.",
+      )
+    )
+      return;
+    setRestoring(true);
+    await onRestore(orderId, shipment._id);
+    setRestoring(false);
+  };
+
   return (
     <div
-      className={`rounded-xl border p-4 space-y-3 ${isCancelled ? "border-zinc-100 bg-zinc-50 opacity-70" : "border-zinc-200 bg-white"}`}
+      className={`rounded-xl border p-4 space-y-3 ${isCancelled ? "border-zinc-100 bg-zinc-50/80" : "border-zinc-200 bg-white"}`}
     >
-      {/* shipment header */}
+      {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-2">
         <div className="flex items-center gap-3">
-          <span className="font-mono text-[10px] font-bold text-zinc-400">
+          <span className="font-mono text-[10px] font-medium text-zinc-400">
             #{shipment._id?.slice(-8).toUpperCase()}
           </span>
-          <StatusPill
-            status={isCancelled ? "Cancelled" : shipment.status || "Pending"}
-          />
+          <StatusPill status={isCancelled ? "Cancelled" : localStatus} />
+          {isCancelled && (
+            <span className="text-[9px] font-medium text-zinc-400 italic">
+              Payment still editable
+            </span>
+          )}
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-[11px] font-black text-zinc-700">
+          <span className="text-[11px] font-medium text-zinc-700">
             Rs.{(shipment.shipmentTotal || 0).toLocaleString()}
           </span>
           <span className="text-[10px] text-zinc-400">
@@ -326,7 +538,34 @@ const ShipmentRow = ({
         </div>
       </div>
 
-      {/* products in shipment */}
+      {/* Customer */}
+      {shipment.customer && (
+        <div className="flex items-center gap-4 px-3 py-2 rounded-lg bg-zinc-50 border border-zinc-100">
+          <div className="w-7 h-7 rounded-full bg-zinc-200 flex items-center justify-center shrink-0 text-[11px] font-medium text-zinc-600">
+            {(shipment.customer.fullName || "?")[0].toUpperCase()}
+          </div>
+          <div className="min-w-0">
+            <p className="text-[12px] font-medium text-zinc-800">
+              {shipment.customer.fullName || "—"}
+            </p>
+            <p className="text-[10px] text-zinc-400">
+              {shipment.customer.phone || ""}
+              {shipment.customer.phone && shipment.customer.email ? " · " : ""}
+              {shipment.customer.email || ""}
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Payment — always editable, regardless of shipment cancellation */}
+      <PaymentControls
+        orderId={orderId}
+        shipmentId={shipment._id}
+        initialStatus={shipment.payment?.status}
+        initialMethod={shipment.payment?.method}
+      />
+
+      {/* Products */}
       <div className="flex flex-wrap gap-2">
         {(shipment.products || []).map((p, i) => (
           <div
@@ -341,7 +580,7 @@ const ShipmentRow = ({
               />
             )}
             <div>
-              <p className="text-[11px] font-semibold text-zinc-700 max-w-[140px] truncate">
+              <p className="text-[11px] font-medium text-zinc-700 max-w-[140px] truncate">
                 {p.name}
               </p>
               <p className="text-[9px] text-zinc-400">
@@ -354,17 +593,70 @@ const ShipmentRow = ({
         ))}
       </div>
 
-      {/* actions — only on active shipments */}
-      {!isCancelled && (
-        <div className="flex items-center gap-2 flex-wrap pt-1">
-          {/* status select */}
-          <div className="flex items-center gap-1.5">
+      {/* Actions */}
+      {!isCancelled ? (
+        <div className="space-y-2 pt-1">
+          <div className="flex items-center gap-2 flex-wrap">
             {updating && <Spinner />}
+
+            {localStatus !== "Pending" &&
+              localStatus !== "Processing" &&
+              localStatus !== "Shipped" &&
+              localStatus !== "Delivered" && (
+                <button
+                  onClick={() => handleStatus("Pending")}
+                  disabled={updating}
+                  className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-50 text-amber-600 rounded-lg text-[11px] font-medium hover:bg-amber-100 transition disabled:opacity-50 ring-1 ring-amber-200"
+                >
+                  <TbClockHour4 className="w-3.5 h-3.5" /> Mark Confirmed
+                </button>
+              )}
+            {localStatus === "Pending" && (
+              <button
+                onClick={() => handleStatus("Processing")}
+                disabled={updating}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-orange-50 text-orange-600 rounded-lg text-[11px] font-medium hover:bg-orange-100 transition disabled:opacity-50 ring-1 ring-orange-200"
+              >
+                <TbPackage className="w-3.5 h-3.5" /> Mark Processing
+              </button>
+            )}
+            {(localStatus === "Pending" || localStatus === "Processing") && (
+              <button
+                onClick={() => handleStatus("Shipped")}
+                disabled={updating}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-600 rounded-lg text-[11px] font-medium hover:bg-blue-100 transition disabled:opacity-50 ring-1 ring-blue-200"
+              >
+                <TbTruckDelivery className="w-3.5 h-3.5" /> Mark Shipped
+              </button>
+            )}
+            {localStatus !== "Delivered" && (
+              <button
+                onClick={() => handleStatus("Delivered")}
+                disabled={updating}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 text-emerald-600 rounded-lg text-[11px] font-medium hover:bg-emerald-100 transition disabled:opacity-50 ring-1 ring-emerald-200"
+              >
+                <TbCircleCheck className="w-3.5 h-3.5" /> Mark Delivered
+              </button>
+            )}
+            <button
+              onClick={handleCancel}
+              disabled={cancelling}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-rose-50 text-rose-500 rounded-lg text-[11px] font-medium hover:bg-rose-100 transition disabled:opacity-50 ring-1 ring-rose-200 ml-auto"
+            >
+              {cancelling ? <Spinner /> : <TbCircleX className="w-3.5 h-3.5" />}
+              Cancel Shipment
+            </button>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <p className="text-[9px] font-medium uppercase tracking-[0.18em] text-zinc-400">
+              Or set directly:
+            </p>
             <select
-              value={shipment.status || "Pending"}
+              value={localStatus}
               onChange={(e) => handleStatus(e.target.value)}
               disabled={updating}
-              className="text-[11px] font-bold border border-zinc-200 rounded-lg px-2.5 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-zinc-900 disabled:opacity-50 cursor-pointer"
+              className="text-[11px] font-medium border border-zinc-200 rounded-lg px-2.5 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-zinc-900 disabled:opacity-50 cursor-pointer"
             >
               {STATUSES.filter((s) => s !== "Cancelled").map((s) => (
                 <option key={s} value={s}>
@@ -373,38 +665,25 @@ const ShipmentRow = ({
               ))}
             </select>
           </div>
-
-          {/* quick action buttons */}
-          {shipment.status !== "Delivered" && (
-            <button
-              onClick={() => handleStatus("Delivered")}
-              disabled={updating}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 text-emerald-600 rounded-lg text-[11px] font-bold hover:bg-emerald-100 transition disabled:opacity-50 ring-1 ring-emerald-200"
-            >
-              <TbCircleCheck className="w-3.5 h-3.5" />
-              Mark Delivered
-            </button>
-          )}
-          {shipment.status !== "Shipped" && shipment.status !== "Delivered" && (
-            <button
-              onClick={() => handleStatus("Shipped")}
-              disabled={updating}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-600 rounded-lg text-[11px] font-bold hover:bg-blue-100 transition disabled:opacity-50 ring-1 ring-blue-200"
-            >
-              <TbTruckDelivery className="w-3.5 h-3.5" />
-              Mark Shipped
-            </button>
-          )}
-
-          {/* cancel */}
+        </div>
+      ) : (
+        /* Cancelled shipment footer */
+        <div className="pt-1 flex items-center gap-3 flex-wrap">
           <button
-            onClick={handleCancel}
-            disabled={cancelling}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-rose-50 text-rose-500 rounded-lg text-[11px] font-bold hover:bg-rose-100 transition disabled:opacity-50 ring-1 ring-rose-200 ml-auto"
+            onClick={handleRestore}
+            disabled={restoring}
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-zinc-100 text-zinc-700 rounded-lg text-[11px] font-medium hover:bg-zinc-200 transition disabled:opacity-50 ring-1 ring-zinc-200"
           >
-            {cancelling ? <Spinner /> : <TbCircleX className="w-3.5 h-3.5" />}
-            Cancel
+            {restoring ? (
+              <Spinner />
+            ) : (
+              <TbArrowBackUp className="w-3.5 h-3.5" />
+            )}
+            Restore Shipment
           </button>
+          <p className="text-[10px] text-zinc-400 font-medium">
+            Restores to Pending · Update payment above manually
+          </p>
         </div>
       )}
     </div>
@@ -414,7 +693,7 @@ const ShipmentRow = ({
 // ─────────────────────────────────────────────
 // Order Row
 // ─────────────────────────────────────────────
-const OrderRow = ({ order, onStatusChange, onCancel, onEmail }) => {
+const OrderRow = ({ order, onStatusChange, onCancel, onRestore, onEmail }) => {
   const [expanded, setExpanded] = useState(false);
 
   const allShipments = order.shipments || [];
@@ -425,7 +704,6 @@ const OrderRow = ({ order, onStatusChange, onCancel, onEmail }) => {
     0,
   );
 
-  // derive display status from individual shipments
   const activeStatuses = allShipments.map((s) => s.status || "Pending");
   const hasActive = allShipments.length > 0;
   const displayStatus = !hasActive
@@ -440,46 +718,79 @@ const OrderRow = ({ order, onStatusChange, onCancel, onEmail }) => {
 
   return (
     <>
-      {/* ── Main row ── */}
       <tr
         className="border-b border-zinc-100 hover:bg-zinc-50/60 transition-colors cursor-pointer"
         onClick={() => setExpanded((v) => !v)}
       >
-        {/* Order ID */}
         <td className="px-5 py-4">
-          <span className="font-mono text-[11px] font-bold text-zinc-400">
+          <span className="font-mono text-[11px] font-medium text-zinc-400">
             #{order._id?.slice(-8).toUpperCase()}
           </span>
         </td>
 
-        {/* Customer */}
-        <td className="px-5 py-4 text-[12px] font-semibold text-zinc-700">
-          {order.user?.name || `User …${String(order.userId || "").slice(-6)}`}
+        <td className="px-5 py-4">
+          {(() => {
+            const customer = (
+              order.shipments?.[0] || order.cancelledProducts?.[0]
+            )?.customer;
+            if (!customer)
+              return (
+                <span className="text-[12px] text-zinc-400">
+                  User …{String(order.userId || "").slice(-6)}
+                </span>
+              );
+            return (
+              <div>
+                <p className="text-[12px] font-medium text-zinc-800">
+                  {customer.fullName || "—"}
+                </p>
+                <p className="text-[10px] text-zinc-400">
+                  {customer.phone || ""}
+                </p>
+                <p className="text-[10px] text-zinc-400 truncate max-w-[160px]">
+                  {customer.email || ""}
+                </p>
+              </div>
+            );
+          })()}
         </td>
 
-        {/* Shipments */}
         <td className="px-5 py-4">
           <div className="flex items-center gap-1.5">
             <span className="text-[12px] text-zinc-600">{totalShipments}</span>
             {cancelledShipments.length > 0 && (
-              <span className="text-[10px] px-1.5 py-0.5 rounded bg-rose-50 text-rose-500 ring-1 ring-rose-200 font-bold">
+              <span className="text-[10px] px-1.5 py-0.5 rounded bg-rose-50 text-rose-500 ring-1 ring-rose-200 font-medium">
                 {cancelledShipments.length} cancelled
               </span>
             )}
           </div>
         </td>
 
-        {/* Total */}
-        <td className="px-5 py-4 text-[12px] font-black text-zinc-900">
+        <td className="px-5 py-4 text-[12px] font-medium text-zinc-900">
           Rs.{totalRevenue.toLocaleString()}
         </td>
 
-        {/* Status */}
         <td className="px-5 py-4">
-          <StatusPill status={displayStatus} />
+          <div className="flex flex-col gap-1.5">
+            <StatusPill status={displayStatus} />
+            {(() => {
+              const pay =
+                allShipments[0]?.payment || cancelledShipments[0]?.payment;
+              if (!pay) return null;
+              return (
+                <div className="flex items-center gap-1.5">
+                  <PaymentPill status={pay.status || "Pending"} />
+                  <span
+                    className={`text-[9px] font-medium px-1.5 py-0.5 rounded ring-1 ${PAYMENT_METHOD_CFG[pay.method]?.pill ?? "bg-zinc-100 text-zinc-600 ring-zinc-200"}`}
+                  >
+                    {PAYMENT_METHOD_CFG[pay.method]?.label ?? pay.method ?? "—"}
+                  </span>
+                </div>
+              );
+            })()}
+          </div>
         </td>
 
-        {/* Date */}
         <td className="px-5 py-4">
           <p className="text-[11px] text-zinc-500">
             {fmtDate(order.createdAt)}
@@ -489,21 +800,24 @@ const OrderRow = ({ order, onStatusChange, onCancel, onEmail }) => {
           </p>
         </td>
 
-        {/* Actions */}
         <td className="px-5 py-4" onClick={(e) => e.stopPropagation()}>
           <div className="flex items-center gap-2">
             <button
-              onClick={() =>
+              onClick={() => {
+                const customer = (
+                  order.shipments?.[0] || order.cancelledProducts?.[0]
+                )?.customer;
                 onEmail({
                   type: "single",
                   orderId: order._id,
-                  label: `User …${String(order.userId || "").slice(-6)}`,
-                })
-              }
-              className="flex items-center gap-1 px-2.5 py-1.5 bg-zinc-100 text-zinc-600 rounded-lg text-[10px] font-bold hover:bg-zinc-900 hover:text-white transition"
+                  label:
+                    customer?.fullName ||
+                    `User …${String(order.userId || "").slice(-6)}`,
+                });
+              }}
+              className="flex items-center gap-1 px-2.5 py-1.5 bg-zinc-100 text-zinc-600 rounded-lg text-[10px] font-medium hover:bg-zinc-900 hover:text-white transition"
             >
-              <TbMail className="w-3.5 h-3.5" />
-              Email
+              <TbMail className="w-3.5 h-3.5" /> Email
             </button>
             <button
               onClick={() => setExpanded((v) => !v)}
@@ -519,15 +833,13 @@ const OrderRow = ({ order, onStatusChange, onCancel, onEmail }) => {
         </td>
       </tr>
 
-      {/* ── Expanded shipments ── */}
       {expanded && (
         <tr className="bg-zinc-50/50">
           <td colSpan={7} className="px-5 pb-5 pt-2">
             <div className="space-y-2">
-              <p className="text-[9px] font-black uppercase tracking-[0.25em] text-zinc-400 mb-3">
+              <p className="text-[9px] font-medium uppercase tracking-[0.25em] text-zinc-400 mb-3">
                 Active Shipments ({allShipments.length})
               </p>
-
               {allShipments.length === 0 && (
                 <p className="text-[11px] text-zinc-400 italic">
                   No active shipments
@@ -540,13 +852,14 @@ const OrderRow = ({ order, onStatusChange, onCancel, onEmail }) => {
                   orderId={order._id}
                   onStatusChange={onStatusChange}
                   onCancel={onCancel}
+                  onRestore={onRestore}
                   isCancelled={false}
                 />
               ))}
 
               {cancelledShipments.length > 0 && (
                 <>
-                  <p className="text-[9px] font-black uppercase tracking-[0.25em] text-zinc-400 mt-4 mb-2">
+                  <p className="text-[9px] font-medium uppercase tracking-[0.25em] text-zinc-400 mt-4 mb-2">
                     Cancelled Shipments ({cancelledShipments.length})
                   </p>
                   {cancelledShipments.map((sh) => (
@@ -556,6 +869,7 @@ const OrderRow = ({ order, onStatusChange, onCancel, onEmail }) => {
                       orderId={order._id}
                       onStatusChange={onStatusChange}
                       onCancel={onCancel}
+                      onRestore={onRestore}
                       isCancelled={true}
                     />
                   ))}
@@ -578,9 +892,8 @@ const OrderManagement = () => {
   const [error, setError] = useState(null);
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState("All");
-  const [emailModal, setEmailModal] = useState(null); // { type, orderId, label } | null
+  const [emailModal, setEmailModal] = useState(null);
 
-  // ── fetch ──
   const loadOrders = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -598,40 +911,21 @@ const OrderManagement = () => {
     loadOrders();
   }, [loadOrders]);
 
-  // ── update shipment status ──
-  const handleStatusChange = useCallback(
-    async (orderId, shipmentId, newStatus) => {
-      try {
-        const { status, data } = await updateOrderStatusAction({
-          orderId,
-          shipmentId,
-          status: newStatus,
-        });
-        if (status === 200 || status === 201) {
-          toast.success(`Status updated to ${newStatus}`);
-          // optimistic local update
-          setOrders((prev) =>
-            prev.map((o) => {
-              if (o._id !== orderId) return o;
-              return {
-                ...o,
-                shipments: (o.shipments || []).map((sh) =>
-                  sh._id === shipmentId ? { ...sh, status: newStatus } : sh,
-                ),
-              };
-            }),
-          );
-        } else {
-          toast.error(data?.message || "Failed to update status");
-        }
-      } catch {
-        toast.error("Failed to update status");
-      }
-    },
-    [],
-  );
+  const handleStatusChange = useCallback((orderId, shipmentId, newStatus) => {
+    setOrders((prev) =>
+      prev.map((o) => {
+        if (o._id !== orderId) return o;
+        return {
+          ...o,
+          shipments: (o.shipments || []).map((sh) =>
+            sh._id === shipmentId ? { ...sh, status: newStatus } : sh,
+          ),
+        };
+      }),
+    );
+  }, []);
 
-  // ── cancel shipment ──
+  // Moves shipment → cancelledProducts. Payment is NOT auto-changed — admin does it manually.
   const handleCancel = useCallback(async (orderId, shipmentId) => {
     try {
       const { status, data } = await cancelShipmentAction({
@@ -639,8 +933,7 @@ const OrderManagement = () => {
         shipmentId,
       });
       if (status === 200 || status === 201) {
-        toast.success("Shipment cancelled");
-        // optimistic: move shipment from shipments[] to cancelledProducts[]
+        toast.success("Shipment cancelled · Update payment manually if needed");
         setOrders((prev) =>
           prev.map((o) => {
             if (o._id !== orderId) return o;
@@ -668,7 +961,42 @@ const OrderManagement = () => {
     }
   }, []);
 
-  // ── stats from live orders state ──
+  // Moves shipment back from cancelledProducts → shipments as Pending
+  const handleRestore = useCallback(async (orderId, shipmentId) => {
+    try {
+      const { status, data } = await restoreShipmentAction({
+        orderId,
+        shipmentId,
+      });
+      if (status === 200 || status === 201) {
+        toast.success("Shipment restored to Pending");
+        setOrders((prev) =>
+          prev.map((o) => {
+            if (o._id !== orderId) return o;
+            const target = (o.cancelledProducts || []).find(
+              (sh) => sh._id === shipmentId,
+            );
+            if (!target) return o;
+            return {
+              ...o,
+              cancelledProducts: (o.cancelledProducts || []).filter(
+                (sh) => sh._id !== shipmentId,
+              ),
+              shipments: [
+                ...(o.shipments || []),
+                { ...target, status: "Pending" },
+              ],
+            };
+          }),
+        );
+      } else {
+        toast.error(data?.message || "Failed to restore shipment");
+      }
+    } catch {
+      toast.error("Failed to restore shipment");
+    }
+  }, []);
+
   const stats = useMemo(() => {
     let pending = 0,
       shipped = 0,
@@ -695,37 +1023,49 @@ const OrderManagement = () => {
     return { totalShipments, pending, shipped, delivered, cancelled, revenue };
   }, [orders]);
 
-  // ── filter + search ──
   const filtered = useMemo(() => {
+    const q = search.toLowerCase().trim();
     return orders.filter((o) => {
-      const matchesSearch =
-        !search ||
-        o._id.toLowerCase().includes(search.toLowerCase()) ||
-        String(o.userId || "")
-          .toLowerCase()
-          .includes(search.toLowerCase());
-
-      if (!matchesSearch) return false;
+      if (q) {
+        const customerFields = (o.shipments || [])
+          .flatMap((sh) => [
+            sh.customer?.fullName || "",
+            sh.customer?.phone || "",
+            sh.customer?.email || "",
+          ])
+          .concat(
+            (o.cancelledProducts || []).flatMap((sh) => [
+              sh.customer?.fullName || "",
+              sh.customer?.phone || "",
+              sh.customer?.email || "",
+            ]),
+          );
+        const matchesSearch =
+          o._id.toLowerCase().includes(q) ||
+          String(o.userId || "")
+            .toLowerCase()
+            .includes(q) ||
+          customerFields.some((f) => f.toLowerCase().includes(q));
+        if (!matchesSearch) return false;
+      }
       if (filterStatus === "All") return true;
-      if (filterStatus === "Cancelled") {
+      if (filterStatus === "Cancelled")
         return (
           (o.shipments || []).length === 0 ||
           (o.cancelledProducts || []).length > 0
         );
-      }
       return (o.shipments || []).some(
         (sh) => (sh.status || "Pending") === filterStatus,
       );
     });
   }, [orders, search, filterStatus]);
 
-  // ── loading / error ──
   if (loading)
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="flex flex-col items-center gap-3">
           <div className="w-7 h-7 rounded-full border-2 border-zinc-300 border-t-zinc-900 animate-spin" />
-          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400">
+          <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-zinc-400">
             Loading Orders
           </p>
         </div>
@@ -737,10 +1077,10 @@ const OrderManagement = () => {
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="text-center space-y-3">
           <TbAlertTriangle className="w-10 h-10 text-rose-400 mx-auto" />
-          <p className="text-sm font-bold text-zinc-700">{error}</p>
+          <p className="text-sm font-medium text-zinc-700">{error}</p>
           <button
             onClick={loadOrders}
-            className="flex items-center gap-2 mx-auto text-xs font-bold text-zinc-500 hover:text-zinc-900 transition"
+            className="flex items-center gap-2 mx-auto text-xs font-medium text-zinc-500 hover:text-zinc-900 transition"
           >
             <TbRefresh className="w-4 h-4" /> Retry
           </button>
@@ -750,45 +1090,41 @@ const OrderManagement = () => {
 
   return (
     <>
-      {/* ── Email Modal ── */}
       {emailModal && (
         <EmailModal target={emailModal} onClose={() => setEmailModal(null)} />
       )}
 
       <div className="min-h-screen bg-zinc-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-6">
-          {/* ── Header ── */}
+        <div className="container mx-auto px-4 sm:px-6 py-8 space-y-6">
+          {/* Header */}
           <div className="flex items-end justify-between flex-wrap gap-4">
             <div>
-              <p className="text-[9px] font-black uppercase tracking-[0.35em] text-zinc-400 mb-1">
+              <p className="text-[9px] font-medium uppercase tracking-[0.35em] text-zinc-400 mb-1">
                 RabbitHub · Admin
               </p>
-              <h1 className="text-[22px] font-black text-zinc-900 tracking-tight leading-none">
+              <h1 className="text-[22px] font-medium text-zinc-900 tracking-tight leading-none">
                 Order Management
               </h1>
             </div>
             <div className="flex items-center gap-2">
-              {/* Bulk email */}
               <button
                 onClick={() =>
                   setEmailModal({ type: "bulk", label: "All Customers" })
                 }
-                className="flex items-center gap-2 px-4 py-2 bg-white border border-zinc-200 rounded-xl text-xs font-bold text-zinc-600 hover:bg-zinc-900 hover:text-white hover:border-zinc-900 transition"
+                className="flex items-center gap-2 px-4 py-2 bg-white border border-zinc-200 rounded-xl text-xs font-medium text-zinc-600 hover:bg-zinc-900 hover:text-white hover:border-zinc-900 transition"
               >
-                <TbUsers className="w-4 h-4" />
-                Email All
+                <TbUsers className="w-4 h-4" /> Email All
               </button>
               <button
                 onClick={loadOrders}
-                className="flex items-center gap-2 px-4 py-2 bg-white border border-zinc-200 rounded-xl text-xs font-bold text-zinc-600 hover:bg-zinc-100 transition"
+                className="flex items-center gap-2 px-4 py-2 bg-white border border-zinc-200 rounded-xl text-xs font-medium text-zinc-600 hover:bg-zinc-100 transition"
               >
-                <TbRefresh className="w-4 h-4" />
-                Refresh
+                <TbRefresh className="w-4 h-4" /> Refresh
               </button>
             </div>
           </div>
 
-          {/* ── KPI tiles ── */}
+          {/* KPI tiles */}
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
             {[
               {
@@ -844,10 +1180,10 @@ const OrderManagement = () => {
                   <Icon className="w-4 h-4" />
                 </div>
                 <div>
-                  <p className="text-[9px] font-black uppercase tracking-[0.18em] text-zinc-400">
+                  <p className="text-[9px] font-medium uppercase tracking-[0.18em] text-zinc-400">
                     {label}
                   </p>
-                  <p className="text-lg font-black text-zinc-900 leading-none mt-0.5">
+                  <p className="text-lg font-medium text-zinc-900 leading-none mt-0.5">
                     {value}
                   </p>
                 </div>
@@ -855,44 +1191,36 @@ const OrderManagement = () => {
             ))}
           </div>
 
-          {/* ── Filters ── */}
+          {/* Filters */}
           <div className="flex items-center gap-3 flex-wrap">
-            {/* search */}
             <div className="relative flex-1 min-w-[200px] max-w-xs">
               <TbSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400" />
               <input
                 type="text"
-                placeholder="Search by order ID or user…"
+                placeholder="Search by order ID, name, phone or email…"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="w-full pl-9 pr-3 py-2 rounded-xl border border-zinc-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-zinc-900"
               />
             </div>
-
-            {/* status filter pills */}
             <div className="flex items-center gap-1.5 flex-wrap">
               <TbFilter className="w-4 h-4 text-zinc-400" />
               {["All", ...STATUSES].map((s) => (
                 <button
                   key={s}
                   onClick={() => setFilterStatus(s)}
-                  className={`px-3 py-1.5 rounded-xl text-[11px] font-bold transition ${
-                    filterStatus === s
-                      ? "bg-zinc-900 text-white"
-                      : "bg-white text-zinc-500 border border-zinc-200 hover:border-zinc-400"
-                  }`}
+                  className={`px-3 py-1.5 rounded-xl text-[11px] font-medium transition ${filterStatus === s ? "bg-zinc-900 text-white" : "bg-white text-zinc-500 border border-zinc-200 hover:border-zinc-400"}`}
                 >
                   {s}
                 </button>
               ))}
             </div>
-
             <p className="ml-auto text-[11px] text-zinc-400 font-medium">
               {filtered.length} of {orders.length} orders
             </p>
           </div>
 
-          {/* ── Table ── */}
+          {/* Table */}
           <div className="bg-white rounded-2xl border border-zinc-200 overflow-hidden">
             <div className="overflow-x-auto">
               <table className="min-w-full">
@@ -909,7 +1237,7 @@ const OrderManagement = () => {
                     ].map((h) => (
                       <th
                         key={h}
-                        className="text-left px-5 py-3.5 text-[9px] font-black uppercase tracking-[0.22em] text-zinc-400 whitespace-nowrap"
+                        className="text-left px-5 py-3.5 text-[9px] font-medium uppercase tracking-[0.22em] text-zinc-400 whitespace-nowrap"
                       >
                         {h}
                       </th>
@@ -924,6 +1252,7 @@ const OrderManagement = () => {
                         order={order}
                         onStatusChange={handleStatusChange}
                         onCancel={handleCancel}
+                        onRestore={handleRestore}
                         onEmail={setEmailModal}
                       />
                     ))
@@ -950,3 +1279,31 @@ const OrderManagement = () => {
 };
 
 export default OrderManagement;
+
+/*
+ * ─────────────────────────────────────────────────────────────
+ * SERVER ACTION NEEDED: restoreShipmentAction
+ * Add this to your @/actions/adminOrder file:
+ * ─────────────────────────────────────────────────────────────
+ *
+ * export async function restoreShipmentAction({ orderId, shipmentId }) {
+ *   try {
+ *     const res = await fetch(`/api/admin/orders/restore`, {
+ *       method: "PUT",
+ *       headers: { "Content-Type": "application/json" },
+ *       body: JSON.stringify({ orderId, shipmentId }),
+ *     });
+ *     const data = await res.json();
+ *     return { status: res.status, data };
+ *   } catch (err) {
+ *     return { status: 500, data: { message: err.message } };
+ *   }
+ * }
+ *
+ * And add a PUT /api/admin/orders/restore route that:
+ * 1. Finds the order
+ * 2. Pulls the shipment out of cancelledProducts[]
+ * 3. Pushes it into shipments[] with status = "Pending"
+ * 4. Saves and returns the updated order
+ * ─────────────────────────────────────────────────────────────
+ */

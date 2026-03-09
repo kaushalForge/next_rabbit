@@ -22,7 +22,6 @@ export async function fetchOrdersAdminAction() {
     );
 
     const data = await res.json();
-    console.log(data, "tetsing");
     return data.orders;
   } catch (error) {
     console.error("fetchOrdersAdminAction error:", error);
@@ -31,26 +30,41 @@ export async function fetchOrdersAdminAction() {
 }
 
 /* ================== UPDATE ORDER OR SHIPMENT STATUS ================== */
-export async function updateOrderStatusAction({ orderId, status, shipmentId }) {
+export async function updateOrderStatusAction({
+  orderId,
+  shipmentId,
+  // order/shipment status
+  status,
+  paymentStatus,
+  paymentMethod,
+}) {
   try {
     const cookieStore = await cookies();
     const token = cookieStore.get("cUser")?.value;
 
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_SITE_URL}/api/admin/order`,
+      `${process.env.NEXT_PUBLIC_SITE_URL}/api/admin/orders`,
       {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
           Cookie: `cUser=${token}`,
         },
-        body: JSON.stringify({ orderId, status, shipmentId }),
+        body: JSON.stringify({
+          orderId,
+          shipmentId,
+          // only include fields that were actually passed — undefined fields
+          // are stripped by JSON.stringify so the API won't accidentally
+          // overwrite fields the caller didn't intend to change
+          ...(status !== undefined && { status }),
+          ...(paymentStatus !== undefined && { paymentStatus }),
+          ...(paymentMethod !== undefined && { paymentMethod }),
+        }),
       },
     );
 
     const data = await res.json();
 
-    // Revalidate pages so admin dashboard updates
     revalidatePath("/admin/orders");
     if (shipmentId) revalidatePath(`/admin/orders/${orderId}`);
 
@@ -68,7 +82,7 @@ export async function cancelShipmentAction({ orderId, shipmentId }) {
     const token = cookieStore.get("cUser")?.value;
 
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_SITE_URL}/api/admin/order`,
+      `${process.env.NEXT_PUBLIC_SITE_URL}/api/admin/orders`,
       {
         method: "PATCH",
         headers: {
@@ -91,6 +105,36 @@ export async function cancelShipmentAction({ orderId, shipmentId }) {
   }
 }
 
+/* ================== RESTORE CANCELLED SHIPMENT ================== */
+export async function restoreShipmentAction({ orderId, shipmentId }) {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get("cUser")?.value;
+
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_SITE_URL}/api/admin/orders/restore`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Cookie: `cUser=${token}`,
+        },
+        body: JSON.stringify({ orderId, shipmentId }),
+      },
+    );
+
+    const data = await res.json();
+
+    revalidatePath("/admin/orders");
+    if (orderId) revalidatePath(`/admin/orders/${orderId}`);
+
+    return { status: res.status, data };
+  } catch (error) {
+    console.error("restoreShipmentAction error:", error);
+    return { status: 500, error: "Internal server error" };
+  }
+}
+
 /* ================== SEND EMAIL TO CUSTOMER ================== */
 export async function sendOrderEmailAction({ orderId, subject, message }) {
   try {
@@ -98,7 +142,7 @@ export async function sendOrderEmailAction({ orderId, subject, message }) {
     const token = cookieStore.get("cUser")?.value;
 
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_SITE_URL}/api/admin/order/email`,
+      `${process.env.NEXT_PUBLIC_SITE_URL}/api/admin/orders/email`,
       {
         method: "POST",
         headers: {

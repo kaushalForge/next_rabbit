@@ -56,7 +56,16 @@ export async function GET() {
   }
 }
 
-// ------------------- UPDATE ORDER STATUS -------------------
+const VALID_STATUSES = [
+  "Pending",
+  "Processing",
+  "Shipped",
+  "Delivered",
+  "Cancelled",
+];
+const VALID_PAY_STATUSES = ["Pending", "Paid", "Failed", "Returned"];
+const VALID_PAY_METHODS = ["COD", "eSewa", "Khalti", "Online", "Card"];
+
 export async function PUT(req) {
   const admin = (await isAdmin())?.user;
   if (!admin)
@@ -67,10 +76,49 @@ export async function PUT(req) {
 
   try {
     await dbConnect();
-    const { orderId, status, shipmentId } = await req.json();
 
+    const { orderId, shipmentId, status, paymentStatus, paymentMethod } =
+      await req.json();
+
+    // ── Validate orderId ──
     if (!orderId || !mongoose.Types.ObjectId.isValid(orderId))
       return NextResponse.json({ message: "Invalid orderId" }, { status: 400 });
+
+    // ── Validate shipmentId early if provided ──
+    if (shipmentId && !mongoose.Types.ObjectId.isValid(shipmentId))
+      return NextResponse.json(
+        { message: "Invalid shipmentId" },
+        { status: 400 },
+      );
+
+    // ── Validate enum values ──
+    if (status && !VALID_STATUSES.includes(status))
+      return NextResponse.json(
+        { message: `Invalid status: ${status}` },
+        { status: 400 },
+      );
+
+    if (paymentStatus && !VALID_PAY_STATUSES.includes(paymentStatus))
+      return NextResponse.json(
+        { message: `Invalid paymentStatus: ${paymentStatus}` },
+        { status: 400 },
+      );
+
+    if (paymentMethod && !VALID_PAY_METHODS.includes(paymentMethod))
+      return NextResponse.json(
+        { message: `Invalid paymentMethod: ${paymentMethod}` },
+        { status: 400 },
+      );
+
+    // ── Require at least one field ──
+    if (!status && !paymentStatus && !paymentMethod)
+      return NextResponse.json(
+        {
+          message:
+            "Provide at least one of: status, paymentStatus, paymentMethod",
+        },
+        { status: 400 },
+      );
 
     const order = await Order.findById(orderId);
     if (!order)
@@ -78,31 +126,77 @@ export async function PUT(req) {
 
     if (shipmentId) {
       const shipment = order.shipments.id(shipmentId);
-      if (!shipment)
+      const cancelledShipment = !shipment
+        ? order.cancelledProducts?.find(
+            (sh) => sh._id?.toString() === shipmentId,
+          )
+        : null;
+
+      if (!shipment && !cancelledShipment)
         return NextResponse.json(
           { message: "Shipment not found" },
           { status: 404 },
         );
-      shipment.status = status;
-    } else {
-      order.orderStatus = status;
+
+      // Status — only on active shipments
+      if (status) {
+        if (cancelledShipment)
+          return NextResponse.json(
+            {
+              message:
+                "Cannot update status of a cancelled shipment. Restore it first.",
+            },
+            { status: 400 },
+          );
+        shipment.status = status;
+      }
+
+      // Payment
+      if (paymentStatus || paymentMethod) {
+        if (shipment) {
+          // Active — Mongoose tracks mutations normally
+          if (!shipment.payment) shipment.payment = {};
+          if (paymentStatus) shipment.payment.status = paymentStatus;
+          if (paymentMethod) shipment.payment.method = paymentMethod;
+        } else {
+          // Cancelled — untyped array, must use $set + arrayFilters
+          const setFields = {};
+          if (paymentStatus)
+            setFields["cancelledProducts.$[el].payment.status"] = paymentStatus;
+          if (paymentMethod)
+            setFields["cancelledProducts.$[el].payment.method"] = paymentMethod;
+
+          await Order.updateOne(
+            { _id: orderId },
+            { $set: setFields },
+            {
+              arrayFilters: [
+                { "el._id": new mongoose.Types.ObjectId(shipmentId) },
+              ],
+            },
+          );
+
+          return NextResponse.json(
+            { success: true, message: "Updated successfully" },
+            { status: 200 },
+          );
+        }
+      }
     }
 
     await order.save();
-
     return NextResponse.json(
-      { success: true, message: "Status updated", order },
+      { success: true, message: "Updated successfully", order },
       { status: 200 },
     );
   } catch (err) {
-    console.error("PUT /admin/orders error:", err);
+    console.error("PUT /api/admin/orders error:", err);
     return NextResponse.json(
       { success: false, message: "Server error", error: err.message },
       { status: 500 },
     );
   }
 }
-
 // ------------------- CANCEL SPECIFIC SHIPMENT -------------------
 export async function PATCH(req) {
   const admin = (await isAdmin())?.user;

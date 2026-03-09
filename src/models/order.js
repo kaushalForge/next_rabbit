@@ -48,7 +48,7 @@ const deliverySchema = new mongoose.Schema(
   { _id: false },
 );
 
-// ================= SHIPMENT (MOST IMPORTANT PART) =================
+// ================= SHIPMENT =================
 const shipmentSchema = new mongoose.Schema(
   {
     customer: customerSchema,
@@ -56,16 +56,20 @@ const shipmentSchema = new mongoose.Schema(
     products: [orderItemSchema],
     shipmentTotal: { type: Number },
     payment: {
-      method: { type: String, required: true },
+      method: {
+        type: String,
+        enum: ["COD", "Online", "Card", "eSewa", "Khalti"],
+      },
       status: {
         type: String,
-        enum: ["Pending", "Paid", "Failed", "Refunded"],
+        enum: ["Pending", "Paid", "Failed", "Returned"],
         default: "Pending",
       },
       transactionId: String,
     },
     status: {
       type: String,
+      enum: ["Pending", "Processing", "Shipped", "Delivered", "Cancelled"],
       default: "Pending",
     },
     estimatedDelivery: Date,
@@ -86,7 +90,8 @@ const orderSchema = new mongoose.Schema(
     cancelledProducts: [],
     orderStatus: {
       type: String,
-      default: "Pending", // overall order status
+      enum: ["Pending", "Processing", "Shipped", "Delivered", "Cancelled"],
+      default: "Pending",
     },
   },
   { timestamps: true },
