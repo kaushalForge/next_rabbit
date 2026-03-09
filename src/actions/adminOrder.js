@@ -162,7 +162,11 @@ export async function sendOrderEmailAction({ orderId, subject, message }) {
 }
 
 /* ================== SEND EMAIL TO All CUSTOMER ================== */
-export async function sendBulkEmailAction({ subject, message }) {
+export async function sendBulkEmailAction({
+  subject,
+  message,
+  excludedIds = [],
+}) {
   try {
     const cookieStore = await cookies();
     const token = cookieStore.get("cUser")?.value;
@@ -175,14 +179,37 @@ export async function sendBulkEmailAction({ subject, message }) {
           "Content-Type": "application/json",
           Cookie: `cUser=${token}`,
         },
-        body: JSON.stringify({ subject, message }),
+        body: JSON.stringify({ subject, message, excludedIds }),
       },
     );
-
     const data = await res.json();
     return { status: res.status, data };
   } catch (error) {
     console.error("sendBulkEmailAction error:", error);
     return { status: 500, error: "Internal server error" };
+  }
+}
+
+/* ================== FETCH ALL CUSTOMERS (for exclude panel) ================== */
+export async function fetchAllCustomersAction() {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get("cUser")?.value;
+
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_SITE_URL}/api/admin/users`,
+      {
+        method: "GET",
+        headers: { Cookie: `cUser=${token}` },
+        cache: "no-store",
+      },
+    );
+    const data = await res.json();
+
+    const users = data?.users ?? [];
+    return users.filter((u) => u.role === "customer");
+  } catch (error) {
+    console.error("fetchAllCustomersAction error:", error);
+    return [];
   }
 }

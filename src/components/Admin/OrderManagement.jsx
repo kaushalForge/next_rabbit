@@ -20,6 +20,9 @@ import {
   TbUsers,
   TbLoader2,
   TbArrowBackUp,
+  TbMailCheck,
+  TbUserMinus,
+  TbUserPlus,
 } from "react-icons/tb";
 import {
   fetchOrdersAdminAction,
@@ -27,7 +30,8 @@ import {
   cancelShipmentAction,
   restoreShipmentAction,
   sendOrderEmailAction,
-  sendBulkEmailAction, // ← add this export to your actions file (see note at bottom)
+  sendBulkEmailAction,
+  fetchAllCustomersAction,
 } from "@/actions/adminOrder";
 
 // ─────────────────────────────────────────────
@@ -41,23 +45,15 @@ const PAYMENT_METHOD_CFG = {
     label: "Cash on Delivery",
     pill: "bg-zinc-100 text-zinc-600 ring-zinc-200",
   },
-  eSewa: {
-    label: "eSewa",
-    pill: "bg-green-50 text-green-600 ring-green-200",
-  },
+  eSewa: { label: "eSewa", pill: "bg-green-50 text-green-600 ring-green-200" },
   Khalti: {
     label: "Khalti",
     pill: "bg-purple-50 text-purple-600 ring-purple-200",
   },
-  Online: {
-    label: "Online",
-    pill: "bg-blue-50 text-blue-600 ring-blue-200",
-  },
-  Card: {
-    label: "Card",
-    pill: "bg-yellow-50 text-yellow-600 ring-yellow-200",
-  },
+  Online: { label: "Online", pill: "bg-blue-50 text-blue-600 ring-blue-200" },
+  Card: { label: "Card", pill: "bg-yellow-50 text-yellow-600 ring-yellow-200" },
 };
+
 const PAYMENT_STATUS_CFG = {
   Pending: {
     pill: "bg-amber-50 text-amber-600 ring-amber-200",
@@ -88,7 +84,7 @@ const STATUS_CFG = {
   Cancelled: { pill: "bg-rose-50 text-rose-500 ring-rose-200", dot: "#f43f5e" },
 };
 
-const EMAIL_TEMPLATES = [
+const ORDER_TEMPLATES = [
   {
     label: "Order Confirmed",
     status: "Pending",
@@ -127,17 +123,58 @@ const EMAIL_TEMPLATES = [
   {
     label: "Payment Reminder",
     status: null,
-    subject: "Prepare Payment for Your Incoming Order — RabbitHub",
+    subject:
+      "Action Required: Prepare Payment for Your Incoming Order — RabbitHub",
     message:
       "Dear Customer,\n\nWe would like to inform you that your order is currently on its way and will be arriving at your delivery address shortly.\n\nAs your order is being fulfilled on a Cash on Delivery basis, we kindly request that you have the exact payment amount prepared and ready upon delivery. This will help ensure a smooth and prompt handover with our delivery personnel.\n\nPlease ensure that you or an authorized representative is available at the delivery address to receive the package and complete the payment.\n\nShould you have any questions or require assistance prior to delivery, please do not hesitate to reach out to us at inbox.rabbit@gmail.com.\n\nThank you for shopping with RabbitHub. We look forward to completing your order.\n\nBest regards,\nRabbitHub Customer Support",
   },
-  {
-    label: "Custom",
-    status: null,
-    subject: "",
-    message: "",
-  },
+  { label: "Custom", status: null, subject: "", message: "" },
 ];
+
+const BULK_TEMPLATES = [
+  {
+    label: "Flash Sale",
+    subject: "Exclusive Flash Sale — Up to 50% Off at RabbitHub",
+    message:
+      "Dear Valued Customer,\n\nWe are excited to announce an exclusive flash sale at RabbitHub — enjoy up to 50% off on a wide range of products for a limited time only.\n\nVisit our store now to explore the latest deals before they expire. Our flash sales are strictly time-limited and stocks are updated frequently, so we encourage you to browse at your earliest convenience.\n\nThank you for being a valued member of the RabbitHub community. We look forward to serving you.\n\nBest regards,\nRabbitHub Marketing Team",
+  },
+  {
+    label: "New Arrivals",
+    subject: "New Products Just Landed at RabbitHub — Be the First to Explore",
+    message:
+      "Dear Valued Customer,\n\nWe are thrilled to inform you that an exciting range of new products has just arrived at RabbitHub.\n\nOur latest collection has been carefully curated to bring you the best in quality and value. From trending styles to everyday essentials, there is something for everyone.\n\nHead over to our store to browse the newest additions before they sell out. New arrivals tend to go fast, so we encourage you to shop early.\n\nThank you for your continued support.\n\nBest regards,\nRabbitHub Marketing Team",
+  },
+  {
+    label: "Seasonal Offer",
+    subject: "Special Seasonal Offers Are Live at RabbitHub",
+    message:
+      "Dear Valued Customer,\n\nThe season's best deals are now live at RabbitHub.\n\nWe have prepared an exclusive selection of seasonal offers across multiple categories, giving you the perfect opportunity to save more on the products you love. These offers are available for a limited period, so we recommend acting quickly.\n\nVisit our store today and take advantage of these outstanding seasonal deals.\n\nThank you for shopping with RabbitHub.\n\nBest regards,\nRabbitHub Marketing Team",
+  },
+  {
+    label: "Loyalty Reward",
+    subject: "A Special Thank You from RabbitHub — You've Earned It",
+    message:
+      "Dear Valued Customer,\n\nWe sincerely appreciate your continued loyalty and support for RabbitHub. Your trust means everything to us.\n\nAs a token of our gratitude, we would like to offer you an exclusive reward on your next purchase. Please visit our store and check your account for details on your personalized offer.\n\nWe remain committed to delivering the best shopping experience possible, and we look forward to serving you for many more years to come.\n\nWith gratitude,\nRabbitHub Customer Team",
+  },
+  {
+    label: "Announcement",
+    subject: "Important Announcement from RabbitHub",
+    message:
+      "Dear Valued Customer,\n\nWe have an important update we would like to share with you.\n\n[Insert your announcement here.]\n\nIf you have any questions regarding this announcement, please do not hesitate to reach out to us at inbox.rabbit@gmail.com. We are always happy to assist.\n\nThank you for being a part of the RabbitHub community.\n\nBest regards,\nRabbitHub Team",
+  },
+  { label: "Custom", subject: "", message: "" },
+];
+
+const getOrderTemplateIdxForStatus = (status) => {
+  const map = {
+    Pending: 0,
+    Processing: 1,
+    Shipped: 2,
+    Delivered: 3,
+    Cancelled: 4,
+  };
+  return map[status] ?? 6;
+};
 
 const fmtDate = (d) =>
   d
@@ -196,21 +233,218 @@ const Spinner = ({ size = "sm" }) => (
 );
 
 // ─────────────────────────────────────────────
+// Customer Exclude Panel (bulk only)
+// ─────────────────────────────────────────────
+const CustomerExcludePanel = ({ excludedIds, onToggle }) => {
+  const [customers, setCustomers] = useState([]);
+  const [loadingCustomers, setLoadingCustomers] = useState(true);
+  const [customerSearch, setCustomerSearch] = useState("");
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const data = await fetchAllCustomersAction();
+        setCustomers(Array.isArray(data) ? data : []);
+      } catch {
+        setCustomers([]);
+      } finally {
+        setLoadingCustomers(false);
+      }
+    };
+    load();
+  }, []);
+
+  const filtered = useMemo(() => {
+    const q = customerSearch.toLowerCase().trim();
+    if (!q) return customers;
+    return customers.filter(
+      (c) =>
+        c.name?.toLowerCase().includes(q) || c.email?.toLowerCase().includes(q),
+    );
+  }, [customers, customerSearch]);
+
+  const excludedCount = excludedIds.size;
+
+  return (
+    <div className="rounded-xl border border-zinc-200 overflow-hidden">
+      {/* Toggle header */}
+      <button
+        onClick={() => setOpen((v) => !v)}
+        className="w-full flex items-center justify-between px-4 py-3 bg-zinc-50 hover:bg-zinc-100 transition text-left"
+      >
+        <div className="flex items-center gap-2">
+          <TbUserMinus className="w-4 h-4 text-zinc-500" />
+          <span className="text-[11px] font-semibold text-zinc-700 uppercase tracking-[0.15em]">
+            Exclude Recipients
+          </span>
+          {excludedCount > 0 && (
+            <span className="px-2 py-0.5 rounded-full bg-rose-100 text-rose-600 text-[10px] font-semibold ring-1 ring-rose-200">
+              {excludedCount} excluded
+            </span>
+          )}
+        </div>
+        <TbChevronDown
+          className={`w-4 h-4 text-zinc-400 transition-transform ${open ? "rotate-180" : ""}`}
+        />
+      </button>
+
+      {open && (
+        <div className="border-t border-zinc-100">
+          {/* Search */}
+          <div className="px-3 pt-3 pb-2">
+            <div className="relative">
+              <TbSearch className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-zinc-400" />
+              <input
+                type="text"
+                placeholder="Search by name or email…"
+                value={customerSearch}
+                onChange={(e) => setCustomerSearch(e.target.value)}
+                className="w-full pl-8 pr-3 py-1.5 rounded-lg border border-zinc-200 text-xs focus:outline-none focus:ring-2 focus:ring-zinc-900 bg-white"
+              />
+            </div>
+          </div>
+
+          {/* Actions row */}
+          <div className="flex items-center justify-between px-3 pb-2">
+            <p className="text-[10px] text-zinc-400">
+              {loadingCustomers
+                ? "Loading…"
+                : `${filtered.length} customer${filtered.length !== 1 ? "s" : ""}`}
+            </p>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() =>
+                  customers.forEach(
+                    (c) => !excludedIds.has(c._id) && onToggle(c._id),
+                  )
+                }
+                className="text-[10px] font-medium text-rose-500 hover:text-rose-700 transition"
+              >
+                Exclude all
+              </button>
+              <span className="text-zinc-300">·</span>
+              <button
+                onClick={() =>
+                  customers.forEach(
+                    (c) => excludedIds.has(c._id) && onToggle(c._id),
+                  )
+                }
+                className="text-[10px] font-medium text-emerald-600 hover:text-emerald-800 transition"
+              >
+                Include all
+              </button>
+            </div>
+          </div>
+
+          {/* Customer list */}
+          <div className="max-h-48 overflow-y-auto divide-y divide-zinc-50">
+            {loadingCustomers ? (
+              <div className="flex items-center justify-center py-6">
+                <Spinner />
+              </div>
+            ) : filtered.length === 0 ? (
+              <p className="text-center text-[11px] text-zinc-400 py-6">
+                No customers found
+              </p>
+            ) : (
+              filtered.map((c) => {
+                const isExcluded = excludedIds.has(c._id);
+                return (
+                  <div
+                    key={c._id}
+                    onClick={() => onToggle(c._id)}
+                    className={`flex items-center justify-between px-3 py-2.5 cursor-pointer transition-colors ${isExcluded ? "bg-rose-50/60" : "hover:bg-zinc-50"}`}
+                  >
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      {/* Avatar initial */}
+                      <div
+                        className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 text-[10px] font-semibold ${isExcluded ? "bg-rose-100 text-rose-500" : "bg-zinc-100 text-zinc-600"}`}
+                      >
+                        {(c.name || "?")[0].toUpperCase()}
+                      </div>
+                      <div className="min-w-0">
+                        <p
+                          className={`text-[11px] font-medium truncate ${isExcluded ? "text-zinc-400 line-through" : "text-zinc-700"}`}
+                        >
+                          {c.name || "—"}
+                        </p>
+                        <p className="text-[10px] text-zinc-400 truncate">
+                          {c.email}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="shrink-0 ml-2">
+                      {isExcluded ? (
+                        <span className="flex items-center gap-1 text-[10px] text-rose-500 font-medium">
+                          <TbUserMinus className="w-3 h-3" /> Excluded
+                        </span>
+                      ) : (
+                        <span className="flex items-center gap-1 text-[10px] text-zinc-400">
+                          <TbUserPlus className="w-3 h-3" /> Include
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                );
+              })
+            )}
+          </div>
+
+          {/* Summary footer */}
+          {excludedCount > 0 && (
+            <div className="px-3 py-2 border-t border-zinc-100 bg-rose-50/40">
+              <p className="text-[10px] text-rose-500 font-medium">
+                {excludedCount} customer{excludedCount !== 1 ? "s" : ""} will
+                NOT receive this email. &nbsp;
+                <button
+                  onClick={() =>
+                    customers.forEach(
+                      (c) => excludedIds.has(c._id) && onToggle(c._id),
+                    )
+                  }
+                  className="underline hover:no-underline"
+                >
+                  Clear all
+                </button>
+              </p>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+};
+
+// ─────────────────────────────────────────────
 // Email Modal
 // ─────────────────────────────────────────────
-const EmailModal = ({ target, onClose }) => {
-  const [templateIdx, setTemplateIdx] = useState(0);
-  const [subject, setSubject] = useState(EMAIL_TEMPLATES[0].subject);
-  const [message, setMessage] = useState(EMAIL_TEMPLATES[0].message);
+const EmailModal = ({ target, onClose, onEmailSent }) => {
+  const isBulk = target.type === "bulk";
+  const TEMPLATES = isBulk ? BULK_TEMPLATES : ORDER_TEMPLATES;
+  const defaultIdx = isBulk ? 0 : getOrderTemplateIdxForStatus(target.status);
+
+  const [templateIdx, setTemplateIdx] = useState(defaultIdx);
+  const [subject, setSubject] = useState(TEMPLATES[defaultIdx].subject);
+  const [message, setMessage] = useState(TEMPLATES[defaultIdx].message);
   const [sending, setSending] = useState(false);
+  // Set of customer _id strings to exclude from bulk send
+  const [excludedIds, setExcludedIds] = useState(new Set());
+
+  const toggleExclude = useCallback((id) => {
+    setExcludedIds((prev) => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  }, []);
 
   const applyTemplate = (idx) => {
     setTemplateIdx(idx);
-    setSubject(EMAIL_TEMPLATES[idx].subject);
-    setMessage(EMAIL_TEMPLATES[idx].message);
+    setSubject(TEMPLATES[idx].subject);
+    setMessage(TEMPLATES[idx].message);
   };
 
-  // ✅ FIXED: bulk vs single are routed to separate actions
   const handleSend = async () => {
     if (!subject.trim() || !message.trim()) {
       toast.error("Subject and message are required");
@@ -219,12 +453,13 @@ const EmailModal = ({ target, onClose }) => {
     setSending(true);
     try {
       let status, data;
-
-      if (target.type === "bulk") {
-        // Bulk: no orderId — send to all customers
-        ({ status, data } = await sendBulkEmailAction({ subject, message }));
+      if (isBulk) {
+        ({ status, data } = await sendBulkEmailAction({
+          subject,
+          message,
+          excludedIds: Array.from(excludedIds), // ← passed to route
+        }));
       } else {
-        // Single order email
         ({ status, data } = await sendOrderEmailAction({
           orderId: target.orderId,
           subject,
@@ -234,6 +469,7 @@ const EmailModal = ({ target, onClose }) => {
 
       if (status === 200 || status === 201) {
         toast.success(data?.message || "Email sent!");
+        if (!isBulk) onEmailSent?.(target.orderId);
         onClose();
       } else {
         toast.error(data?.message || "Failed to send email");
@@ -251,11 +487,12 @@ const EmailModal = ({ target, onClose }) => {
         className="absolute inset-0 bg-zinc-950/60 backdrop-blur-sm"
         onClick={onClose}
       />
-      <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-zinc-100 bg-zinc-50">
+      <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh]">
+        {/* Header */}
+        <div className="flex items-center justify-between px-5 py-4 border-b border-zinc-100 bg-zinc-50 shrink-0">
           <div>
             <p className="text-[10px] font-medium uppercase tracking-[0.25em] text-zinc-500">
-              {target.type === "bulk"
+              {isBulk
                 ? "Bulk Email · All Customers"
                 : `Email · Order #${target.orderId}`}
             </p>
@@ -271,13 +508,28 @@ const EmailModal = ({ target, onClose }) => {
           </button>
         </div>
 
-        <div className="p-5 space-y-4">
+        {/* Scrollable body */}
+        <div className="p-5 space-y-4 overflow-y-auto">
+          {/* Bulk hint */}
+          {isBulk && (
+            <div className="px-3 py-2.5 rounded-xl bg-blue-50 border border-blue-100">
+              <p className="text-[10px] font-medium text-blue-600 uppercase tracking-[0.18em] mb-1">
+                Bulk Email Purpose
+              </p>
+              <p className="text-[11px] text-blue-500 leading-relaxed">
+                Use bulk emails to announce offers, new arrivals, seasonal
+                deals, and loyalty rewards to all customers at once.
+              </p>
+            </div>
+          )}
+
+          {/* Templates */}
           <div>
             <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-zinc-500 mb-2">
-              Quick Templates
+              {isBulk ? "Marketing Templates" : "Quick Templates"}
             </p>
             <div className="flex flex-wrap gap-2">
-              {EMAIL_TEMPLATES.map((t, i) => (
+              {TEMPLATES.map((t, i) => (
                 <button
                   key={t.label}
                   onClick={() => applyTemplate(i)}
@@ -288,6 +540,8 @@ const EmailModal = ({ target, onClose }) => {
               ))}
             </div>
           </div>
+
+          {/* Subject */}
           <div>
             <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-zinc-500 mb-1.5">
               Subject
@@ -300,24 +554,37 @@ const EmailModal = ({ target, onClose }) => {
               className="w-full px-3 py-2 rounded-xl border border-zinc-200 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-900 bg-zinc-50"
             />
           </div>
+
+          {/* Message */}
           <div>
             <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-zinc-500 mb-1.5">
               Message
             </p>
             <textarea
-              rows={6}
+              rows={5}
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               placeholder="Write your message..."
               className="w-full px-3 py-2 rounded-xl border border-zinc-200 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-900 bg-zinc-50 resize-none"
             />
           </div>
+
+          {/* Exclude panel — bulk only */}
+          {isBulk && (
+            <CustomerExcludePanel
+              excludedIds={excludedIds}
+              onToggle={toggleExclude}
+            />
+          )}
         </div>
 
-        <div className="flex items-center justify-between px-5 py-4 border-t border-zinc-100 bg-zinc-50">
+        {/* Footer */}
+        <div className="flex items-center justify-between px-5 py-4 border-t border-zinc-100 bg-zinc-50 shrink-0">
           <p className="text-[10px] text-zinc-400 font-medium">
-            {target.type === "bulk"
-              ? "Will be sent to all customers"
+            {isBulk
+              ? excludedIds.size > 0
+                ? `${excludedIds.size} customer${excludedIds.size !== 1 ? "s" : ""} excluded`
+                : "Will be sent to all customers"
               : `Recipient: ${target.label}`}
           </p>
           <div className="flex items-center gap-2">
@@ -369,9 +636,7 @@ const PaymentControls = ({
       if (status === 200 || status === 201) {
         setPaymentStatus(newPaymentStatus);
         toast.success(`Payment marked as ${newPaymentStatus}`);
-      } else {
-        toast.error(data?.message || "Failed to update payment status");
-      }
+      } else toast.error(data?.message || "Failed to update payment status");
     } catch {
       toast.error("Failed to update payment status");
     } finally {
@@ -391,9 +656,7 @@ const PaymentControls = ({
       if (status === 200 || status === 201) {
         setPaymentMethod(newPaymentMethod);
         toast.success("Payment method updated");
-      } else {
-        toast.error(data?.message || "Failed to update payment method");
-      }
+      } else toast.error(data?.message || "Failed to update payment method");
     } catch {
       toast.error("Failed to update payment method");
     } finally {
@@ -415,7 +678,6 @@ const PaymentControls = ({
         </span>
         {updatingPayment && <Spinner />}
       </div>
-
       <div className="flex items-center gap-2 flex-wrap">
         <select
           value={paymentMethod}
@@ -429,7 +691,6 @@ const PaymentControls = ({
             </option>
           ))}
         </select>
-
         {paymentStatus !== "Pending" && (
           <button
             onClick={() => handlePaymentStatusUpdate("Pending")}
@@ -500,9 +761,7 @@ const ShipmentRow = ({
         setLocalStatus(newStatus);
         toast.success(`Shipment marked as ${newStatus}`);
         onStatusChange?.(orderId, shipment._id, newStatus);
-      } else {
-        toast.error(data?.message || "Failed to update status");
-      }
+      } else toast.error(data?.message || "Failed to update status");
     } catch {
       toast.error("Failed to update status");
     } finally {
@@ -616,7 +875,6 @@ const ShipmentRow = ({
         <div className="space-y-2 pt-1">
           <div className="flex items-center gap-2 flex-wrap">
             {updating && <Spinner />}
-
             {localStatus !== "Pending" &&
               localStatus !== "Processing" &&
               localStatus !== "Shipped" &&
@@ -661,11 +919,10 @@ const ShipmentRow = ({
               disabled={cancelling}
               className="flex items-center gap-1.5 px-3 py-1.5 bg-rose-50 text-rose-500 rounded-lg text-[11px] font-medium hover:bg-rose-100 transition disabled:opacity-50 ring-1 ring-rose-200 ml-auto"
             >
-              {cancelling ? <Spinner /> : <TbCircleX className="w-3.5 h-3.5" />}
+              {cancelling ? <Spinner /> : <TbCircleX className="w-3.5 h-3.5" />}{" "}
               Cancel Shipment
             </button>
           </div>
-
           <div className="flex items-center gap-2">
             <p className="text-[9px] font-medium uppercase tracking-[0.18em] text-zinc-400">
               Or set directly:
@@ -695,7 +952,7 @@ const ShipmentRow = ({
               <Spinner />
             ) : (
               <TbArrowBackUp className="w-3.5 h-3.5" />
-            )}
+            )}{" "}
             Restore Shipment
           </button>
           <p className="text-[10px] text-zinc-400 font-medium">
@@ -710,7 +967,14 @@ const ShipmentRow = ({
 // ─────────────────────────────────────────────
 // Order Row
 // ─────────────────────────────────────────────
-const OrderRow = ({ order, onStatusChange, onCancel, onRestore, onEmail }) => {
+const OrderRow = ({
+  order,
+  onStatusChange,
+  onCancel,
+  onRestore,
+  onEmail,
+  emailSentAt,
+}) => {
   const [expanded, setExpanded] = useState(false);
 
   const allShipments = order.shipments || [];
@@ -733,6 +997,9 @@ const OrderRow = ({ order, onStatusChange, onCancel, onRestore, onEmail }) => {
           ? "Delivered"
           : "Pending";
 
+  const customer = (order.shipments?.[0] || order.cancelledProducts?.[0])
+    ?.customer;
+
   return (
     <>
       <tr
@@ -744,30 +1011,23 @@ const OrderRow = ({ order, onStatusChange, onCancel, onRestore, onEmail }) => {
         </td>
 
         <td className="px-5 py-4">
-          {(() => {
-            const customer = (
-              order.shipments?.[0] || order.cancelledProducts?.[0]
-            )?.customer;
-            if (!customer)
-              return (
-                <span className="text-[12px] text-zinc-400">
-                  User …{String(order.userId || "").slice(-6)}
-                </span>
-              );
-            return (
-              <div>
-                <p className="text-[12px] font-medium text-zinc-800">
-                  {customer.fullName || "—"}
-                </p>
-                <p className="text-[10px] text-zinc-400">
-                  {customer.phone || ""}
-                </p>
-                <p className="text-[10px] text-zinc-400 truncate max-w-40">
-                  {customer.email || ""}
-                </p>
-              </div>
-            );
-          })()}
+          {customer ? (
+            <div>
+              <p className="text-[12px] font-medium text-zinc-800">
+                {customer.fullName || "—"}
+              </p>
+              <p className="text-[10px] text-zinc-400">
+                {customer.phone || ""}
+              </p>
+              <p className="text-[10px] text-zinc-400 truncate max-w-40">
+                {customer.email || ""}
+              </p>
+            </div>
+          ) : (
+            <span className="text-[12px] text-zinc-400">
+              User …{String(order.userId || "").slice(-6)}
+            </span>
+          )}
         </td>
 
         <td className="px-5 py-4">
@@ -817,23 +1077,33 @@ const OrderRow = ({ order, onStatusChange, onCancel, onRestore, onEmail }) => {
 
         <td className="px-5 py-4" onClick={(e) => e.stopPropagation()}>
           <div className="flex items-center gap-2">
-            <button
-              onClick={() => {
-                const customer = (
-                  order.shipments?.[0] || order.cancelledProducts?.[0]
-                )?.customer;
-                onEmail({
-                  type: "single",
-                  orderId: order._id,
-                  label:
-                    customer?.fullName ||
-                    `User …${String(order.userId || "").slice(-6)}`,
-                });
-              }}
-              className="flex items-center gap-1 px-2.5 py-1.5 bg-zinc-100 text-zinc-600 rounded-lg text-[10px] font-medium hover:bg-zinc-900 hover:text-white transition"
-            >
-              <TbMail className="w-3.5 h-3.5" /> Email
-            </button>
+            <div className="flex flex-col items-start gap-1">
+              <button
+                onClick={() =>
+                  onEmail({
+                    type: "single",
+                    orderId: order._id,
+                    status: displayStatus,
+                    label:
+                      customer?.fullName ||
+                      `User …${String(order.userId || "").slice(-6)}`,
+                  })
+                }
+                className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[10px] font-medium transition ${emailSentAt ? "bg-emerald-50 text-emerald-600 ring-1 ring-emerald-200 hover:bg-zinc-900 hover:text-white hover:ring-0" : "bg-zinc-100 text-zinc-600 hover:bg-zinc-900 hover:text-white"}`}
+              >
+                {emailSentAt ? (
+                  <TbMailCheck className="w-3.5 h-3.5" />
+                ) : (
+                  <TbMail className="w-3.5 h-3.5" />
+                )}
+                {emailSentAt ? "Resend" : "Email"}
+              </button>
+              {emailSentAt && (
+                <span className="text-[9px] text-emerald-500 font-medium flex items-center gap-0.5 pl-0.5">
+                  Sent {fmtTime(emailSentAt)}
+                </span>
+              )}
+            </div>
             <button
               onClick={() => setExpanded((v) => !v)}
               className="w-7 h-7 rounded-lg bg-zinc-100 hover:bg-zinc-200 flex items-center justify-center transition"
@@ -871,7 +1141,6 @@ const OrderRow = ({ order, onStatusChange, onCancel, onRestore, onEmail }) => {
                   isCancelled={false}
                 />
               ))}
-
               {cancelledShipments.length > 0 && (
                 <>
                   <p className="text-[9px] font-medium uppercase tracking-[0.25em] text-zinc-400 mt-4 mb-2">
@@ -908,6 +1177,11 @@ const OrderManagement = () => {
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState("All");
   const [emailModal, setEmailModal] = useState(null);
+  const [emailSentLog, setEmailSentLog] = useState({});
+
+  const handleEmailSent = useCallback((orderId) => {
+    setEmailSentLog((prev) => ({ ...prev, [orderId]: new Date() }));
+  }, []);
 
   const loadOrders = useCallback(async () => {
     setLoading(true);
@@ -928,15 +1202,16 @@ const OrderManagement = () => {
 
   const handleStatusChange = useCallback((orderId, shipmentId, newStatus) => {
     setOrders((prev) =>
-      prev.map((o) => {
-        if (o._id !== orderId) return o;
-        return {
-          ...o,
-          shipments: (o.shipments || []).map((sh) =>
-            sh._id === shipmentId ? { ...sh, status: newStatus } : sh,
-          ),
-        };
-      }),
+      prev.map((o) =>
+        o._id !== orderId
+          ? o
+          : {
+              ...o,
+              shipments: (o.shipments || []).map((sh) =>
+                sh._id === shipmentId ? { ...sh, status: newStatus } : sh,
+              ),
+            },
+      ),
     );
   }, []);
 
@@ -967,9 +1242,7 @@ const OrderManagement = () => {
             };
           }),
         );
-      } else {
-        toast.error(data?.message || "Failed to cancel shipment");
-      }
+      } else toast.error(data?.message || "Failed to cancel shipment");
     } catch {
       toast.error("Failed to cancel shipment");
     }
@@ -1002,9 +1275,7 @@ const OrderManagement = () => {
             };
           }),
         );
-      } else {
-        toast.error(data?.message || "Failed to restore shipment");
-      }
+      } else toast.error(data?.message || "Failed to restore shipment");
     } catch {
       toast.error("Failed to restore shipment");
     }
@@ -1104,7 +1375,11 @@ const OrderManagement = () => {
   return (
     <>
       {emailModal && (
-        <EmailModal target={emailModal} onClose={() => setEmailModal(null)} />
+        <EmailModal
+          target={emailModal}
+          onClose={() => setEmailModal(null)}
+          onEmailSent={handleEmailSent}
+        />
       )}
 
       <div className="min-h-screen p-4">
@@ -1263,6 +1538,7 @@ const OrderManagement = () => {
                         onCancel={handleCancel}
                         onRestore={handleRestore}
                         onEmail={setEmailModal}
+                        emailSentAt={emailSentLog[order._id] || null}
                       />
                     ))
                   ) : (
