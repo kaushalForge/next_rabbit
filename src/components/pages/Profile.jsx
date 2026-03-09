@@ -81,14 +81,14 @@ const Profile = () => {
           <div className="w-full lg:w-64 shrink-0">
             <div className="h-full rounded-2xl border border-zinc-200 bg-white shadow-sm overflow-hidden flex flex-col">
               {/* Card top bar */}
-              <div className="bg-zinc-950 px-5 py-4 flex items-center gap-2">
+              <div className="border-b border-[#eaeaea] px-5 py-4 flex items-center gap-2">
                 <span className="text-[9px] uppercase tracking-[0.25em] font-black text-zinc-500">
                   Member
                 </span>
                 {!loadingUser && currentUser?.role === "admin" && (
                   <Link
                     href="/admin"
-                    className="ml-auto inline-flex items-center gap-1 px-2.5 py-1 bg-white/10 hover:bg-white/20 text-white rounded-lg text-[10px] font-bold uppercase tracking-wide transition-all"
+                    className="ml-auto inline-flex items-center gap-1 px-2.5 py-1 bg-white/10 hover:bg-white/20 text-black rounded-lg text-[10px] font-bold uppercase tracking-wide transition-all"
                   >
                     <MdAdminPanelSettings className="w-3.5 h-3.5" />
                     Admin

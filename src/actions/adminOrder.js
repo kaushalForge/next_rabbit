@@ -1,0 +1,119 @@
+"use server";
+
+import { revalidatePath } from "next/cache";
+import { cookies } from "next/headers";
+
+/* ================== FETCH ALL ORDERS ================== */
+export async function fetchOrdersAdminAction() {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get("cUser")?.value;
+
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_SITE_URL}/api/admin/orders`,
+      {
+        method: "GET",
+        headers: {
+          Cookie: `cUser=${token}`,
+        },
+        credentials: "include",
+        cache: "no-store",
+      },
+    );
+
+    const data = await res.json();
+    console.log(data, "tetsing");
+    return data.orders;
+  } catch (error) {
+    console.error("fetchOrdersAdminAction error:", error);
+    throw error;
+  }
+}
+
+/* ================== UPDATE ORDER OR SHIPMENT STATUS ================== */
+export async function updateOrderStatusAction({ orderId, status, shipmentId }) {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get("cUser")?.value;
+
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_SITE_URL}/api/admin/order`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Cookie: `cUser=${token}`,
+        },
+        body: JSON.stringify({ orderId, status, shipmentId }),
+      },
+    );
+
+    const data = await res.json();
+
+    // Revalidate pages so admin dashboard updates
+    revalidatePath("/admin/orders");
+    if (shipmentId) revalidatePath(`/admin/orders/${orderId}`);
+
+    return { status: res.status, data };
+  } catch (error) {
+    console.error("updateOrderStatusAction error:", error);
+    return { status: 500, error: "Internal server error" };
+  }
+}
+
+/* ================== CANCEL SPECIFIC SHIPMENT ================== */
+export async function cancelShipmentAction({ orderId, shipmentId }) {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get("cUser")?.value;
+
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_SITE_URL}/api/admin/order`,
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Cookie: `cUser=${token}`,
+        },
+        body: JSON.stringify({ orderId, shipmentId }),
+      },
+    );
+
+    const data = await res.json();
+
+    revalidatePath("/admin/orders");
+    if (orderId) revalidatePath(`/admin/orders/${orderId}`);
+
+    return { status: res.status, data };
+  } catch (error) {
+    console.error("cancelShipmentAction error:", error);
+    return { status: 500, error: "Internal server error" };
+  }
+}
+
+/* ================== SEND EMAIL TO CUSTOMER ================== */
+export async function sendOrderEmailAction({ orderId, subject, message }) {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get("cUser")?.value;
+
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_SITE_URL}/api/admin/order/email`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Cookie: `cUser=${token}`,
+        },
+        body: JSON.stringify({ orderId, subject, message }),
+      },
+    );
+
+    const data = await res.json();
+
+    return { status: res.status, data };
+  } catch (error) {
+    console.error("sendOrderEmailAction error:", error);
+    return { status: 500, error: "Internal server error" };
+  }
+}

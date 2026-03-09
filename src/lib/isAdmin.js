@@ -17,6 +17,5 @@ export async function isAdmin() {
   await dbConnect();
   const user = await User.findById(decoded.id).lean();
   if (!user || user.role !== "admin") return;
-
   return { id: decoded.id, status: 200, ok: true, user };
 }
