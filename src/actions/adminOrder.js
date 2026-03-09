@@ -154,10 +154,35 @@ export async function sendOrderEmailAction({ orderId, subject, message }) {
     );
 
     const data = await res.json();
-
     return { status: res.status, data };
   } catch (error) {
     console.error("sendOrderEmailAction error:", error);
+    return { status: 500, error: "Internal server error" };
+  }
+}
+
+/* ================== SEND EMAIL TO All CUSTOMER ================== */
+export async function sendBulkEmailAction({ subject, message }) {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get("cUser")?.value;
+
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_SITE_URL}/api/admin/orders/email/bulk`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Cookie: `cUser=${token}`,
+        },
+        body: JSON.stringify({ subject, message }),
+      },
+    );
+
+    const data = await res.json();
+    return { status: res.status, data };
+  } catch (error) {
+    console.error("sendBulkEmailAction error:", error);
     return { status: 500, error: "Internal server error" };
   }
 }

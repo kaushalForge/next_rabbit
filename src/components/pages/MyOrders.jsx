@@ -61,7 +61,7 @@ const StatusBadge = ({ status, isCancelled }) => {
   const Icon = config.icon;
   return (
     <span
-      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-bold tracking-wide ${config.cls}`}
+      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-medium tracking-wide ${config.cls}`}
     >
       <Icon className="w-3.5 h-3.5" />
       {label}
@@ -71,7 +71,7 @@ const StatusBadge = ({ status, isCancelled }) => {
 
 const PaymentBadge = ({ status, isCancelled }) => (
   <span
-    className={`inline-flex items-center px-2.5 py-1 rounded-lg text-[11px] font-bold tracking-wide ${
+    className={`inline-flex items-center px-2.5 py-1 rounded-lg text-[11px] font-medium tracking-wide ${
       isCancelled
         ? "bg-zinc-100 text-zinc-400 border border-zinc-200"
         : (PAYMENT_CONFIG[status] ??
@@ -112,7 +112,7 @@ const ProductItem = ({ p, dim }) => (
           Rs.{p.price ?? 0}
         </span>
         <span
-          className={`text-[12px] font-black ${dim ? "text-zinc-400" : "text-orange-500"}`}
+          className={`text-[12px] font-medium ${dim ? "text-zinc-400" : "text-orange-500"}`}
         >
           Rs.{p.offerPrice ?? 0}
         </span>
@@ -138,7 +138,7 @@ const OrderCard = ({ shipment, isCancelled, onCancel }) => {
             <p className="text-[9px] uppercase tracking-[0.2em] text-zinc-400 font-semibold mb-0.5">
               Order
             </p>
-            <p className="text-[11px] font-mono font-bold text-zinc-400">
+            <p className="text-[11px] font-medium text-zinc-400">
               #{shipment._id?.slice(-10).toUpperCase()}
             </p>
           </div>
@@ -211,7 +211,7 @@ const OrderCard = ({ shipment, isCancelled, onCancel }) => {
             <p className="text-[9px] uppercase tracking-[0.18em] text-zinc-400 font-semibold mb-1.5">
               Payment
             </p>
-            <p className="flex items-center gap-1 text-[11px] font-bold uppercase text-zinc-600 mb-1.5">
+            <p className="flex items-center gap-1 text-[11px] font-medium uppercase text-zinc-600 mb-1.5">
               <MdPayment className="text-zinc-400 w-3.5 h-3.5" />
               {shipment.payment?.method || "COD"}
             </p>
@@ -225,7 +225,7 @@ const OrderCard = ({ shipment, isCancelled, onCancel }) => {
               Total
             </p>
             <p
-              className={`text-sm font-black ${isCancelled ? "text-zinc-400 line-through" : "text-zinc-900"}`}
+              className={`text-sm font-medium ${isCancelled ? "text-zinc-400 line-through" : "text-zinc-900"}`}
             >
               Rs.{shipment.shipmentTotal ?? 0}
             </p>
@@ -245,7 +245,7 @@ const OrderCard = ({ shipment, isCancelled, onCancel }) => {
           <button
             disabled={!isPending}
             onClick={() => onCancel(shipment._id)}
-            className={`w-full py-2.5 rounded-xl text-[11px] font-black uppercase tracking-[0.15em] transition-all duration-200 ${
+            className={`w-full py-2.5 rounded-xl text-[11px] font-medium uppercase tracking-[0.15em] transition-all duration-200 ${
               isPending
                 ? "bg-red-500 hover:bg-red-600 text-white"
                 : "bg-zinc-100 text-zinc-400 cursor-not-allowed"
@@ -280,7 +280,7 @@ const OrderTable = ({ shipments, isCancelled, onCancel }) => (
           ].map((h) => (
             <th
               key={h}
-              className="text-left px-5 py-3.5 text-[9px] uppercase tracking-[0.22em] font-black text-zinc-400 whitespace-nowrap bg-zinc-50/60"
+              className="text-left px-5 py-3.5 text-[9px] uppercase tracking-[0.22em] font-medium text-zinc-400 whitespace-nowrap bg-zinc-50/60"
             >
               {h}
             </th>
@@ -302,7 +302,7 @@ const OrderTable = ({ shipments, isCancelled, onCancel }) => (
                 {s.customer?.phone || "—"}
               </p>
             </td>
-            <td className="px-5 py-5 align-top max-w-[150px]">
+            <td className="px-5 py-5 align-top max-w-37.5">
               <div className="flex items-start gap-1.5 text-[12px] text-zinc-600 leading-snug">
                 <MdLocationOn
                   className={`shrink-0 mt-0.5 w-3.5 h-3.5 ${isCancelled ? "text-zinc-300" : "text-emerald-500"}`}
@@ -341,7 +341,7 @@ const OrderTable = ({ shipments, isCancelled, onCancel }) => (
               </td>
             )}
             <td className="px-5 py-5 align-top">
-              <p className="flex items-center gap-1 text-[11px] font-black uppercase text-zinc-600 mb-1.5">
+              <p className="flex items-center gap-1 text-[11px] font-medium uppercase text-zinc-600 mb-1.5">
                 <MdPayment className="text-zinc-400 w-3.5 h-3.5" />
                 {s.payment?.method || "COD"}
               </p>
@@ -352,7 +352,7 @@ const OrderTable = ({ shipments, isCancelled, onCancel }) => (
             </td>
             <td className="px-5 py-5 align-top whitespace-nowrap">
               <span
-                className={`text-sm font-black ${isCancelled ? "text-zinc-400 line-through" : "text-zinc-900"}`}
+                className={`text-sm font-medium ${isCancelled ? "text-zinc-400 line-through" : "text-zinc-900"}`}
               >
                 Rs.{s.shipmentTotal ?? 0}
               </span>
@@ -362,7 +362,7 @@ const OrderTable = ({ shipments, isCancelled, onCancel }) => (
                 <button
                   disabled={s.status !== "Pending"}
                   onClick={() => onCancel(s._id)}
-                  className={`px-3.5 py-1.5 rounded-lg text-[11px] font-black uppercase tracking-wide transition-all duration-200 whitespace-nowrap ${
+                  className={`px-3.5 py-1.5 rounded-lg text-[11px] font-medium uppercase tracking-wide transition-all duration-200 whitespace-nowrap ${
                     s.status === "Pending"
                       ? "bg-red-500 hover:bg-red-600 text-white"
                       : "bg-zinc-100 text-zinc-400 cursor-not-allowed"
@@ -383,11 +383,11 @@ const OrderTable = ({ shipments, isCancelled, onCancel }) => (
 const Section = ({ title, count, children }) => (
   <section className="rounded-2xl border border-zinc-200 bg-white overflow-hidden">
     <div className="flex items-center gap-2.5 px-5 py-3.5 border-b border-zinc-100 bg-zinc-50/60">
-      <h2 className="text-[10px] font-black uppercase tracking-[0.25em] text-zinc-500">
+      <h2 className="text-[10px] font-medium uppercase tracking-[0.25em] text-zinc-500">
         {title}
       </h2>
       {count > 0 && (
-        <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-zinc-200/70 text-zinc-500">
+        <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-zinc-200/70 text-zinc-500">
           {count}
         </span>
       )}
@@ -404,14 +404,14 @@ const EmptyState = () => (
         <HiOutlineShoppingBag className="w-7 h-7 text-zinc-300" />
       </div>
       <div>
-        <p className="text-sm font-bold text-zinc-800">No orders yet</p>
+        <p className="text-sm font-medium text-zinc-800">No orders yet</p>
         <p className="text-xs text-zinc-400 mt-1">
           Everything you order will appear right here
         </p>
       </div>
       <Link
         href="/collections/all"
-        className="bg-zinc-900 hover:bg-zinc-700 text-white text-[11px] font-black uppercase tracking-[0.2em] px-7 py-3 rounded-xl transition-all duration-200"
+        className="bg-zinc-900 hover:bg-zinc-700 text-white text-[11px] font-medium uppercase tracking-[0.2em] px-7 py-3 rounded-xl transition-all duration-200"
       >
         Shop the Collection
       </Link>
@@ -519,7 +519,7 @@ const MyOrders = () => {
               <HiOutlineShoppingBag className="w-6 h-6 text-zinc-300" />
             </div>
             <div>
-              <p className="text-sm font-bold text-zinc-700">
+              <p className="text-sm font-medium text-zinc-700">
                 No active orders
               </p>
               <p className="text-xs text-zinc-400 mt-1">
@@ -528,7 +528,7 @@ const MyOrders = () => {
             </div>
             <Link
               href="/collections/all"
-              className="bg-zinc-900 hover:bg-zinc-700 text-white text-[11px] font-black uppercase tracking-[0.2em] px-6 py-2.5 rounded-xl transition-all duration-200"
+              className="bg-zinc-900 hover:bg-zinc-700 text-white text-[11px] font-medium uppercase tracking-[0.2em] px-6 py-2.5 rounded-xl transition-all duration-200"
             >
               Shop Now
             </Link>

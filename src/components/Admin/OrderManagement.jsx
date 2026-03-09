@@ -25,8 +25,9 @@ import {
   fetchOrdersAdminAction,
   updateOrderStatusAction,
   cancelShipmentAction,
-  restoreShipmentAction, // ← implement this server action (see note at bottom)
+  restoreShipmentAction,
   sendOrderEmailAction,
+  sendBulkEmailAction, // ← add this export to your actions file (see note at bottom)
 } from "@/actions/adminOrder";
 
 // ─────────────────────────────────────────────
@@ -90,35 +91,52 @@ const STATUS_CFG = {
 const EMAIL_TEMPLATES = [
   {
     label: "Order Confirmed",
-    subject: "Your order has been confirmed!",
+    status: "Pending",
+    subject: "Order Confirmed — RabbitHub",
     message:
-      "Hi,\n\nThank you for your order. We're happy to confirm that your order has been received and is being processed.\n\nWe'll notify you once it ships.\n\nRabbitHub Team",
+      "Dear Customer,\n\nThank you for your order. We are pleased to confirm that your order has been successfully received and is now being prepared for processing.\n\nYou will receive a follow-up notification once your order has been dispatched.\n\nShould you have any questions in the meantime, please do not hesitate to contact us at inbox.rabbit@gmail.com.\n\nBest regards,\nRabbitHub Customer Support",
+  },
+  {
+    label: "Order Processing",
+    status: "Processing",
+    subject: "Your Order Is Being Processed — RabbitHub",
+    message:
+      "Dear Customer,\n\nWe would like to inform you that your order is currently being processed and prepared for shipment.\n\nOur team is carefully handling your items to ensure they are packed and dispatched in a timely manner. You will receive a shipping confirmation as soon as your order is on its way.\n\nWe appreciate your patience and thank you for choosing RabbitHub.\n\nBest regards,\nRabbitHub Customer Support",
   },
   {
     label: "Order Shipped",
-    subject: "Your order is on the way!",
+    status: "Shipped",
+    subject: "Your Order Has Been Shipped — RabbitHub",
     message:
-      "Hi,\n\nGreat news! Your order has been shipped and is on its way to you. You can expect delivery within 3–5 business days.\n\nThank you for shopping with RabbitHub!",
+      "Dear Customer,\n\nWe are pleased to inform you that your order has been dispatched and is currently on its way to you.\n\nEstimated delivery time is 3 to 5 business days. Please ensure that someone is available at the delivery address to receive the package.\n\nIf you have any concerns regarding your delivery, please contact us at inbox.rabbit@gmail.com and we will be happy to assist.\n\nThank you for shopping with RabbitHub.\n\nBest regards,\nRabbitHub Customer Support",
   },
   {
     label: "Order Delivered",
-    subject: "Your order has been delivered!",
+    status: "Delivered",
+    subject: "Your Order Has Been Delivered — RabbitHub",
     message:
-      "Hi,\n\nYour order has been delivered. We hope you love your purchase!\n\nIf you have any questions or feedback, please don't hesitate to reach out.\n\nRabbitHub Team",
+      "Dear Customer,\n\nWe are delighted to confirm that your order has been successfully delivered.\n\nWe hope you are satisfied with your purchase. If you experience any issues with the items received, please contact us within 48 hours at inbox.rabbit@gmail.com and our support team will resolve the matter promptly.\n\nThank you for placing your trust in RabbitHub. We look forward to serving you again.\n\nBest regards,\nRabbitHub Customer Support",
   },
   {
     label: "Order Cancelled",
-    subject: "Your order has been cancelled",
+    status: "Cancelled",
+    subject: "Your Order Has Been Cancelled — RabbitHub",
     message:
-      "Hi,\n\nWe're sorry to inform you that your order has been cancelled. If you did not request this, please contact us immediately.\n\nRabbitHub Team",
+      "Dear Customer,\n\nWe regret to inform you that your order has been cancelled.\n\nIf you did not initiate this cancellation or believe this has occurred in error, please contact our support team immediately at inbox.rabbit@gmail.com.\n\nIf a payment was made against this order, a full refund will be processed within 5 to 7 business days, depending on your payment method and financial institution.\n\nWe sincerely apologize for any inconvenience this may have caused and hope to serve you again in the future.\n\nBest regards,\nRabbitHub Customer Support",
   },
   {
     label: "Payment Reminder",
-    subject: "Payment pending for your order",
+    status: null,
+    subject: "Prepare Payment for Your Incoming Order — RabbitHub",
     message:
-      "Hi,\n\nThis is a friendly reminder that payment for your recent order is still pending. Please complete the payment to avoid cancellation.\n\nRabbitHub Team",
+      "Dear Customer,\n\nWe would like to inform you that your order is currently on its way and will be arriving at your delivery address shortly.\n\nAs your order is being fulfilled on a Cash on Delivery basis, we kindly request that you have the exact payment amount prepared and ready upon delivery. This will help ensure a smooth and prompt handover with our delivery personnel.\n\nPlease ensure that you or an authorized representative is available at the delivery address to receive the package and complete the payment.\n\nShould you have any questions or require assistance prior to delivery, please do not hesitate to reach out to us at inbox.rabbit@gmail.com.\n\nThank you for shopping with RabbitHub. We look forward to completing your order.\n\nBest regards,\nRabbitHub Customer Support",
   },
-  { label: "Custom", subject: "", message: "" },
+  {
+    label: "Custom",
+    status: null,
+    subject: "",
+    message: "",
+  },
 ];
 
 const fmtDate = (d) =>
@@ -192,6 +210,7 @@ const EmailModal = ({ target, onClose }) => {
     setMessage(EMAIL_TEMPLATES[idx].message);
   };
 
+  // ✅ FIXED: bulk vs single are routed to separate actions
   const handleSend = async () => {
     if (!subject.trim() || !message.trim()) {
       toast.error("Subject and message are required");
@@ -199,15 +218,26 @@ const EmailModal = ({ target, onClose }) => {
     }
     setSending(true);
     try {
-      const { status, data } = await sendOrderEmailAction({
-        orderId: target.orderId,
-        subject,
-        message,
-      });
+      let status, data;
+
+      if (target.type === "bulk") {
+        // Bulk: no orderId — send to all customers
+        ({ status, data } = await sendBulkEmailAction({ subject, message }));
+      } else {
+        // Single order email
+        ({ status, data } = await sendOrderEmailAction({
+          orderId: target.orderId,
+          subject,
+          message,
+        }));
+      }
+
       if (status === 200 || status === 201) {
         toast.success(data?.message || "Email sent!");
         onClose();
-      } else toast.error(data?.message || "Failed to send email");
+      } else {
+        toast.error(data?.message || "Failed to send email");
+      }
     } catch {
       toast.error("Failed to send email");
     } finally {
@@ -227,7 +257,7 @@ const EmailModal = ({ target, onClose }) => {
             <p className="text-[10px] font-medium uppercase tracking-[0.25em] text-zinc-500">
               {target.type === "bulk"
                 ? "Bulk Email · All Customers"
-                : `Email · Order #${target.orderId?.slice(-8).toUpperCase()}`}
+                : `Email · Order #${target.orderId}`}
             </p>
             <p className="text-sm font-medium text-zinc-800 mt-0.5">
               {target.label}
@@ -314,8 +344,6 @@ const EmailModal = ({ target, onClose }) => {
 
 // ─────────────────────────────────────────────
 // Payment Controls
-// Extracted as its own component so it works identically on both
-// active AND cancelled shipments — payment is always manually editable.
 // ─────────────────────────────────────────────
 const PaymentControls = ({
   orderId,
@@ -329,7 +357,6 @@ const PaymentControls = ({
   const [paymentMethod, setPaymentMethod] = useState(initialMethod || "COD");
   const [updatingPayment, setUpdatingPayment] = useState(false);
 
-  // Sends only paymentStatus — does NOT touch paymentMethod
   const handlePaymentStatusUpdate = async (newPaymentStatus) => {
     if (newPaymentStatus === paymentStatus) return;
     setUpdatingPayment(true);
@@ -352,7 +379,6 @@ const PaymentControls = ({
     }
   };
 
-  // Sends only paymentMethod — does NOT touch paymentStatus
   const handlePaymentMethodUpdate = async (newPaymentMethod) => {
     if (newPaymentMethod === paymentMethod) return;
     setUpdatingPayment(true);
@@ -377,7 +403,6 @@ const PaymentControls = ({
 
   return (
     <div className="flex items-center justify-between flex-wrap gap-3 px-3 py-2.5 rounded-lg bg-zinc-50 border border-zinc-100">
-      {/* Current state */}
       <div className="flex items-center gap-2 flex-wrap">
         <p className="text-[9px] font-medium uppercase tracking-[0.2em] text-zinc-400">
           Payment
@@ -391,7 +416,6 @@ const PaymentControls = ({
         {updatingPayment && <Spinner />}
       </div>
 
-      {/* Controls — always editable, even on cancelled shipments */}
       <div className="flex items-center gap-2 flex-wrap">
         <select
           value={paymentMethod}
@@ -406,7 +430,6 @@ const PaymentControls = ({
           ))}
         </select>
 
-        {/* Dynamic buttons — hides current status, shows all others */}
         {paymentStatus !== "Pending" && (
           <button
             onClick={() => handlePaymentStatusUpdate("Pending")}
@@ -515,11 +538,10 @@ const ShipmentRow = ({
     <div
       className={`rounded-xl border p-4 space-y-3 ${isCancelled ? "border-zinc-100 bg-zinc-50/80" : "border-zinc-200 bg-white"}`}
     >
-      {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-2">
         <div className="flex items-center gap-3">
           <span className="font-mono text-[10px] font-medium text-zinc-400">
-            #{shipment._id?.slice(-8).toUpperCase()}
+            #{shipment._id}
           </span>
           <StatusPill status={isCancelled ? "Cancelled" : localStatus} />
           {isCancelled && (
@@ -538,7 +560,6 @@ const ShipmentRow = ({
         </div>
       </div>
 
-      {/* Customer */}
       {shipment.customer && (
         <div className="flex items-center gap-4 px-3 py-2 rounded-lg bg-zinc-50 border border-zinc-100">
           <div className="w-7 h-7 rounded-full bg-zinc-200 flex items-center justify-center shrink-0 text-[11px] font-medium text-zinc-600">
@@ -557,7 +578,6 @@ const ShipmentRow = ({
         </div>
       )}
 
-      {/* Payment — always editable, regardless of shipment cancellation */}
       <PaymentControls
         orderId={orderId}
         shipmentId={shipment._id}
@@ -565,7 +585,6 @@ const ShipmentRow = ({
         initialMethod={shipment.payment?.method}
       />
 
-      {/* Products */}
       <div className="flex flex-wrap gap-2">
         {(shipment.products || []).map((p, i) => (
           <div
@@ -593,7 +612,6 @@ const ShipmentRow = ({
         ))}
       </div>
 
-      {/* Actions */}
       {!isCancelled ? (
         <div className="space-y-2 pt-1">
           <div className="flex items-center gap-2 flex-wrap">
@@ -667,7 +685,6 @@ const ShipmentRow = ({
           </div>
         </div>
       ) : (
-        /* Cancelled shipment footer */
         <div className="pt-1 flex items-center gap-3 flex-wrap">
           <button
             onClick={handleRestore}
@@ -723,9 +740,7 @@ const OrderRow = ({ order, onStatusChange, onCancel, onRestore, onEmail }) => {
         onClick={() => setExpanded((v) => !v)}
       >
         <td className="px-5 py-4">
-          <span className="font-mono text-[11px] font-medium text-zinc-400">
-            #{order._id?.slice(-8).toUpperCase()}
-          </span>
+          <span className="text-xs">#{order._id}</span>
         </td>
 
         <td className="px-5 py-4">
@@ -747,7 +762,7 @@ const OrderRow = ({ order, onStatusChange, onCancel, onRestore, onEmail }) => {
                 <p className="text-[10px] text-zinc-400">
                   {customer.phone || ""}
                 </p>
-                <p className="text-[10px] text-zinc-400 truncate max-w-[160px]">
+                <p className="text-[10px] text-zinc-400 truncate max-w-40">
                   {customer.email || ""}
                 </p>
               </div>
@@ -925,7 +940,6 @@ const OrderManagement = () => {
     );
   }, []);
 
-  // Moves shipment → cancelledProducts. Payment is NOT auto-changed — admin does it manually.
   const handleCancel = useCallback(async (orderId, shipmentId) => {
     try {
       const { status, data } = await cancelShipmentAction({
@@ -961,7 +975,6 @@ const OrderManagement = () => {
     }
   }, []);
 
-  // Moves shipment back from cancelledProducts → shipments as Pending
   const handleRestore = useCallback(async (orderId, shipmentId) => {
     try {
       const { status, data } = await restoreShipmentAction({
@@ -1094,9 +1107,8 @@ const OrderManagement = () => {
         <EmailModal target={emailModal} onClose={() => setEmailModal(null)} />
       )}
 
-      <div className="min-h-screen bg-zinc-50">
-        <div className="container mx-auto px-4 sm:px-6 py-8 space-y-6">
-          {/* Header */}
+      <div className="min-h-screen p-4">
+        <div className="container mx-auto space-y-6">
           <div className="flex items-end justify-between flex-wrap gap-4">
             <div>
               <p className="text-[9px] font-medium uppercase tracking-[0.35em] text-zinc-400 mb-1">
@@ -1124,7 +1136,6 @@ const OrderManagement = () => {
             </div>
           </div>
 
-          {/* KPI tiles */}
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
             {[
               {
@@ -1191,9 +1202,8 @@ const OrderManagement = () => {
             ))}
           </div>
 
-          {/* Filters */}
           <div className="flex items-center gap-3 flex-wrap">
-            <div className="relative flex-1 min-w-[200px] max-w-xs">
+            <div className="relative flex-1 min-w-50 max-w-xs">
               <TbSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400" />
               <input
                 type="text"
@@ -1220,7 +1230,6 @@ const OrderManagement = () => {
             </p>
           </div>
 
-          {/* Table */}
           <div className="bg-white rounded-2xl border border-zinc-200 overflow-hidden">
             <div className="overflow-x-auto">
               <table className="min-w-full">
@@ -1279,31 +1288,3 @@ const OrderManagement = () => {
 };
 
 export default OrderManagement;
-
-/*
- * ─────────────────────────────────────────────────────────────
- * SERVER ACTION NEEDED: restoreShipmentAction
- * Add this to your @/actions/adminOrder file:
- * ─────────────────────────────────────────────────────────────
- *
- * export async function restoreShipmentAction({ orderId, shipmentId }) {
- *   try {
- *     const res = await fetch(`/api/admin/orders/restore`, {
- *       method: "PUT",
- *       headers: { "Content-Type": "application/json" },
- *       body: JSON.stringify({ orderId, shipmentId }),
- *     });
- *     const data = await res.json();
- *     return { status: res.status, data };
- *   } catch (err) {
- *     return { status: 500, data: { message: err.message } };
- *   }
- * }
- *
- * And add a PUT /api/admin/orders/restore route that:
- * 1. Finds the order
- * 2. Pulls the shipment out of cancelledProducts[]
- * 3. Pushes it into shipments[] with status = "Pending"
- * 4. Saves and returns the updated order
- * ─────────────────────────────────────────────────────────────
- */

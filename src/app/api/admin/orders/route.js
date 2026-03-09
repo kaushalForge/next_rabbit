@@ -4,34 +4,6 @@ import Order from "@/models/order";
 import User from "@/models/user"; // required for populate
 import { isAdmin } from "@/lib/isAdmin";
 import mongoose from "mongoose";
-import nodemailer from "nodemailer";
-
-// ------------------- Helper: send email -------------------
-const sendEmail = async ({ to, subject, text, html }) => {
-  try {
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: "inbox.rabbit@gmail.com",
-        pass: process.env.RABBIT_EMAIL_PASSWORD,
-      },
-    });
-
-    const info = await transporter.sendMail({
-      from: '"RabbitHub" <inbox.rabbit@gmail.com>',
-      to,
-      subject,
-      text,
-      html,
-    });
-
-    console.log("Email sent:", info.messageId);
-    return true;
-  } catch (error) {
-    console.error("Email send error:", error);
-    return false;
-  }
-};
 
 // ------------------- GET ALL ORDERS -------------------
 export async function GET() {
