@@ -50,7 +50,6 @@ export const OrderProvider = ({ children }) => {
         fetchedOrders = response.data.orders;
       }
 
-      console.log("Orders fetched:", fetchedOrders);
 
       // Extract shipments
       const extractedActive = fetchedOrders.flatMap((order) =>
@@ -171,7 +170,6 @@ export const OrderProvider = ({ children }) => {
       totalSpent,
     ],
   );
-  console.log(allShipments, "test");
 
   return (
     <OrderContext.Provider value={value}>{children}</OrderContext.Provider>

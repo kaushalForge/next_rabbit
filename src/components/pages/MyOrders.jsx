@@ -52,7 +52,7 @@ const fmt = (d) =>
       })
     : "—";
 
-// ── Status Badge ──
+// ── Badges ──
 const StatusBadge = ({ status, isCancelled }) => {
   const label = isCancelled ? "Cancelled" : status || "Pending";
   const config = isCancelled
@@ -61,7 +61,7 @@ const StatusBadge = ({ status, isCancelled }) => {
   const Icon = config.icon;
   return (
     <span
-      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-medium tracking-wide ${config.cls}`}
+      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-bold tracking-wide ${config.cls}`}
     >
       <Icon className="w-3.5 h-3.5" />
       {label}
@@ -69,10 +69,9 @@ const StatusBadge = ({ status, isCancelled }) => {
   );
 };
 
-// ── Payment Badge ──
 const PaymentBadge = ({ status, isCancelled }) => (
   <span
-    className={`inline-flex items-center px-2.5 py-1 rounded-lg text-[11px] font-medium tracking-wide ${
+    className={`inline-flex items-center px-2.5 py-1 rounded-lg text-[11px] font-bold tracking-wide ${
       isCancelled
         ? "bg-zinc-100 text-zinc-400 border border-zinc-200"
         : (PAYMENT_CONFIG[status] ??
@@ -85,14 +84,14 @@ const PaymentBadge = ({ status, isCancelled }) => (
 
 // ── Product Item ──
 const ProductItem = ({ p, dim }) => (
-  <div className={`flex items-start gap-3 ${dim ? "opacity-40" : ""}`}>
+  <div className={`flex items-start gap-3 ${dim ? "opacity-60" : ""}`}>
     {p.image ? (
-      <div className="relative w-14 h-16 rounded-xl overflow-hidden shrink-0 border border-zinc-100 bg-zinc-50">
+      <div className="relative w-12 h-14 rounded-xl overflow-hidden shrink-0 border border-zinc-100 bg-zinc-50">
         <Image src={p.image} alt={p.name ?? ""} fill className="object-cover" />
       </div>
     ) : (
-      <div className="w-14 h-16 rounded-xl bg-zinc-100 shrink-0 flex items-center justify-center">
-        <HiOutlineShoppingBag className="w-5 h-5 text-zinc-300" />
+      <div className="w-12 h-14 rounded-xl bg-zinc-100 shrink-0 flex items-center justify-center">
+        <HiOutlineShoppingBag className="w-4 h-4 text-zinc-300" />
       </div>
     )}
     <div className="flex flex-col gap-0.5 min-w-0 pt-0.5">
@@ -101,21 +100,19 @@ const ProductItem = ({ p, dim }) => (
       >
         {p.name}
       </span>
-      <span className="text-[11px] text-zinc-400 tracking-wide">
+      <span className="text-[11px] text-zinc-400">
         {p.mainCategory === "Fashion"
-          ? `Qty ${p.quantity}  ·  ${p.size}  ·  ${p.color}`
+          ? `Qty ${p.quantity} · ${p.size} · ${p.color}`
           : p.mainCategory === "Food"
-            ? `Qty ${p.quantity}  ·  ${p.weight}`
+            ? `Qty ${p.quantity} · ${p.weight}`
             : `Qty ${p.quantity}`}
       </span>
-      <div className="flex items-center gap-2 mt-1">
-        <span
-          className={`text-[11px] line-through ${dim ? "text-zinc-400" : "text-zinc-400"}`}
-        >
+      <div className="flex items-center gap-2 mt-0.5">
+        <span className="text-[11px] line-through text-zinc-400">
           Rs.{p.price ?? 0}
         </span>
         <span
-          className={`text-[12px] font-medium ${dim ? "text-zinc-400" : "text-orange-500"}`}
+          className={`text-[12px] font-black ${dim ? "text-zinc-400" : "text-orange-500"}`}
         >
           Rs.{p.offerPrice ?? 0}
         </span>
@@ -125,46 +122,35 @@ const ProductItem = ({ p, dim }) => (
 );
 
 // ────────────────────────────────────────────
-// Mobile Order Card
+// Mobile Order Card — fully minimal, no strips
 // ────────────────────────────────────────────
 const OrderCard = ({ shipment, isCancelled, onCancel }) => {
   const isPending = shipment.status === "Pending";
+
   return (
     <article
-      className={`rounded-2xl border overflow-hidden ${
-        isCancelled
-          ? "border-zinc-200 bg-zinc-50/80"
-          : "border-zinc-200 bg-white shadow-sm"
-      }`}
+      className={`rounded-2xl border bg-white overflow-hidden ${isCancelled ? "border-zinc-100" : "border-zinc-200"}`}
     >
-      {/* Card header */}
-      <div
-        className={`flex items-center justify-between px-4 py-3.5 ${
-          isCancelled
-            ? "bg-zinc-100/70 border-b border-zinc-200"
-            : "bg-zinc-950 border-b border-zinc-800"
-        }`}
-      >
-        <div>
-          <p className="text-[9px] uppercase tracking-[0.22em] font-semibold text-zinc-500 mb-0.5">
-            Order
-          </p>
-          <p
-            className={`text-[11px] font-mono font-medium ${isCancelled ? "text-zinc-500" : "text-zinc-300"}`}
-          >
-            #{shipment._id?.slice(-10).toUpperCase()}
-          </p>
-        </div>
-        <StatusBadge status={shipment.status} isCancelled={isCancelled} />
-      </div>
-
-      <div
-        className={`p-4 flex flex-col gap-4 ${isCancelled ? "opacity-70" : ""}`}
-      >
-        {/* Customer + Delivery */}
-        <div className="grid grid-cols-2 gap-4">
+      <div className="p-4 flex flex-col gap-3.5">
+        {/* Header row */}
+        <div className="flex items-center justify-between">
           <div>
-            <p className="text-[9px] uppercase tracking-[0.2em] text-zinc-400 font-medium mb-2">
+            <p className="text-[9px] uppercase tracking-[0.2em] text-zinc-400 font-semibold mb-0.5">
+              Order
+            </p>
+            <p className="text-[11px] font-mono font-bold text-zinc-400">
+              #{shipment._id?.slice(-10).toUpperCase()}
+            </p>
+          </div>
+          <StatusBadge status={shipment.status} isCancelled={isCancelled} />
+        </div>
+
+        <div className="h-px bg-zinc-100" />
+
+        {/* Customer + Delivery */}
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <p className="text-[9px] uppercase tracking-[0.18em] text-zinc-400 font-semibold mb-1.5">
               Customer
             </p>
             <div className="flex items-center gap-1.5 text-[12px] font-semibold text-zinc-700 mb-0.5">
@@ -179,12 +165,12 @@ const OrderCard = ({ shipment, isCancelled, onCancel }) => {
             </div>
           </div>
           <div>
-            <p className="text-[9px] uppercase tracking-[0.2em] text-zinc-400 font-medium mb-2">
+            <p className="text-[9px] uppercase tracking-[0.18em] text-zinc-400 font-semibold mb-1.5">
               Delivery
             </p>
             <div className="flex items-start gap-1.5 text-[11px] text-zinc-600 leading-snug">
               <MdLocationOn
-                className={`shrink-0 mt-0.5 w-3.5 h-3.5 ${isCancelled ? "text-zinc-400" : "text-emerald-500"}`}
+                className={`shrink-0 mt-0.5 w-3.5 h-3.5 ${isCancelled ? "text-zinc-300" : "text-emerald-500"}`}
               />
               <span>
                 {[
@@ -203,7 +189,7 @@ const OrderCard = ({ shipment, isCancelled, onCancel }) => {
 
         {/* Items */}
         <div>
-          <p className="text-[9px] uppercase tracking-[0.2em] text-zinc-400 font-medium mb-3">
+          <p className="text-[9px] uppercase tracking-[0.18em] text-zinc-400 font-semibold mb-2.5">
             Items
           </p>
           <div className="flex flex-col gap-3">
@@ -222,10 +208,10 @@ const OrderCard = ({ shipment, isCancelled, onCancel }) => {
         {/* Payment · Total · Date */}
         <div className="grid grid-cols-3 gap-2">
           <div>
-            <p className="text-[9px] uppercase tracking-[0.2em] text-zinc-400 font-medium mb-2">
+            <p className="text-[9px] uppercase tracking-[0.18em] text-zinc-400 font-semibold mb-1.5">
               Payment
             </p>
-            <p className="flex items-center gap-1 text-[11px] font-medium uppercase text-zinc-600 mb-1.5">
+            <p className="flex items-center gap-1 text-[11px] font-bold uppercase text-zinc-600 mb-1.5">
               <MdPayment className="text-zinc-400 w-3.5 h-3.5" />
               {shipment.payment?.method || "COD"}
             </p>
@@ -235,17 +221,17 @@ const OrderCard = ({ shipment, isCancelled, onCancel }) => {
             />
           </div>
           <div>
-            <p className="text-[9px] uppercase tracking-[0.2em] text-zinc-400 font-medium mb-2">
+            <p className="text-[9px] uppercase tracking-[0.18em] text-zinc-400 font-semibold mb-1.5">
               Total
             </p>
             <p
-              className={`text-sm font-medium ${isCancelled ? "text-zinc-400 line-through" : "text-zinc-900"}`}
+              className={`text-sm font-black ${isCancelled ? "text-zinc-400 line-through" : "text-zinc-900"}`}
             >
               Rs.{shipment.shipmentTotal ?? 0}
             </p>
           </div>
           <div>
-            <p className="text-[9px] uppercase tracking-[0.2em] text-zinc-400 font-medium mb-2">
+            <p className="text-[9px] uppercase tracking-[0.18em] text-zinc-400 font-semibold mb-1.5">
               {isCancelled ? "Cancelled" : "Ordered"}
             </p>
             <p className="text-[11px] text-zinc-500 leading-snug">
@@ -259,9 +245,9 @@ const OrderCard = ({ shipment, isCancelled, onCancel }) => {
           <button
             disabled={!isPending}
             onClick={() => onCancel(shipment._id)}
-            className={`w-full py-2.5 rounded-xl text-[11px] font-medium uppercase tracking-[0.15em] transition-all duration-200 ${
+            className={`w-full py-2.5 rounded-xl text-[11px] font-black uppercase tracking-[0.15em] transition-all duration-200 ${
               isPending
-                ? "bg-red-500 hover:bg-red-600 text-white shadow-sm"
+                ? "bg-red-500 hover:bg-red-600 text-white"
                 : "bg-zinc-100 text-zinc-400 cursor-not-allowed"
             }`}
           >
@@ -274,13 +260,13 @@ const OrderCard = ({ shipment, isCancelled, onCancel }) => {
 };
 
 // ────────────────────────────────────────────
-// Desktop Table
+// Desktop Table — clean minimal header
 // ────────────────────────────────────────────
 const OrderTable = ({ shipments, isCancelled, onCancel }) => (
   <div className="overflow-x-auto">
     <table className="min-w-full">
       <thead>
-        <tr className="border-b border-zinc-100 bg-zinc-50/60">
+        <tr className="border-b border-zinc-100">
           {[
             "Customer",
             "Delivery",
@@ -294,7 +280,7 @@ const OrderTable = ({ shipments, isCancelled, onCancel }) => (
           ].map((h) => (
             <th
               key={h}
-              className="text-left px-5 py-3.5 text-[9px] uppercase tracking-[0.22em] font-medium text-zinc-400 whitespace-nowrap"
+              className="text-left px-5 py-3.5 text-[9px] uppercase tracking-[0.22em] font-black text-zinc-400 whitespace-nowrap bg-zinc-50/60"
             >
               {h}
             </th>
@@ -307,7 +293,6 @@ const OrderTable = ({ shipments, isCancelled, onCancel }) => (
             key={s._id}
             className={`transition-colors ${isCancelled ? "opacity-50" : "hover:bg-zinc-50/70"}`}
           >
-            {/* Customer */}
             <td className="px-5 py-5 align-top">
               <p className="text-[13px] font-semibold text-zinc-800">
                 {s.customer?.fullName || "N/A"}
@@ -317,7 +302,6 @@ const OrderTable = ({ shipments, isCancelled, onCancel }) => (
                 {s.customer?.phone || "—"}
               </p>
             </td>
-            {/* Delivery */}
             <td className="px-5 py-5 align-top max-w-[150px]">
               <div className="flex items-start gap-1.5 text-[12px] text-zinc-600 leading-snug">
                 <MdLocationOn
@@ -334,7 +318,6 @@ const OrderTable = ({ shipments, isCancelled, onCancel }) => (
                 </span>
               </div>
             </td>
-            {/* Items */}
             <td className="px-5 py-5 align-top">
               <div className="flex flex-col gap-3">
                 {(s.products || []).map((p, i) => (
@@ -346,23 +329,19 @@ const OrderTable = ({ shipments, isCancelled, onCancel }) => (
                 ))}
               </div>
             </td>
-            {/* Status */}
             <td className="px-5 py-5 align-top">
               <StatusBadge status={s.status} isCancelled={isCancelled} />
             </td>
-            {/* Ordered */}
             <td className="px-5 py-5 align-top text-[12px] text-zinc-500 whitespace-nowrap">
               {fmt(s.createdAt)}
             </td>
-            {/* Cancelled */}
             {isCancelled && (
               <td className="px-5 py-5 align-top text-[12px] text-zinc-400 whitespace-nowrap">
                 {fmt(s.cancelledAt)}
               </td>
             )}
-            {/* Payment */}
             <td className="px-5 py-5 align-top">
-              <p className="flex items-center gap-1 text-[11px] font-medium uppercase text-zinc-600 mb-1.5">
+              <p className="flex items-center gap-1 text-[11px] font-black uppercase text-zinc-600 mb-1.5">
                 <MdPayment className="text-zinc-400 w-3.5 h-3.5" />
                 {s.payment?.method || "COD"}
               </p>
@@ -371,23 +350,21 @@ const OrderTable = ({ shipments, isCancelled, onCancel }) => (
                 isCancelled={isCancelled}
               />
             </td>
-            {/* Total */}
             <td className="px-5 py-5 align-top whitespace-nowrap">
               <span
-                className={`text-sm font-medium ${isCancelled ? "text-zinc-400 line-through" : "text-zinc-900"}`}
+                className={`text-sm font-black ${isCancelled ? "text-zinc-400 line-through" : "text-zinc-900"}`}
               >
                 Rs.{s.shipmentTotal ?? 0}
               </span>
             </td>
-            {/* Action */}
             {!isCancelled && (
               <td className="px-5 py-5 align-top">
                 <button
                   disabled={s.status !== "Pending"}
                   onClick={() => onCancel(s._id)}
-                  className={`px-3.5 py-1.5 rounded-lg text-[11px] font-medium uppercase tracking-wide transition-all duration-200 whitespace-nowrap ${
+                  className={`px-3.5 py-1.5 rounded-lg text-[11px] font-black uppercase tracking-wide transition-all duration-200 whitespace-nowrap ${
                     s.status === "Pending"
-                      ? "bg-red-500 hover:bg-red-600 text-white shadow-sm hover:shadow"
+                      ? "bg-red-500 hover:bg-red-600 text-white"
                       : "bg-zinc-100 text-zinc-400 cursor-not-allowed"
                   }`}
                 >
@@ -402,25 +379,15 @@ const OrderTable = ({ shipments, isCancelled, onCancel }) => (
   </div>
 );
 
-// ── Section wrapper ──
-const Section = ({ title, count, dark, children }) => (
-  <section className="rounded-2xl border border-zinc-200 overflow-hidden bg-white shadow-sm">
-    <div
-      className={`flex items-center gap-3 px-5 py-4 border-b ${
-        dark ? "bg-zinc-950 border-zinc-800" : "bg-white border-zinc-100"
-      }`}
-    >
-      <h2
-        className={`text-[11px] font-medium uppercase tracking-[0.25em] ${dark ? "text-white" : "text-zinc-800"}`}
-      >
+// ── Section wrapper — clean white, no accent lines ──
+const Section = ({ title, count, children }) => (
+  <section className="rounded-2xl border border-zinc-200 bg-white overflow-hidden">
+    <div className="flex items-center gap-2.5 px-5 py-3.5 border-b border-zinc-100 bg-zinc-50/60">
+      <h2 className="text-[10px] font-black uppercase tracking-[0.25em] text-zinc-500">
         {title}
       </h2>
       {count > 0 && (
-        <span
-          className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${
-            dark ? "bg-white/10 text-zinc-300" : "bg-zinc-900 text-white"
-          }`}
-        >
+        <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-zinc-200/70 text-zinc-500">
           {count}
         </span>
       )}
@@ -431,20 +398,20 @@ const Section = ({ title, count, dark, children }) => (
 
 // ── Empty State ──
 const EmptyState = () => (
-  <Section title="Active Orders" dark>
+  <Section title="Active Orders">
     <div className="flex flex-col items-center justify-center gap-5 py-20 px-6 text-center">
       <div className="w-16 h-16 rounded-2xl bg-zinc-100 flex items-center justify-center">
         <HiOutlineShoppingBag className="w-7 h-7 text-zinc-300" />
       </div>
       <div>
-        <p className="text-sm font-medium text-zinc-800">No orders yet</p>
+        <p className="text-sm font-bold text-zinc-800">No orders yet</p>
         <p className="text-xs text-zinc-400 mt-1">
           Everything you order will appear right here
         </p>
       </div>
       <Link
         href="/collections/all"
-        className="bg-zinc-900 hover:bg-zinc-700 text-white text-[11px] font-medium uppercase tracking-[0.2em] px-7 py-3 rounded-xl transition-all duration-200 shadow-sm hover:shadow-md"
+        className="bg-zinc-900 hover:bg-zinc-700 text-white text-[11px] font-black uppercase tracking-[0.2em] px-7 py-3 rounded-xl transition-all duration-200"
       >
         Shop the Collection
       </Link>
@@ -524,7 +491,8 @@ const MyOrders = () => {
     <div className="flex flex-col gap-5">
       {/* Active Orders */}
       {activeShipments.length > 0 ? (
-        <Section title="Active Orders" count={activeShipments.length} dark>
+        <Section title="Active Orders" count={activeShipments.length}>
+          {/* Mobile */}
           <div className="lg:hidden flex flex-col gap-3 p-4">
             {activeShipments.map((s) => (
               <OrderCard
@@ -535,6 +503,7 @@ const MyOrders = () => {
               />
             ))}
           </div>
+          {/* Desktop */}
           <div className="hidden lg:block">
             <OrderTable
               shipments={activeShipments}
@@ -544,13 +513,13 @@ const MyOrders = () => {
           </div>
         </Section>
       ) : (
-        <Section title="Active Orders" dark>
+        <Section title="Active Orders">
           <div className="flex flex-col items-center gap-4 py-14 px-6 text-center">
             <div className="w-14 h-14 rounded-2xl bg-zinc-100 flex items-center justify-center">
               <HiOutlineShoppingBag className="w-6 h-6 text-zinc-300" />
             </div>
             <div>
-              <p className="text-sm font-medium text-zinc-700">
+              <p className="text-sm font-bold text-zinc-700">
                 No active orders
               </p>
               <p className="text-xs text-zinc-400 mt-1">
@@ -559,7 +528,7 @@ const MyOrders = () => {
             </div>
             <Link
               href="/collections/all"
-              className="bg-zinc-900 hover:bg-zinc-700 text-white text-[11px] font-medium uppercase tracking-[0.2em] px-6 py-2.5 rounded-xl transition-all duration-200"
+              className="bg-zinc-900 hover:bg-zinc-700 text-white text-[11px] font-black uppercase tracking-[0.2em] px-6 py-2.5 rounded-xl transition-all duration-200"
             >
               Shop Now
             </Link>
@@ -570,6 +539,7 @@ const MyOrders = () => {
       {/* Cancelled Orders */}
       {cancelled.length > 0 && (
         <Section title="Cancelled Orders" count={cancelled.length}>
+          {/* Mobile */}
           <div className="lg:hidden flex flex-col gap-3 p-4">
             {cancelled.map((s) => (
               <OrderCard
@@ -580,6 +550,7 @@ const MyOrders = () => {
               />
             ))}
           </div>
+          {/* Desktop */}
           <div className="hidden lg:block">
             <OrderTable
               shipments={cancelled}
