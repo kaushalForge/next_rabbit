@@ -268,7 +268,6 @@ const CustomerExcludePanel = ({ excludedIds, onToggle }) => {
 
   return (
     <div className="rounded-xl border border-zinc-200 overflow-hidden">
-      {/* Toggle header */}
       <button
         onClick={() => setOpen((v) => !v)}
         className="w-full flex items-center justify-between px-4 py-3 bg-zinc-50 hover:bg-zinc-100 transition text-left"
@@ -291,7 +290,6 @@ const CustomerExcludePanel = ({ excludedIds, onToggle }) => {
 
       {open && (
         <div className="border-t border-zinc-100">
-          {/* Search */}
           <div className="px-3 pt-3 pb-2">
             <div className="relative">
               <TbSearch className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-zinc-400" />
@@ -305,7 +303,6 @@ const CustomerExcludePanel = ({ excludedIds, onToggle }) => {
             </div>
           </div>
 
-          {/* Actions row */}
           <div className="flex items-center justify-between px-3 pb-2">
             <p className="text-[10px] text-zinc-400">
               {loadingCustomers
@@ -337,7 +334,6 @@ const CustomerExcludePanel = ({ excludedIds, onToggle }) => {
             </div>
           </div>
 
-          {/* Customer list */}
           <div className="max-h-48 overflow-y-auto divide-y divide-zinc-50">
             {loadingCustomers ? (
               <div className="flex items-center justify-center py-6">
@@ -357,7 +353,6 @@ const CustomerExcludePanel = ({ excludedIds, onToggle }) => {
                     className={`flex items-center justify-between px-3 py-2.5 cursor-pointer transition-colors ${isExcluded ? "bg-rose-50/60" : "hover:bg-zinc-50"}`}
                   >
                     <div className="flex items-center gap-2.5 min-w-0">
-                      {/* Avatar initial */}
                       <div
                         className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 text-[10px] font-semibold ${isExcluded ? "bg-rose-100 text-rose-500" : "bg-zinc-100 text-zinc-600"}`}
                       >
@@ -391,7 +386,6 @@ const CustomerExcludePanel = ({ excludedIds, onToggle }) => {
             )}
           </div>
 
-          {/* Summary footer */}
           {excludedCount > 0 && (
             <div className="px-3 py-2 border-t border-zinc-100 bg-rose-50/40">
               <p className="text-[10px] text-rose-500 font-medium">
@@ -428,7 +422,6 @@ const EmailModal = ({ target, onClose, onEmailSent }) => {
   const [subject, setSubject] = useState(TEMPLATES[defaultIdx].subject);
   const [message, setMessage] = useState(TEMPLATES[defaultIdx].message);
   const [sending, setSending] = useState(false);
-  // Set of customer _id strings to exclude from bulk send
   const [excludedIds, setExcludedIds] = useState(new Set());
 
   const toggleExclude = useCallback((id) => {
@@ -457,7 +450,7 @@ const EmailModal = ({ target, onClose, onEmailSent }) => {
         ({ status, data } = await sendBulkEmailAction({
           subject,
           message,
-          excludedIds: Array.from(excludedIds), // ← passed to route
+          excludedIds: Array.from(excludedIds),
         }));
       } else {
         ({ status, data } = await sendOrderEmailAction({
@@ -488,7 +481,6 @@ const EmailModal = ({ target, onClose, onEmailSent }) => {
         onClick={onClose}
       />
       <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh]">
-        {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-zinc-100 bg-zinc-50 shrink-0">
           <div>
             <p className="text-[10px] font-medium uppercase tracking-[0.25em] text-zinc-500">
@@ -508,9 +500,7 @@ const EmailModal = ({ target, onClose, onEmailSent }) => {
           </button>
         </div>
 
-        {/* Scrollable body */}
         <div className="p-5 space-y-4 overflow-y-auto">
-          {/* Bulk hint */}
           {isBulk && (
             <div className="px-3 py-2.5 rounded-xl bg-blue-50 border border-blue-100">
               <p className="text-[10px] font-medium text-blue-600 uppercase tracking-[0.18em] mb-1">
@@ -523,7 +513,6 @@ const EmailModal = ({ target, onClose, onEmailSent }) => {
             </div>
           )}
 
-          {/* Templates */}
           <div>
             <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-zinc-500 mb-2">
               {isBulk ? "Marketing Templates" : "Quick Templates"}
@@ -541,7 +530,6 @@ const EmailModal = ({ target, onClose, onEmailSent }) => {
             </div>
           </div>
 
-          {/* Subject */}
           <div>
             <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-zinc-500 mb-1.5">
               Subject
@@ -555,7 +543,6 @@ const EmailModal = ({ target, onClose, onEmailSent }) => {
             />
           </div>
 
-          {/* Message */}
           <div>
             <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-zinc-500 mb-1.5">
               Message
@@ -569,7 +556,6 @@ const EmailModal = ({ target, onClose, onEmailSent }) => {
             />
           </div>
 
-          {/* Exclude panel — bulk only */}
           {isBulk && (
             <CustomerExcludePanel
               excludedIds={excludedIds}
@@ -578,7 +564,6 @@ const EmailModal = ({ target, onClose, onEmailSent }) => {
           )}
         </div>
 
-        {/* Footer */}
         <div className="flex items-center justify-between px-5 py-4 border-t border-zinc-100 bg-zinc-50 shrink-0">
           <p className="text-[10px] text-zinc-400 font-medium">
             {isBulk
@@ -733,7 +718,7 @@ const PaymentControls = ({
 };
 
 // ─────────────────────────────────────────────
-// Shipment Row
+// Shipment Row — now collapsible
 // ─────────────────────────────────────────────
 const ShipmentRow = ({
   shipment,
@@ -747,6 +732,8 @@ const ShipmentRow = ({
   const [cancelling, setCancelling] = useState(false);
   const [restoring, setRestoring] = useState(false);
   const [localStatus, setLocalStatus] = useState(shipment.status || "Pending");
+  // ── NEW: each shipment starts expanded; user can collapse it
+  const [collapsed, setCollapsed] = useState(false);
 
   const handleStatus = async (newStatus) => {
     if (newStatus === localStatus) return;
@@ -793,171 +780,212 @@ const ShipmentRow = ({
     setRestoring(false);
   };
 
+  const displayStatus = isCancelled ? "Cancelled" : localStatus;
+
   return (
     <div
-      className={`rounded-xl border p-4 space-y-3 ${isCancelled ? "border-zinc-100 bg-zinc-50/80" : "border-zinc-200 bg-white"}`}
+      className={`rounded-xl border overflow-hidden ${
+        isCancelled
+          ? "border-zinc-100 bg-zinc-50/80"
+          : "border-zinc-200 bg-white"
+      }`}
     >
-      <div className="flex items-center justify-between flex-wrap gap-2">
-        <div className="flex items-center gap-3">
-          <span className="font-mono text-[10px] font-medium text-zinc-400">
+      {/* ── Shipment collapse header (always visible) ── */}
+      <button
+        onClick={() => setCollapsed((v) => !v)}
+        className={`w-full flex items-center justify-between px-4 py-3 transition text-left ${
+          collapsed
+            ? isCancelled
+              ? "bg-zinc-50/80"
+              : "bg-white hover:bg-zinc-50/60"
+            : isCancelled
+              ? "bg-zinc-50/80 border-b border-zinc-100"
+              : "bg-zinc-50/40 border-b border-zinc-100 hover:bg-zinc-50"
+        }`}
+      >
+        <div className="flex items-center gap-3 min-w-0">
+          <span className="font-mono text-[10px] font-medium text-zinc-400 shrink-0">
             #{shipment._id}
           </span>
-          <StatusPill status={isCancelled ? "Cancelled" : localStatus} />
+          <StatusPill status={displayStatus} />
           {isCancelled && (
-            <span className="text-[9px] font-medium text-zinc-400 italic">
+            <span className="text-[9px] font-medium text-zinc-400 italic hidden sm:inline">
               Payment still editable
             </span>
           )}
+          {/* Customer name preview when collapsed */}
+          {collapsed && shipment.customer?.fullName && (
+            <span className="text-[11px] font-medium text-zinc-600 truncate">
+              {shipment.customer.fullName}
+            </span>
+          )}
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3 shrink-0">
           <span className="text-[11px] font-medium text-zinc-700">
             Rs.{(shipment.shipmentTotal || 0).toLocaleString()}
           </span>
           <span className="text-[10px] text-zinc-400">
             {fmtDate(shipment.createdAt)}
           </span>
+          {collapsed ? (
+            <TbChevronDown className="w-3.5 h-3.5 text-zinc-400" />
+          ) : (
+            <TbChevronUp className="w-3.5 h-3.5 text-zinc-400" />
+          )}
         </div>
-      </div>
+      </button>
 
-      {shipment.customer && (
-        <div className="flex items-center gap-4 px-3 py-2 rounded-lg bg-zinc-50 border border-zinc-100">
-          <div className="w-7 h-7 rounded-full bg-zinc-200 flex items-center justify-center shrink-0 text-[11px] font-medium text-zinc-600">
-            {(shipment.customer.fullName || "?")[0].toUpperCase()}
+      {/* ── Shipment body (hidden when collapsed) ── */}
+      {!collapsed && (
+        <div className="p-4 space-y-3">
+          {shipment.customer && (
+            <div className="flex items-center gap-4 px-3 py-2 rounded-lg bg-zinc-50 border border-zinc-100">
+              <div className="w-7 h-7 rounded-full bg-zinc-200 flex items-center justify-center shrink-0 text-[11px] font-medium text-zinc-600">
+                {(shipment.customer.fullName || "?")[0].toUpperCase()}
+              </div>
+              <div className="min-w-0">
+                <p className="text-[12px] font-medium text-zinc-800">
+                  {shipment.customer.fullName || "—"}
+                </p>
+                <p className="text-[10px] text-zinc-400">
+                  {shipment.customer.phone || ""}
+                  {shipment.customer.phone && shipment.customer.email
+                    ? " · "
+                    : ""}
+                  {shipment.customer.email || ""}
+                </p>
+              </div>
+            </div>
+          )}
+
+          <PaymentControls
+            orderId={orderId}
+            shipmentId={shipment._id}
+            initialStatus={shipment.payment?.status}
+            initialMethod={shipment.payment?.method}
+          />
+
+          <div className="flex flex-wrap gap-2">
+            {(shipment.products || []).map((p, i) => (
+              <div
+                key={i}
+                className="flex items-center gap-2 bg-zinc-50 rounded-lg px-2.5 py-1.5 border border-zinc-100"
+              >
+                {p.image && (
+                  <img
+                    src={p.image}
+                    alt={p.name}
+                    className="w-7 h-7 rounded object-cover border border-zinc-200"
+                  />
+                )}
+                <div>
+                  <p className="text-[11px] font-medium text-zinc-700 max-w-[140px] truncate">
+                    {p.name}
+                  </p>
+                  <p className="text-[9px] text-zinc-400">
+                    Qty: {p.quantity} · Rs.{p.offerPrice || p.price || 0}
+                    {p.size ? ` · ${p.size}` : ""}
+                    {p.color ? ` · ${p.color}` : ""}
+                  </p>
+                </div>
+              </div>
+            ))}
           </div>
-          <div className="min-w-0">
-            <p className="text-[12px] font-medium text-zinc-800">
-              {shipment.customer.fullName || "—"}
-            </p>
-            <p className="text-[10px] text-zinc-400">
-              {shipment.customer.phone || ""}
-              {shipment.customer.phone && shipment.customer.email ? " · " : ""}
-              {shipment.customer.email || ""}
-            </p>
-          </div>
-        </div>
-      )}
 
-      <PaymentControls
-        orderId={orderId}
-        shipmentId={shipment._id}
-        initialStatus={shipment.payment?.status}
-        initialMethod={shipment.payment?.method}
-      />
-
-      <div className="flex flex-wrap gap-2">
-        {(shipment.products || []).map((p, i) => (
-          <div
-            key={i}
-            className="flex items-center gap-2 bg-zinc-50 rounded-lg px-2.5 py-1.5 border border-zinc-100"
-          >
-            {p.image && (
-              <img
-                src={p.image}
-                alt={p.name}
-                className="w-7 h-7 rounded object-cover border border-zinc-200"
-              />
-            )}
-            <div>
-              <p className="text-[11px] font-medium text-zinc-700 max-w-[140px] truncate">
-                {p.name}
-              </p>
-              <p className="text-[9px] text-zinc-400">
-                Qty: {p.quantity} · Rs.{p.offerPrice || p.price || 0}
-                {p.size ? ` · ${p.size}` : ""}
-                {p.color ? ` · ${p.color}` : ""}
+          {!isCancelled ? (
+            <div className="space-y-2 pt-1">
+              <div className="flex items-center gap-2 flex-wrap">
+                {updating && <Spinner />}
+                {localStatus !== "Pending" &&
+                  localStatus !== "Processing" &&
+                  localStatus !== "Shipped" &&
+                  localStatus !== "Delivered" && (
+                    <button
+                      onClick={() => handleStatus("Pending")}
+                      disabled={updating}
+                      className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-50 text-amber-600 rounded-lg text-[11px] font-medium hover:bg-amber-100 transition disabled:opacity-50 ring-1 ring-amber-200"
+                    >
+                      <TbClockHour4 className="w-3.5 h-3.5" /> Mark Confirmed
+                    </button>
+                  )}
+                {localStatus === "Pending" && (
+                  <button
+                    onClick={() => handleStatus("Processing")}
+                    disabled={updating}
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-orange-50 text-orange-600 rounded-lg text-[11px] font-medium hover:bg-orange-100 transition disabled:opacity-50 ring-1 ring-orange-200"
+                  >
+                    <TbPackage className="w-3.5 h-3.5" /> Mark Processing
+                  </button>
+                )}
+                {(localStatus === "Pending" ||
+                  localStatus === "Processing") && (
+                  <button
+                    onClick={() => handleStatus("Shipped")}
+                    disabled={updating}
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-600 rounded-lg text-[11px] font-medium hover:bg-blue-100 transition disabled:opacity-50 ring-1 ring-blue-200"
+                  >
+                    <TbTruckDelivery className="w-3.5 h-3.5" /> Mark Shipped
+                  </button>
+                )}
+                {localStatus !== "Delivered" && (
+                  <button
+                    onClick={() => handleStatus("Delivered")}
+                    disabled={updating}
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 text-emerald-600 rounded-lg text-[11px] font-medium hover:bg-emerald-100 transition disabled:opacity-50 ring-1 ring-emerald-200"
+                  >
+                    <TbCircleCheck className="w-3.5 h-3.5" /> Mark Delivered
+                  </button>
+                )}
+                <button
+                  onClick={handleCancel}
+                  disabled={cancelling}
+                  className="flex items-center gap-1.5 px-3 py-1.5 bg-rose-50 text-rose-500 rounded-lg text-[11px] font-medium hover:bg-rose-100 transition disabled:opacity-50 ring-1 ring-rose-200 ml-auto"
+                >
+                  {cancelling ? (
+                    <Spinner />
+                  ) : (
+                    <TbCircleX className="w-3.5 h-3.5" />
+                  )}{" "}
+                  Cancel Shipment
+                </button>
+              </div>
+              <div className="flex items-center gap-2">
+                <p className="text-[9px] font-medium uppercase tracking-[0.18em] text-zinc-400">
+                  Or set directly:
+                </p>
+                <select
+                  value={localStatus}
+                  onChange={(e) => handleStatus(e.target.value)}
+                  disabled={updating}
+                  className="text-[11px] font-medium border border-zinc-200 rounded-lg px-2.5 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-zinc-900 disabled:opacity-50 cursor-pointer"
+                >
+                  {STATUSES.filter((s) => s !== "Cancelled").map((s) => (
+                    <option key={s} value={s}>
+                      {s}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          ) : (
+            <div className="pt-1 flex items-center gap-3 flex-wrap">
+              <button
+                onClick={handleRestore}
+                disabled={restoring}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-zinc-100 text-zinc-700 rounded-lg text-[11px] font-medium hover:bg-zinc-200 transition disabled:opacity-50 ring-1 ring-zinc-200"
+              >
+                {restoring ? (
+                  <Spinner />
+                ) : (
+                  <TbArrowBackUp className="w-3.5 h-3.5" />
+                )}{" "}
+                Restore Shipment
+              </button>
+              <p className="text-[10px] text-zinc-400 font-medium">
+                Restores to Pending · Update payment above manually
               </p>
             </div>
-          </div>
-        ))}
-      </div>
-
-      {!isCancelled ? (
-        <div className="space-y-2 pt-1">
-          <div className="flex items-center gap-2 flex-wrap">
-            {updating && <Spinner />}
-            {localStatus !== "Pending" &&
-              localStatus !== "Processing" &&
-              localStatus !== "Shipped" &&
-              localStatus !== "Delivered" && (
-                <button
-                  onClick={() => handleStatus("Pending")}
-                  disabled={updating}
-                  className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-50 text-amber-600 rounded-lg text-[11px] font-medium hover:bg-amber-100 transition disabled:opacity-50 ring-1 ring-amber-200"
-                >
-                  <TbClockHour4 className="w-3.5 h-3.5" /> Mark Confirmed
-                </button>
-              )}
-            {localStatus === "Pending" && (
-              <button
-                onClick={() => handleStatus("Processing")}
-                disabled={updating}
-                className="flex items-center gap-1.5 px-3 py-1.5 bg-orange-50 text-orange-600 rounded-lg text-[11px] font-medium hover:bg-orange-100 transition disabled:opacity-50 ring-1 ring-orange-200"
-              >
-                <TbPackage className="w-3.5 h-3.5" /> Mark Processing
-              </button>
-            )}
-            {(localStatus === "Pending" || localStatus === "Processing") && (
-              <button
-                onClick={() => handleStatus("Shipped")}
-                disabled={updating}
-                className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-600 rounded-lg text-[11px] font-medium hover:bg-blue-100 transition disabled:opacity-50 ring-1 ring-blue-200"
-              >
-                <TbTruckDelivery className="w-3.5 h-3.5" /> Mark Shipped
-              </button>
-            )}
-            {localStatus !== "Delivered" && (
-              <button
-                onClick={() => handleStatus("Delivered")}
-                disabled={updating}
-                className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 text-emerald-600 rounded-lg text-[11px] font-medium hover:bg-emerald-100 transition disabled:opacity-50 ring-1 ring-emerald-200"
-              >
-                <TbCircleCheck className="w-3.5 h-3.5" /> Mark Delivered
-              </button>
-            )}
-            <button
-              onClick={handleCancel}
-              disabled={cancelling}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-rose-50 text-rose-500 rounded-lg text-[11px] font-medium hover:bg-rose-100 transition disabled:opacity-50 ring-1 ring-rose-200 ml-auto"
-            >
-              {cancelling ? <Spinner /> : <TbCircleX className="w-3.5 h-3.5" />}{" "}
-              Cancel Shipment
-            </button>
-          </div>
-          <div className="flex items-center gap-2">
-            <p className="text-[9px] font-medium uppercase tracking-[0.18em] text-zinc-400">
-              Or set directly:
-            </p>
-            <select
-              value={localStatus}
-              onChange={(e) => handleStatus(e.target.value)}
-              disabled={updating}
-              className="text-[11px] font-medium border border-zinc-200 rounded-lg px-2.5 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-zinc-900 disabled:opacity-50 cursor-pointer"
-            >
-              {STATUSES.filter((s) => s !== "Cancelled").map((s) => (
-                <option key={s} value={s}>
-                  {s}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-      ) : (
-        <div className="pt-1 flex items-center gap-3 flex-wrap">
-          <button
-            onClick={handleRestore}
-            disabled={restoring}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-zinc-100 text-zinc-700 rounded-lg text-[11px] font-medium hover:bg-zinc-200 transition disabled:opacity-50 ring-1 ring-zinc-200"
-          >
-            {restoring ? (
-              <Spinner />
-            ) : (
-              <TbArrowBackUp className="w-3.5 h-3.5" />
-            )}{" "}
-            Restore Shipment
-          </button>
-          <p className="text-[10px] text-zinc-400 font-medium">
-            Restores to Pending · Update payment above manually
-          </p>
+          )}
         </div>
       )}
     </div>
@@ -969,6 +997,7 @@ const ShipmentRow = ({
 // ─────────────────────────────────────────────
 const OrderRow = ({
   order,
+  filterStatus, // ── NEW: passed from parent to filter visible shipments
   onStatusChange,
   onCancel,
   onRestore,
@@ -979,6 +1008,23 @@ const OrderRow = ({
 
   const allShipments = order.shipments || [];
   const cancelledShipments = order.cancelledProducts || [];
+
+  // ── NEW: when a status filter is active, only show matching shipments in the expanded panel
+  const visibleActiveShipments = useMemo(() => {
+    if (filterStatus === "All") return allShipments;
+    if (filterStatus === "Cancelled") return allShipments; // cancelled tab shows cancelled section separately
+    return allShipments.filter(
+      (sh) => (sh.status || "Pending") === filterStatus,
+    );
+  }, [allShipments, filterStatus]);
+
+  const visibleCancelledShipments = useMemo(() => {
+    // Show cancelled shipments only in "All" or "Cancelled" filter
+    if (filterStatus === "All" || filterStatus === "Cancelled")
+      return cancelledShipments;
+    return [];
+  }, [cancelledShipments, filterStatus]);
+
   const totalShipments = allShipments.length + cancelledShipments.length;
   const totalRevenue = allShipments.reduce(
     (s, sh) => s + (sh.shipmentTotal || 0),
@@ -1002,8 +1048,13 @@ const OrderRow = ({
 
   return (
     <>
+      {/* ── Main order row — soft indigo tint when expanded ── */}
       <tr
-        className="border-b border-zinc-100 hover:bg-zinc-50/60 transition-colors cursor-pointer"
+        className={`border-b border-zinc-100 transition-colors cursor-pointer ${
+          expanded
+            ? "bg-indigo-50/40 hover:bg-indigo-50/60"
+            : "hover:bg-zinc-50/60"
+        }`}
         onClick={() => setExpanded((v) => !v)}
       >
         <td className="px-5 py-4">
@@ -1106,7 +1157,11 @@ const OrderRow = ({
             </div>
             <button
               onClick={() => setExpanded((v) => !v)}
-              className="w-7 h-7 rounded-lg bg-zinc-100 hover:bg-zinc-200 flex items-center justify-center transition"
+              className={`w-7 h-7 rounded-lg flex items-center justify-center transition ${
+                expanded
+                  ? "bg-indigo-100 hover:bg-indigo-200"
+                  : "bg-zinc-100 hover:bg-zinc-200"
+              }`}
             >
               {expanded ? (
                 <TbChevronUp className="w-3.5 h-3.5 text-zinc-500" />
@@ -1118,19 +1173,25 @@ const OrderRow = ({
         </td>
       </tr>
 
+      {/* ── Expanded detail panel — also tinted indigo ── */}
       {expanded && (
-        <tr className="bg-zinc-50/50">
-          <td colSpan={7} className="px-5 pb-5 pt-2">
+        <tr className="border-b border-indigo-100/60">
+          <td colSpan={7} className="px-5 pb-5 pt-2 bg-indigo-50/20">
             <div className="space-y-2">
+              {/* Active / filtered shipments */}
               <p className="text-[9px] font-medium uppercase tracking-[0.25em] text-zinc-400 mb-3">
-                Active Shipments ({allShipments.length})
+                {filterStatus === "All"
+                  ? `Active Shipments (${allShipments.length})`
+                  : `${filterStatus} Shipments (${visibleActiveShipments.length})`}
               </p>
-              {allShipments.length === 0 && (
+              {visibleActiveShipments.length === 0 && (
                 <p className="text-[11px] text-zinc-400 italic">
-                  No active shipments
+                  {filterStatus === "All"
+                    ? "No active shipments"
+                    : `No shipments with status "${filterStatus}"`}
                 </p>
               )}
-              {allShipments.map((sh) => (
+              {visibleActiveShipments.map((sh) => (
                 <ShipmentRow
                   key={sh._id}
                   shipment={sh}
@@ -1141,12 +1202,14 @@ const OrderRow = ({
                   isCancelled={false}
                 />
               ))}
-              {cancelledShipments.length > 0 && (
+
+              {/* Cancelled shipments — only shown in All / Cancelled filter */}
+              {visibleCancelledShipments.length > 0 && (
                 <>
                   <p className="text-[9px] font-medium uppercase tracking-[0.25em] text-zinc-400 mt-4 mb-2">
-                    Cancelled Shipments ({cancelledShipments.length})
+                    Cancelled Shipments ({visibleCancelledShipments.length})
                   </p>
-                  {cancelledShipments.map((sh) => (
+                  {visibleCancelledShipments.map((sh) => (
                     <ShipmentRow
                       key={sh._id}
                       shipment={sh}
@@ -1307,9 +1370,11 @@ const OrderManagement = () => {
     return { totalShipments, pending, shipped, delivered, cancelled, revenue };
   }, [orders]);
 
+  // ── UPDATED: filter orders AND narrow which shipments qualify
   const filtered = useMemo(() => {
     const q = search.toLowerCase().trim();
     return orders.filter((o) => {
+      // Search filter
       if (q) {
         const customerFields = (o.shipments || [])
           .flatMap((sh) => [
@@ -1332,12 +1397,17 @@ const OrderManagement = () => {
           customerFields.some((f) => f.toLowerCase().includes(q));
         if (!matchesSearch) return false;
       }
+
+      // Status filter — only include orders that actually have a matching shipment
       if (filterStatus === "All") return true;
-      if (filterStatus === "Cancelled")
+      if (filterStatus === "Cancelled") {
+        // Show orders that have at least one cancelled shipment OR all shipments cancelled
         return (
-          (o.shipments || []).length === 0 ||
-          (o.cancelledProducts || []).length > 0
+          (o.cancelledProducts || []).length > 0 ||
+          (o.shipments || []).length === 0
         );
+      }
+      // For every other status: order must have at least one active shipment with that exact status
       return (o.shipments || []).some(
         (sh) => (sh.status || "Pending") === filterStatus,
       );
@@ -1534,6 +1604,7 @@ const OrderManagement = () => {
                       <OrderRow
                         key={order._id}
                         order={order}
+                        filterStatus={filterStatus}
                         onStatusChange={handleStatusChange}
                         onCancel={handleCancel}
                         onRestore={handleRestore}
