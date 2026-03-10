@@ -32,21 +32,21 @@ const PROVINCES = [
 
 const PAYMENT_OPTIONS = [
   {
-    id: "cod",
+    id: "COD",
     label: "Cash on Delivery",
     sub: "Pay when your order arrives",
     icon: "💵",
     available: true,
   },
   {
-    id: "esewa",
+    id: "eSewa",
     label: "eSewa",
     sub: "Coming soon",
     icon: "🟢",
     available: false,
   },
   {
-    id: "khalti",
+    id: "Khalti",
     label: "Khalti",
     sub: "Coming soon",
     icon: "🟣",
@@ -70,7 +70,7 @@ const validate = ({
   district,
   city,
   state,
-  zipCode,
+  zipCODe,
 }) => {
   const errors = {};
 
@@ -99,7 +99,7 @@ const validate = ({
   else if (address.trim().length < 5)
     errors.address = "Please enter a more detailed address.";
 
-  if (!isValidZip(zipCode)) errors.zipCode = "Zip code must be 5 digits.";
+  if (!isValidZip(zipCODe)) errors.zipCODe = "Zip CODe must be 5 digits.";
 
   return errors;
 };
@@ -133,7 +133,7 @@ const Checkout = () => {
   const router = useRouter();
   const { currentUser } = useAuth();
 
-  const [paymentMethod, setPaymentMethod] = useState("cod");
+  const [paymentMethod, setPaymentMethod] = useState("COD");
   const [isLoading, setIsLoading] = useState(false);
   const [cartLoading, setCartLoading] = useState(true);
   const [errors, setErrors] = useState({});
@@ -146,7 +146,7 @@ const Checkout = () => {
   const [district, setDistrict] = useState("");
   const [city, setCity] = useState("");
   const [state, setState] = useState("");
-  const [zipCode, setZipCode] = useState("");
+  const [zipCODe, setZipCODe] = useState("");
 
   useEffect(() => {
     const load = async () => {
@@ -168,7 +168,7 @@ const Checkout = () => {
       district,
       city,
       state,
-      zipCode,
+      zipCODe,
     });
     const filteredErrors = Object.fromEntries(
       Object.entries(newErrors).filter(([key]) => touched[key]),
@@ -182,7 +182,7 @@ const Checkout = () => {
     district,
     city,
     state,
-    zipCode,
+    zipCODe,
     touched,
   ]);
 
@@ -215,7 +215,7 @@ const Checkout = () => {
     setCity("");
     setState("");
     setDistrict("");
-    setZipCode("");
+    setZipCODe("");
     setErrors({});
     setTouched({});
   };
@@ -246,7 +246,7 @@ const Checkout = () => {
         "district",
         "city",
         "state",
-        "zipCode",
+        "zipCODe",
       ].map((k) => [k, true]),
     );
     setTouched(allTouched);
@@ -259,7 +259,7 @@ const Checkout = () => {
       district,
       city,
       state,
-      zipCode,
+      zipCODe,
     });
 
     if (Object.keys(validationErrors).length > 0) {
@@ -274,7 +274,7 @@ const Checkout = () => {
     }
 
     /* Block non-COD */
-    if (paymentMethod !== "cod") {
+    if (paymentMethod !== "COD") {
       toast.info("We are working on it! Available soon!");
       return;
     }
@@ -314,7 +314,7 @@ const Checkout = () => {
           province: state,
           district: district.trim(),
           city: city.trim(),
-          ward: zipCode.trim(),
+          ward: zipCODe.trim(),
           landmark: address.trim(),
           notes: "",
         },
@@ -504,20 +504,20 @@ const Checkout = () => {
                     />
                   </Field>
 
-                  <Field label="Zip Code" error={errors.zipCode}>
+                  <Field label="Zip CODe" error={errors.zipCODe}>
                     <input
-                      id="zipCode"
-                      value={zipCode}
+                      id="zipCODe"
+                      value={zipCODe}
                       onChange={(e) => {
                         const val = e.target.value
                           .replace(/\D/g, "")
                           .slice(0, 5);
-                        setZipCode(val);
+                        setZipCODe(val);
                       }}
-                      onBlur={() => markTouched("zipCode")}
+                      onBlur={() => markTouched("zipCODe")}
                       placeholder="44600"
                       maxLength={5}
-                      className={inputCls(!!errors.zipCode)}
+                      className={inputCls(!!errors.zipCODe)}
                     />
                   </Field>
 
@@ -595,7 +595,7 @@ const Checkout = () => {
                 ))}
               </RadioGroup>
 
-              {paymentMethod !== "cod" && (
+              {paymentMethod !== "COD" && (
                 <div className="mt-4 flex items-center gap-2 px-4 py-3 rounded-xl bg-orange-50 border border-orange-100">
                   <span className="text-orange-400">⚠</span>
                   <p className="text-xs text-orange-600 font-medium">
@@ -702,17 +702,17 @@ const Checkout = () => {
                   <button
                     type="submit"
                     form="checkout-form"
-                    disabled={isLoading || paymentMethod !== "cod"}
+                    disabled={isLoading || paymentMethod !== "COD"}
                     className={`mt-6 w-full font-bold text-sm py-4 rounded-2xl transition-all duration-200 flex items-center justify-center gap-2
                       ${
-                        paymentMethod !== "cod"
+                        paymentMethod !== "COD"
                           ? "bg-gray-200 text-gray-400 cursor-not-allowed"
                           : "bg-gray-900 hover:bg-gray-700 text-white"
                       }`}
                   >
                     {isLoading ? (
                       <Spinner className="w-5 h-5" />
-                    ) : paymentMethod !== "cod" ? (
+                    ) : paymentMethod !== "COD" ? (
                       "Select COD to place order"
                     ) : (
                       <>
@@ -724,7 +724,7 @@ const Checkout = () => {
                     )}
                   </button>
 
-                  {paymentMethod === "cod" && (
+                  {paymentMethod === "COD" && (
                     <p className="text-center text-[11px] text-gray-400 mt-3">
                       🔒 Secure checkout · Free returns up to 45 days
                     </p>
