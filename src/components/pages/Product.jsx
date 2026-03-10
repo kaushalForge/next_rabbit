@@ -1,25 +1,6 @@
 import ProductDetails from "./ProductDetails";
 
-// const fetchDetails = async (id) => {
-//   const res = await fetch(
-//     `${process.env.NEXT_PUBLIC_SITE_URL}/api/products/${id}`,
-//     {
-//       method: "GET",
-//       credentials: "include",
-//       cache: "force-cache",
-//     },
-//   );
-
-//   return res.json();
-// };
-
 const Product = async ({ productId, productDetail }) => {
-  // let finalProduct = productDetail;
-
-  // if (!finalProduct && productId) {
-  //   finalProduct = await fetchDetails(productId);
-  // }
-
   return <ProductDetails productId={productId} productDetail={productDetail} />;
 };
 
