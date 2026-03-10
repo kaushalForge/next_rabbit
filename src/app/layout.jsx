@@ -15,11 +15,35 @@ const outfit = Outfit({
 });
 
 export const metadata = {
-  title: "Rabbit",
+  title: "Rabbit - Dress Well, Live Better",
   description:
-    "Rabbit is Nepal's premier online shopping destination for fashion, accessories, and lifestyle products. Discover top-quality Nepali products, latest trends, and enjoy fast, reliable delivery across Nepal.",
+    "Shop modern clothing for men and women. Fast shipping to Nepal.",
   icons: {
     icon: "/images/Logo.png",
+  },
+  openGraph: {
+    title: "Rabbit - Dress Well, Live Better",
+    description:
+      "Shop modern clothing for men and women. Fast shipping to Nepal.",
+    url: "https://next-rabbit.vercel.app",
+    siteName: "Rabbit",
+    images: [
+      {
+        url: "/assets/hero-banner.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Rabbit Clothing - Dress Well, Live Better",
+      },
+    ],
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Rabbit - Dress Well, Live Better",
+    description:
+      "Shop modern clothing for men and women. Fast shipping to Nepal.",
+    images: ["/assets/hero-banner.jpg"], // same image as openGraph
   },
 };
 
