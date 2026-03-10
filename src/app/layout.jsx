@@ -19,7 +19,7 @@ export const metadata = {
   description:
     "Shop modern clothing for men and women. Fast shipping to Nepal.",
   icons: {
-    icon: "/images/Logo.png",
+    icon: "/images/RabbitHub.png",
   },
   openGraph: {
     title: "Rabbit - Dress Well, Live Better",
@@ -29,7 +29,7 @@ export const metadata = {
     siteName: "Rabbit",
     images: [
       {
-        url: "/assets/hero-banner.jpg",
+        url: "/assets/rabbit-banner.png",
         width: 1200,
         height: 630,
         alt: "Rabbit Clothing - Dress Well, Live Better",
@@ -37,13 +37,6 @@ export const metadata = {
     ],
     locale: "en_US",
     type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Rabbit - Dress Well, Live Better",
-    description:
-      "Shop modern clothing for men and women. Fast shipping to Nepal.",
-    images: ["/assets/hero-banner.jpg"], // same image as openGraph
   },
 };
 

@@ -148,7 +148,7 @@ const NewArrivals = ({ newArrivals }) => {
                           <p className="text-white/80 text-sm font-medium">
                             Rs.{product?.fashion[0]?.offerPrice}
                           </p>
-                          <span className="text-[11px] text-white/70 bg-white/10 backdrop-blur-sm border border-white/20 px-3 py-1 rounded-full transition-all duration-200 group-hover:bg-white group-hover:text-gray-900">
+                          <span className="text-[11px] text-white/70 bg-white/10 backdrop-blur-sm border border-white/20 px-3 py-1 rounded-full">
                             View →
                           </span>
                         </div>
