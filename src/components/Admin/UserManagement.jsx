@@ -4,6 +4,7 @@ import { useState } from "react";
 import { updateUserRoleAction, deleteUserAction } from "@/actions/adminUsers";
 import { toast } from "sonner";
 import { Separator } from "../ui/separator";
+import { Spinner } from "../ui/spinner";
 
 const TrashIcon = ({ spinning }) =>
   spinning ? (
@@ -57,8 +58,16 @@ const ROLE_CONFIG = {
   },
 };
 
-const UserManagement = ({ allUsersData }) => {
+const UserManagement = ({ allUsersData, loading }) => {
   const [deletingId, setDeletingId] = useState(null);
+
+  // ── loading ──
+  if (loading)
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-black/20">
+        <Spinner className="w-14 h-14 text-primary" />
+      </div>
+    );
 
   const handleRoleChange = async (userId, role) => {
     try {
@@ -171,9 +180,7 @@ const UserManagement = ({ allUsersData }) => {
             <h2 className="text-3xl font-bold text-gray-900">
               User Management
             </h2>
-            <p className="text-gray-500 mt-1">
-              Manage site users
-            </p>
+            <p className="text-gray-500 mt-1">Manage site users</p>
           </div>
         </div>
 

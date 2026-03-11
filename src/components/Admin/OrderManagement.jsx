@@ -33,6 +33,7 @@ import {
   sendBulkEmailAction,
   fetchAllCustomersAction,
 } from "@/actions/adminOrder";
+import { Spinner } from "../ui/spinner";
 
 const STATUSES = ["Pending", "Processing", "Shipped", "Delivered", "Cancelled"];
 const PAYMENT_METHODS = ["COD", "eSewa", "Khalti", "Online", "Card"];
@@ -210,11 +211,6 @@ const PaymentPill = ({ status }) => {
     </span>
   );
 };
-const Spinner = ({ size = "sm" }) => (
-  <TbLoader2
-    className={`animate-spin ${size === "sm" ? "w-4 h-4" : "w-5 h-5"} text-zinc-500`}
-  />
-);
 
 // ── CustomerExcludePanel ──────────────────────
 const CustomerExcludePanel = ({ excludedIds, onToggle }) => {
@@ -858,7 +854,7 @@ const ShipmentRow = ({
                   />
                 )}
                 <div>
-                  <p className="text-[11px] font-semibold text-zinc-800 max-w-[140px] truncate">
+                  <p className="text-[11px] font-semibold text-zinc-800 max-w-35 truncate">
                     {p.name}
                   </p>
                   <p className="text-[9px] text-zinc-500 font-medium">
@@ -1386,13 +1382,8 @@ const OrderManagement = () => {
 
   if (loading)
     return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="flex flex-col items-center gap-3">
-          <div className="w-7 h-7 rounded-full border-2 border-zinc-300 border-t-zinc-900 animate-spin" />
-          <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-zinc-600">
-            Loading Orders
-          </p>
-        </div>
+      <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-black/20">
+        <Spinner className="w-14 h-14 text-primary" />
       </div>
     );
 
