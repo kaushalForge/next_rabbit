@@ -162,7 +162,7 @@ const CollectionPage = ({ products }) => {
           <button
             onClick={() => setIsDesktopSidebarOpen(false)}
             title="Hide filters"
-            className={`${!isDesktopSidebarOpen && "hidden"} absolute top-5 -left-3.5 w-7 h-7 rounded-full bg-white border border-gray-200 shadow-sm flex items-center justify-center text-gray-500 hover:bg-gray-900 hover:text-white hover:border-gray-900 transition-all duration-200`}
+            className={`${!isDesktopSidebarOpen ? "hidden" : "hidden lg:flex"} absolute top-5 -left-3.5 w-7 h-7 rounded-full bg-white border border-gray-200 shadow-sm items-center justify-center text-gray-500 hover:bg-gray-900 hover:text-white hover:border-gray-900 transition-all duration-200`}
           >
             <HiChevronLeft className="w-3.5 h-3.5" />
           </button>
