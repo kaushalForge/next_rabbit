@@ -15,6 +15,7 @@ const outfit = Outfit({
 });
 
 export const metadata = {
+  metadataBase: new URL("https://next-rabbit.vercel.app"),
   title: "Rabbit - Dress Well, Live Better",
   description:
     "Shop modern clothing for men and women. Fast shipping to Nepal.",
