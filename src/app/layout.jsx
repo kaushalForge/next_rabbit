@@ -18,14 +18,14 @@ export const metadata = {
   metadataBase: new URL("https://next-rabbit.vercel.app"),
   title: "Rabbit - Dress Well, Live Better",
   description:
-    "Shop modern clothing for men and women. Fast shipping to Nepal.",
+    "Rabbit is a premium online clothing store offering stylish outfits, modern fashion, and comfortable everyday wear for men and women.",
   icons: {
     icon: "/images/RabbitHub.png",
   },
   openGraph: {
     title: "Rabbit - Dress Well, Live Better",
     description:
-      "Shop modern clothing for men and women. Fast shipping to Nepal.",
+      "Rabbit is a premium online clothing store offering stylish outfits, modern fashion, and comfortable everyday wear for men and women.",
     url: "https://next-rabbit.vercel.app",
     siteName: "Rabbit",
     images: [
