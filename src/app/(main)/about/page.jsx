@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 export const metadata = {
-  title: "About Us — Rabbit",
+  title: "About",
   description:
     "Learn about Rabbit — a premium Nepali clothing brand crafted for those who believe style is a statement.",
 };

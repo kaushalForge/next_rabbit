@@ -1,5 +1,5 @@
 export const metadata = {
-  title: "Contact Us — Rabbit",
+  title: "Contact",
   description:
     "Reach out to the Rabbit team. We're here to help with orders, returns, and anything else you need.",
 };

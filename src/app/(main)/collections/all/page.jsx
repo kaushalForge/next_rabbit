@@ -2,7 +2,7 @@ import CollectionPage from "@/components/pages/Collections/CollectionPage";
 import { fetchAllProductsAction } from "@/actions/userProducts";
 
 export const metadata = {
-  title: "Rabbit | Premium Fashion – Trendy Outfits & Casual Dress",
+  title: "Premium Fashion, Trendy Outfits & Casual Dress",
   description:
     "Discover premium fashion at Rabbit. Shop stylish outfits for men and women including streetwear, everyday essentials, and trendy looks with worldwide shipping.",
 
@@ -14,6 +14,8 @@ export const metadata = {
     "streetwear",
     "trendy outfits",
     "online clothing store",
+    "casual dress",
+    "print on demand",
     "premium fashion",
   ],
 
@@ -41,16 +43,7 @@ export const metadata = {
         alt: "Rabbit Logo",
       },
     ],
-    locale: "en_US",
     type: "website",
-  },
-
-  twitter: {
-    card: "summary_large_image",
-    title: "Rabbit | Premium Fashion – Trendy Outfits & Casual Dress",
-    description:
-      "Discover Rabbit's stylish outfits for men and women. Premium streetwear, trendy looks, and everyday essentials online.",
-    images: [`${process.env.NEXT_PUBLIC_SITE_URL}/assets/hero-banner.png`],
   },
 
   robots: {

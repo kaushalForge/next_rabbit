@@ -1,5 +1,5 @@
 export const metadata = {
-  title: "Terms & Conditions — Rabbit",
+  title: "Terms & Conditions",
   description:
     "Read the terms and conditions governing the use of Rabbit's website and services.",
 };

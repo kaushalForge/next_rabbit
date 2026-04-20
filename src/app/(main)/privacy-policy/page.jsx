@@ -1,5 +1,5 @@
 export const metadata = {
-  title: "Privacy Policy — Rabbit",
+  title: "Privacy Policy",
   description:
     "How Rabbit collects, uses, and protects your personal information.",
 };

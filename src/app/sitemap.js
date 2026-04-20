@@ -2,7 +2,7 @@ export const revalidate = 86400;
 
 export default async function sitemap() {
   const BASE_URL =
-    process.env.NEXT_PUBLIC_SITE_URL || "https://next-rabbit.vercel.app";
+    process.env.NEXT_PUBLIC_SITE_URL;
 
   let products = [];
 

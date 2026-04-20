@@ -16,27 +16,23 @@ const outfit = Outfit({
 
 export const metadata = {
   metadataBase: new URL("https://next-rabbit.vercel.app"),
-  title: "Rabbit - Dress Well, Live Better",
-  description:
-    "Rabbit is a premium online clothing store offering stylish outfits, modern fashion, and comfortable everyday wear for men and women.",
-  icons: {
-    icon: "/images/RabbitHub.png",
+  title: {
+    default: "Rabbit House - Dress Well, Live Better",
+    template: "%s - Rabbit House",
   },
+  description:
+    "Rabbit House is a premium online clothing store offering stylish outfits, modern fashion, and comfortable everyday wear for men and women.",
   openGraph: {
-    title: "Rabbit - Dress Well, Live Better",
-    description:
-      "Rabbit is a premium online clothing store offering stylish outfits, modern fashion, and comfortable everyday wear for men and women.",
-    url: "https://next-rabbit.vercel.app",
-    siteName: "Rabbit",
+    title: "Rabbit House - Dress Well, Live Better",
+    siteName: "Rabbit House",
     images: [
       {
         url: "/assets/rabbit-banner.png",
         width: 1200,
         height: 630,
-        alt: "Rabbit Clothing - Dress Well, Live Better",
+        alt: "Rabbit House Clothing - Dress Well, Live Better",
       },
     ],
-    locale: "en_US",
     type: "website",
   },
 };

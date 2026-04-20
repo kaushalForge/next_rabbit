@@ -18,12 +18,11 @@ export async function generateMetadata({ params }) {
     const product = await res.json();
 
     const title =
-      product?.metaTitle?.trim() ||
       product?.name?.trim() ||
-      "Rabbit - Dress Well, Live Better";
+      "Dress Well, Live Better";
     const description =
-      product?.metaDescription?.trim() ||
       product?.description?.trim() ||
+      product?.metaDescription?.trim() ||
       "Shop the latest styles at Rabbit.";
     const image = product?.images?.[0]?.url;
 
