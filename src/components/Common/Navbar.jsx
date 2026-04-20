@@ -79,7 +79,7 @@ const Navbar = () => {
   return (
     <>
       <nav className="sticky left-0 top-0 z-50 backdrop-blur-md shadow-sm">
-        <div className="flex relative flex-wrap items-center justify-end gap-2 container p-4 mx-auto bg-amber-800 ">
+        <div className="flex relative flex-wrap items-center justify-end gap-2 container p-4 mx-auto">
           {/* Logo */}
           <Link
             href="/"
