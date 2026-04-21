@@ -162,7 +162,7 @@ const ProductCard = ({ product, idx }) => {
             transition={{ duration: 0.2 }}
             className="absolute inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center"
           >
-            {/* <Link
+            <Link
               href={`/collections/product/${product?._id}`}
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{
@@ -170,10 +170,12 @@ const ProductCard = ({ product, idx }) => {
                 opacity: isHovered ? 1 : 0,
               }}
               transition={{ duration: 0.2, delay: 0.05 }}
-              className="inline-block bg-white text-gray-900 px-4 py-2 rounded-full text-sm font-semibold shadow-xl hover:bg-gray-900 hover:text-white transition-colors duration-200"
-            > */}
-            <motion.div>Quick View →</motion.div>
-            {/* </Link> */}
+              className="inline-block bg-white text-gray-900 px-4 py-2 rounded-full text-sm font-semibold shadow-xl 
+hover:bg-gray-900 hover:text-white 
+transition-colors duration-300 ease-in-out"
+            >
+              <motion.div>Quick View →</motion.div>
+            </Link>
           </motion.div>
         </div>
       </Link>
