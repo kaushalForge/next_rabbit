@@ -11,7 +11,7 @@ export async function generateMetadata({ params }) {
       {
         method: "GET",
         headers: { "Content-Type": "application/json" },
-        cache: "no-store",
+        cache: "default",
       },
     );
 

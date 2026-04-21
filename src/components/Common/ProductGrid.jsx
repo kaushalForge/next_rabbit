@@ -33,7 +33,11 @@ const ProductCard = ({ product, index }) => {
       className="group flex flex-col"
     >
       {/* ── Image ── */}
-      <Link href={`/collections/product/${product?._id}`} className="block">
+      <Link
+        href={`/collections/product/${product?._id}`}
+        prefetch={true}
+        className="block"
+      >
         <div className="relative w-full aspect-2/3 bg-gray-100 overflow-hidden rounded-2xl">
           {/* Shimmer */}
           {!loaded && (
