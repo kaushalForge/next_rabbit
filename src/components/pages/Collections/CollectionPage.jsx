@@ -16,7 +16,6 @@ import {
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { Spinner } from "@/components/ui/spinner";
 import { MdFilterAltOff } from "react-icons/md";
-import { title } from "node:process";
 
 const ICONS = [
   { icon: <LuSlidersHorizontal className="w-4 h-4" />, label: "Filters" },
