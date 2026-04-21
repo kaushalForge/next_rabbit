@@ -86,45 +86,45 @@ const ORDER_TEMPLATES = [
   {
     label: "Order Confirmed",
     status: "Pending",
-    subject: "Order Confirmed — RabbitHub",
+    subject: "Order Confirmed — RabbitHouse",
     message:
-      "Dear Customer,\n\nThank you for your order. We are pleased to confirm that your order has been successfully received and is now being prepared for processing.\n\nYou will receive a follow-up notification once your order has been dispatched.\n\nShould you have any questions in the meantime, please do not hesitate to contact us at inbox.rabbit@gmail.com.\n\nBest regards,\nRabbitHub Customer Support",
+      "Dear Customer,\n\nThank you for your order. We are pleased to confirm that your order has been successfully received and is now being prepared for processing.\n\nYou will receive a follow-up notification once your order has been dispatched.\n\nShould you have any questions in the meantime, please do not hesitate to contact us at inbox.rabbit@gmail.com.\n\nBest regards,\nRabbitHouse Customer Support",
   },
   {
     label: "Order Processing",
     status: "Processing",
-    subject: "Your Order Is Being Processed — RabbitHub",
+    subject: "Your Order Is Being Processed — RabbitHouse",
     message:
-      "Dear Customer,\n\nWe would like to inform you that your order is currently being processed and prepared for shipment.\n\nOur team is carefully handling your items to ensure they are packed and dispatched in a timely manner. You will receive a shipping confirmation as soon as your order is on its way.\n\nWe appreciate your patience and thank you for choosing RabbitHub.\n\nBest regards,\nRabbitHub Customer Support",
+      "Dear Customer,\n\nWe would like to inform you that your order is currently being processed and prepared for shipment.\n\nOur team is carefully handling your items to ensure they are packed and dispatched in a timely manner. You will receive a shipping confirmation as soon as your order is on its way.\n\nWe appreciate your patience and thank you for choosing RabbitHouse.\n\nBest regards,\nRabbitHouse Customer Support",
   },
   {
     label: "Order Shipped",
     status: "Shipped",
-    subject: "Your Order Has Been Shipped — RabbitHub",
+    subject: "Your Order Has Been Shipped — RabbitHouse",
     message:
-      "Dear Customer,\n\nWe are pleased to inform you that your order has been dispatched and is currently on its way to you.\n\nEstimated delivery time is 3 to 5 business days. Please ensure that someone is available at the delivery address to receive the package.\n\nIf you have any concerns regarding your delivery, please contact us at inbox.rabbit@gmail.com and we will be happy to assist.\n\nThank you for shopping with RabbitHub.\n\nBest regards,\nRabbitHub Customer Support",
+      "Dear Customer,\n\nWe are pleased to inform you that your order has been dispatched and is currently on its way to you.\n\nEstimated delivery time is 3 to 5 business days. Please ensure that someone is available at the delivery address to receive the package.\n\nIf you have any concerns regarding your delivery, please contact us at inbox.rabbit@gmail.com and we will be happy to assist.\n\nThank you for shopping with RabbitHouse.\n\nBest regards,\nRabbitHouse Customer Support",
   },
   {
     label: "Order Delivered",
     status: "Delivered",
-    subject: "Your Order Has Been Delivered — RabbitHub",
+    subject: "Your Order Has Been Delivered — RabbitHouse",
     message:
-      "Dear Customer,\n\nWe are delighted to confirm that your order has been successfully delivered.\n\nWe hope you are satisfied with your purchase. If you experience any issues with the items received, please contact us within 48 hours at inbox.rabbit@gmail.com and our support team will resolve the matter promptly.\n\nThank you for placing your trust in RabbitHub. We look forward to serving you again.\n\nBest regards,\nRabbitHub Customer Support",
+      "Dear Customer,\n\nWe are delighted to confirm that your order has been successfully delivered.\n\nWe hope you are satisfied with your purchase. If you experience any issues with the items received, please contact us within 48 hours at inbox.rabbit@gmail.com and our support team will resolve the matter promptly.\n\nThank you for placing your trust in RabbitHouse. We look forward to serving you again.\n\nBest regards,\nRabbitHouse Customer Support",
   },
   {
     label: "Order Cancelled",
     status: "Cancelled",
-    subject: "Your Order Has Been Cancelled — RabbitHub",
+    subject: "Your Order Has Been Cancelled — RabbitHouse",
     message:
-      "Dear Customer,\n\nWe regret to inform you that your order has been cancelled.\n\nIf you did not initiate this cancellation or believe this has occurred in error, please contact our support team immediately at inbox.rabbit@gmail.com.\n\nIf a payment was made against this order, a full refund will be processed within 5 to 7 business days, depending on your payment method and financial institution.\n\nWe sincerely apologize for any inconvenience this may have caused and hope to serve you again in the future.\n\nBest regards,\nRabbitHub Customer Support",
+      "Dear Customer,\n\nWe regret to inform you that your order has been cancelled.\n\nIf you did not initiate this cancellation or believe this has occurred in error, please contact our support team immediately at inbox.rabbit@gmail.com.\n\nIf a payment was made against this order, a full refund will be processed within 5 to 7 business days, depending on your payment method and financial institution.\n\nWe sincerely apologize for any inconvenience this may have caused and hope to serve you again in the future.\n\nBest regards,\nRabbitHouse Customer Support",
   },
   {
     label: "Payment Reminder",
     status: null,
     subject:
-      "Action Required: Prepare Payment for Your Incoming Order — RabbitHub",
+      "Action Required: Prepare Payment for Your Incoming Order — RabbitHouse",
     message:
-      "Dear Customer,\n\nWe would like to inform you that your order is currently on its way and will be arriving at your delivery address shortly.\n\nAs your order is being fulfilled on a Cash on Delivery basis, we kindly request that you have the exact payment amount prepared and ready upon delivery.\n\nPlease ensure that you or an authorized representative is available at the delivery address to receive the package and complete the payment.\n\nShould you have any questions or require assistance prior to delivery, please do not hesitate to reach out to us at inbox.rabbit@gmail.com.\n\nThank you for shopping with RabbitHub.\n\nBest regards,\nRabbitHub Customer Support",
+      "Dear Customer,\n\nWe would like to inform you that your order is currently on its way and will be arriving at your delivery address shortly.\n\nAs your order is being fulfilled on a Cash on Delivery basis, we kindly request that you have the exact payment amount prepared and ready upon delivery.\n\nPlease ensure that you or an authorized representative is available at the delivery address to receive the package and complete the payment.\n\nShould you have any questions or require assistance prior to delivery, please do not hesitate to reach out to us at inbox.rabbit@gmail.com.\n\nThank you for shopping with RabbitHouse.\n\nBest regards,\nRabbitHouse Customer Support",
   },
   { label: "Custom", status: null, subject: "", message: "" },
 ];
@@ -132,33 +132,34 @@ const ORDER_TEMPLATES = [
 const BULK_TEMPLATES = [
   {
     label: "Flash Sale",
-    subject: "Exclusive Flash Sale — Up to 50% Off at RabbitHub",
+    subject: "Exclusive Flash Sale — Up to 50% Off at RabbitHouse",
     message:
-      "Dear Valued Customer,\n\nWe are excited to announce an exclusive flash sale at RabbitHub — enjoy up to 50% off on a wide range of products for a limited time only.\n\nVisit our store now to explore the latest deals before they expire.\n\nThank you for being a valued member of the RabbitHub community.\n\nBest regards,\nRabbitHub Marketing Team",
+      "Dear Valued Customer,\n\nWe are excited to announce an exclusive flash sale at RabbitHouse — enjoy up to 50% off on a wide range of products for a limited time only.\n\nVisit our store now to explore the latest deals before they expire.\n\nThank you for being a valued member of the RabbitHouse community.\n\nBest regards,\nRabbitHouse Marketing Team",
   },
   {
     label: "New Arrivals",
-    subject: "New Products Just Landed at RabbitHub — Be the First to Explore",
+    subject:
+      "New Products Just Landed at RabbitHouse — Be the First to Explore",
     message:
-      "Dear Valued Customer,\n\nWe are thrilled to inform you that an exciting range of new products has just arrived at RabbitHub.\n\nOur latest collection has been carefully curated to bring you the best in quality and value.\n\nHead over to our store to browse the newest additions before they sell out.\n\nThank you for your continued support.\n\nBest regards,\nRabbitHub Marketing Team",
+      "Dear Valued Customer,\n\nWe are thrilled to inform you that an exciting range of new products has just arrived at RabbitHouse.\n\nOur latest collection has been carefully curated to bring you the best in quality and value.\n\nHead over to our store to browse the newest additions before they sell out.\n\nThank you for your continued support.\n\nBest regards,\nRabbitHouse Marketing Team",
   },
   {
     label: "Seasonal Offer",
-    subject: "Special Seasonal Offers Are Live at RabbitHub",
+    subject: "Special Seasonal Offers Are Live at RabbitHouse",
     message:
-      "Dear Valued Customer,\n\nThe season's best deals are now live at RabbitHub.\n\nWe have prepared an exclusive selection of seasonal offers across multiple categories.\n\nVisit our store today and take advantage of these outstanding seasonal deals.\n\nThank you for shopping with RabbitHub.\n\nBest regards,\nRabbitHub Marketing Team",
+      "Dear Valued Customer,\n\nThe season's best deals are now live at RabbitHouse.\n\nWe have prepared an exclusive selection of seasonal offers across multiple categories.\n\nVisit our store today and take advantage of these outstanding seasonal deals.\n\nThank you for shopping with RabbitHouse.\n\nBest regards,\nRabbitHouse Marketing Team",
   },
   {
     label: "Loyalty Reward",
-    subject: "A Special Thank You from RabbitHub — You've Earned It",
+    subject: "A Special Thank You from RabbitHouse — You've Earned It",
     message:
-      "Dear Valued Customer,\n\nWe sincerely appreciate your continued loyalty and support for RabbitHub.\n\nAs a token of our gratitude, we would like to offer you an exclusive reward on your next purchase.\n\nWith gratitude,\nRabbitHub Customer Team",
+      "Dear Valued Customer,\n\nWe sincerely appreciate your continued loyalty and support for RabbitHouse.\n\nAs a token of our gratitude, we would like to offer you an exclusive reward on your next purchase.\n\nWith gratitude,\nRabbitHouse Customer Team",
   },
   {
     label: "Announcement",
-    subject: "Important Announcement from RabbitHub",
+    subject: "Important Announcement from RabbitHouse",
     message:
-      "Dear Valued Customer,\n\nWe have an important update we would like to share with you.\n\n[Insert your announcement here.]\n\nThank you for being a part of the RabbitHub community.\n\nBest regards,\nRabbitHub Team",
+      "Dear Valued Customer,\n\nWe have an important update we would like to share with you.\n\n[Insert your announcement here.]\n\nThank you for being a part of the RabbitHouse community.\n\nBest regards,\nRabbitHouse Team",
   },
   { label: "Custom", subject: "", message: "" },
 ];
@@ -1417,7 +1418,7 @@ const OrderManagement = () => {
           <div className="flex items-end justify-between flex-wrap gap-4">
             <div>
               <p className="text-[9px] font-semibold uppercase tracking-[0.35em] text-zinc-500 mb-1">
-                RabbitHub · Admin
+                RabbitHouse · Admin
               </p>
               <h1 className="text-[22px] font-semibold text-zinc-900 tracking-tight leading-none">
                 Order Management

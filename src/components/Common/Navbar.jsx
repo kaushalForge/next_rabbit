@@ -89,7 +89,7 @@ const Navbar = () => {
           >
             <div ref={logoRef}>
               <Image
-                src="/images/RabbitHubLogo.png"
+                src="/images/RabbitHouseLogo.png"
                 alt="Logo"
                 width={400}
                 height={400}

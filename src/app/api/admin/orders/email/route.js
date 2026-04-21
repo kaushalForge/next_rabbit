@@ -17,7 +17,7 @@ const sendEmail = async ({ to, subject, text, html }) => {
     });
 
     const info = await transporter.sendMail({
-      from: '"RabbitHub" <inbox.rabbit@gmail.com>',
+      from: '"RabbitHouse" <inbox.rabbit@gmail.com>',
       to,
       subject,
       text,
@@ -34,7 +34,7 @@ const sendEmail = async ({ to, subject, text, html }) => {
 
 const buildEmailHtml = ({ customerName, message, orderId }) => {
   const siteUrl = "https://next-rabbit.vercel.app";
-  const logoUrl = `${siteUrl}/images/RabbitHub.png`;
+  const logoUrl = `${siteUrl}/images/RabbitHouse.png`;
   const year = new Date().getFullYear();
   const shortId = String(orderId).toUpperCase();
 
@@ -43,7 +43,7 @@ const buildEmailHtml = ({ customerName, message, orderId }) => {
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-  <title>RabbitHub</title>
+  <title>RabbitHouse</title>
 </head>
 <body style="margin:0;padding:0;background-color:#f6f6f6;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
 
@@ -63,7 +63,7 @@ const buildEmailHtml = ({ customerName, message, orderId }) => {
             <td style="background:#0f0f0f;padding:36px 48px;text-align:center;">
               <img
   src="${logoUrl}"
-  alt="RabbitHub"
+  alt="RabbitHouse"
   width="64"
   height="64"
   style="display:block;margin:0 auto 16px;border-radius:14px;border:3px solid #ff4500;width:64px;height:64px;object-fit:cover;object-position:center;"
@@ -112,7 +112,7 @@ const buildEmailHtml = ({ customerName, message, orderId }) => {
                 <tr>
                   <td style="background:#fff8f6;border:1.5px solid #ffd5c8;border-radius:12px;padding:28px 32px;text-align:left;">
                     <p style="margin:0 0 10px;font-size:10px;font-weight:700;color:#ff4500;letter-spacing:0.16em;text-transform:uppercase;">
-                      Message from RabbitHub
+                      Message from RabbitHouse
                     </p>
                     <p style="margin:0;font-size:15px;color:#374151;line-height:1.85;white-space:pre-wrap;">${message}</p>
                   </td>
@@ -181,8 +181,8 @@ const buildEmailHtml = ({ customerName, message, orderId }) => {
                 <a href="mailto:inbox.rabbit@gmail.com" style="color:#ff4500;text-decoration:none;font-weight:600;">inbox.rabbit@gmail.com</a>
               </p>
               <p style="margin:0;font-size:10px;color:#71717a;line-height:1.7;">
-                &copy; ${year} RabbitHub &nbsp;&middot;&nbsp; All rights reserved.<br/>
-                You received this email because you placed an order on RabbitHub.
+                &copy; ${year} RabbitHouse &nbsp;&middot;&nbsp; All rights reserved.<br/>
+                You received this email because you placed an order on RabbitHouse.
               </p>
             </td>
           </tr>
