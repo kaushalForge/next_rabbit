@@ -11,6 +11,7 @@ import React, { Suspense } from "react";
 import MenCollectionRouting from "./(main)/men-collection/page";
 import FeaturedProducts from "./(main)/featured-products/page";
 import PreFooter from "@/components/Layout/PreFooter";
+import HomeAnimation from "@/components/Animation/HomeAnimation";
 
 const page = () => {
   return (
@@ -21,7 +22,10 @@ const page = () => {
       <NewArrivalRouting />
       <MenCollectionRouting />
       <WomenCollectionRouting />
+      {/* <div className="relative"> */}
       <FeaturedProducts />
+      {/* <HomeAnimation /> */}
+      {/* </div> */}
       <Branding />
       <Programs />
       <PreFooter />

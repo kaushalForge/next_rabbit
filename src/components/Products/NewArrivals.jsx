@@ -8,7 +8,6 @@ const NewArrivals = ({ newArrivals }) => {
   const scrollRef = useRef(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
-  const [isDragging, setIsDragging] = useState(false);
 
   let isDown = false;
   let startX;
@@ -33,29 +32,6 @@ const NewArrivals = ({ newArrivals }) => {
     const el = scrollRef.current;
     if (!el) return;
     el.scrollBy({ left: dir * el.clientWidth * 0.8, behavior: "smooth" });
-  };
-
-  const onMouseDown = (e) => {
-    isDown = true;
-    setIsDragging(false);
-    startX = e.pageX - scrollRef.current.offsetLeft;
-    scrollLeft = scrollRef.current.scrollLeft;
-  };
-
-  const onMouseLeave = () => {
-    isDown = false;
-  };
-  const onMouseUp = () => {
-    isDown = false;
-  };
-
-  const onMouseMove = (e) => {
-    if (!isDown) return;
-    e.preventDefault();
-    setIsDragging(true);
-    const x = e.pageX - scrollRef.current.offsetLeft;
-    const walk = (x - startX) * 1.2;
-    scrollRef.current.scrollLeft = scrollLeft - walk;
   };
 
   return (
@@ -105,12 +81,7 @@ const NewArrivals = ({ newArrivals }) => {
           <div className="relative container mx-auto">
             <div
               ref={scrollRef}
-              className={`hide-scrollbar overflow-x-scroll flex gap-4 md:gap-6 pb-4 snap-x snap-mandatory
-                ${isDragging ? "cursor-grabbing" : "cursor-grab"}`}
-              onMouseDown={onMouseDown}
-              onMouseLeave={onMouseLeave}
-              onMouseUp={onMouseUp}
-              onMouseMove={onMouseMove}
+              className="hide-scrollbar overflow-x-scroll flex gap-4 md:gap-6 pb-4 snap-x snap-mandatory"
             >
               {newArrivals.map((product, index) => (
                 <div
@@ -125,28 +96,31 @@ const NewArrivals = ({ newArrivals }) => {
                   </div>
 
                   {/* Image */}
-                  <div className="relative overflow-hidden rounded-2xl">
+                  <Link
+                    href={`/collections/product/${product._id}`}
+                    scroll={true}
+                    className="relative overflow-hidden rounded-2xl"
+                  >
                     <Image
                       src={
                         product.images?.[0]?.url || "/assets/rabbit-banner.png"
                       }
+                      alt={
+                        product.images?.[0]?.altText ||
+                        product.name ||
+                        "product image"
+                      }
                       width={1200}
                       height={630}
-                      quality={80}
-                      alt={product.images?.[0]?.altText || product.name}
-                      className="w-full h-105 md:h-125 object-cover pointer-events-none transition-transform duration-500 group-hover:scale-105"
-                      draggable={false}
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                      quality={75}
+                      className="w-full h-105 md:h-125 object-cover transition-transform duration-500 group-hover:scale-105"
                     />
-
                     {/* Overlay */}
                     <div className="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-transparent rounded-2xl" />
-
                     {/* Product Info */}
                     <div className="absolute bottom-0 left-0 right-0 p-4 md:p-5">
-                      <Link
-                        href={`/collections/product/${product._id}`}
-                        className={`block pointer-events-auto ${isDragging ? "pointer-events-none" : ""}`}
-                      >
+                      <div className="block pointer-events-auto">
                         <h4 className="text-white font-semibold text-base md:text-lg leading-tight mb-1 truncate">
                           {product.name}
                         </h4>
@@ -158,9 +132,9 @@ const NewArrivals = ({ newArrivals }) => {
                             View →
                           </span>
                         </div>
-                      </Link>
+                      </div>
                     </div>
-                  </div>
+                  </Link>
                 </div>
               ))}
             </div>

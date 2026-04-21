@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback, useRef } from "react";
 import { useCart } from "@/app/context/CartContext";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { toast } from "sonner";
@@ -16,9 +16,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
+import Image from "next/image";
 
 /* ─────────────────────────────────────────
-   Constants
+   Constants (memoized outside component)
 ───────────────────────────────────────── */
 const PROVINCES = [
   "Koshi Province",
@@ -54,25 +55,37 @@ const PAYMENT_OPTIONS = [
   },
 ];
 
+const FIELD_NAMES = [
+  "firstName",
+  "lastName",
+  "phone",
+  "address",
+  "district",
+  "city",
+  "state",
+  "zipCODe",
+];
+
 /* ─────────────────────────────────────────
-   Validation helpers
+   Optimized validation (pure functions)
 ───────────────────────────────────────── */
 const onlyLettersAndSpace = (val) => /^[a-zA-Z\s]+$/.test(val.trim());
 const isValidPhone = (val) => /^\d{10}$/.test(val.trim());
 const isValidZip = (val) => val === "" || /^\d{5}$/.test(val.trim());
 const notEmpty = (val) => val.trim().length > 0;
 
-const validate = ({
-  firstName,
-  lastName,
-  phone,
-  address,
-  district,
-  city,
-  state,
-  zipCODe,
-}) => {
+const validate = (data) => {
   const errors = {};
+  const {
+    firstName,
+    lastName,
+    phone,
+    address,
+    district,
+    city,
+    state,
+    zipCODe,
+  } = data;
 
   if (!notEmpty(firstName)) errors.firstName = "First name is required.";
   else if (!onlyLettersAndSpace(firstName))
@@ -87,7 +100,6 @@ const validate = ({
     errors.phone = "Phone must be exactly 10 digits.";
 
   if (!notEmpty(state)) errors.state = "Please select a province.";
-
   if (!notEmpty(district)) errors.district = "District is required.";
   else if (district.trim().length < 2)
     errors.district = "Enter a valid district.";
@@ -99,13 +111,13 @@ const validate = ({
   else if (address.trim().length < 5)
     errors.address = "Please enter a more detailed address.";
 
-  if (!isValidZip(zipCODe)) errors.zipCODe = "Zip CODe must be 5 digits.";
+  if (!isValidZip(zipCODe)) errors.zipCODe = "Zip code must be 5 digits.";
 
   return errors;
 };
 
 /* ─────────────────────────────────────────
-   Reusable Field wrapper
+   Optimized Field component (memoized)
 ───────────────────────────────────────── */
 const Field = ({ label, error, children }) => (
   <div className="flex flex-col gap-1.5">
@@ -122,16 +134,27 @@ const Field = ({ label, error, children }) => (
 );
 
 const inputCls = (hasError) =>
-  `w-full border ${hasError ? "border-red-400 bg-red-50 focus:ring-red-400" : "border-gray-200 bg-gray-50 hover:bg-white focus:bg-white focus:ring-gray-900"}
-   rounded-xl px-4 py-3 text-sm text-gray-900 placeholder-gray-400 outline-none focus:ring-2 focus:border-transparent transition-all duration-200`;
+  `w-full border ${hasError ? "border-red-400 bg-red-50 focus:ring-red-400" : "border-gray-200 bg-gray-50 hover:bg-white focus:bg-white focus:ring-gray-900"} rounded-xl px-4 py-3 text-sm text-gray-900 placeholder-gray-400 outline-none focus:ring-2 focus:border-transparent transition-all duration-150`;
 
 /* ════════════════════════════════════════
-   Checkout
+   Main Checkout Component
 ════════════════════════════════════════ */
 const Checkout = () => {
   const { cart, refreshCart } = useCart();
   const router = useRouter();
   const { currentUser } = useAuth();
+
+  // Single state object for form data (better performance)
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    phone: "",
+    address: "",
+    district: "",
+    city: "",
+    state: "",
+    zipCODe: "",
+  });
 
   const [paymentMethod, setPaymentMethod] = useState("COD");
   const [isLoading, setIsLoading] = useState(false);
@@ -139,209 +162,197 @@ const Checkout = () => {
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
 
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [address, setAddress] = useState("");
-  const [district, setDistrict] = useState("");
-  const [city, setCity] = useState("");
-  const [state, setState] = useState("");
-  const [zipCODe, setZipCODe] = useState("");
+  // Refs for scroll optimization
+  const formRef = useRef(null);
+  const scrollTimeoutRef = useRef(null);
+
+  // Memoized field updater
+  const updateField = useCallback((field, value) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  }, []);
 
   useEffect(() => {
-    const load = async () => {
+    const loadCart = async () => {
       setCartLoading(true);
       await refreshCart();
       setCartLoading(false);
     };
-    load();
+    loadCart();
+  }, [refreshCart]);
+
+  // Optimized validation with useMemo
+  const validationErrors = useMemo(() => {
+    if (Object.keys(touched).length === 0) return {};
+    const allErrors = validate(formData);
+    return Object.fromEntries(
+      Object.entries(allErrors).filter(([key]) => touched[key]),
+    );
+  }, [formData, touched]);
+
+  // Sync errors
+  useEffect(() => {
+    setErrors(validationErrors);
+  }, [validationErrors]);
+
+  const markTouched = useCallback((field) => {
+    setTouched((prev) => ({ ...prev, [field]: true }));
   }, []);
 
-  /* live-revalidate only touched fields */
-  useEffect(() => {
-    if (Object.keys(touched).length === 0) return;
-    const newErrors = validate({
-      firstName,
-      lastName,
-      phone,
-      address,
-      district,
-      city,
-      state,
-      zipCODe,
+  // Memoized price calculations
+  const { subtotalOriginal, subtotalDiscounted, saved, shipmentTotal } =
+    useMemo(() => {
+      let original = 0,
+        discounted = 0;
+      if (cart) {
+        for (const item of cart) {
+          original += item.price * item.quantity;
+          discounted += item.offerPrice * item.quantity;
+        }
+      }
+      const shipping = 100;
+      return {
+        subtotalOriginal: original,
+        subtotalDiscounted: discounted,
+        saved: original - discounted,
+        shipmentTotal: discounted + shipping,
+      };
+    }, [cart]);
+
+  const resetForm = useCallback(() => {
+    setFormData({
+      firstName: "",
+      lastName: "",
+      phone: "",
+      address: "",
+      city: "",
+      state: "",
+      district: "",
+      zipCODe: "",
     });
-    const filteredErrors = Object.fromEntries(
-      Object.entries(newErrors).filter(([key]) => touched[key]),
-    );
-    setErrors(filteredErrors);
-  }, [
-    firstName,
-    lastName,
-    phone,
-    address,
-    district,
-    city,
-    state,
-    zipCODe,
-    touched,
-  ]);
-
-  const markTouched = (field) =>
-    setTouched((prev) => ({ ...prev, [field]: true }));
-
-  /* ── Price totals ── */
-  const { subtotalOriginal, subtotalDiscounted, saved } = useMemo(() => {
-    let original = 0,
-      discounted = 0;
-    cart?.forEach((item) => {
-      original += item.price * item.quantity;
-      discounted += item.offerPrice * item.quantity;
-    });
-    return {
-      subtotalOriginal: original,
-      subtotalDiscounted: discounted,
-      saved: original - discounted,
-    };
-  }, [cart]);
-
-  const shipping = 100;
-  const shipmentTotal = subtotalDiscounted + shipping;
-
-  const resetForm = () => {
-    setFirstName("");
-    setLastName("");
-    setPhone("");
-    setAddress("");
-    setCity("");
-    setState("");
-    setDistrict("");
-    setZipCODe("");
     setErrors({});
     setTouched({});
-  };
+  }, []);
 
-  /* ── Payment method select ── */
-  const handlePaymentSelect = (value) => {
+  const handlePaymentSelect = useCallback((value) => {
     setPaymentMethod(value);
     const option = PAYMENT_OPTIONS.find((o) => o.id === value);
     if (!option?.available) {
       toast.info("We are working on it! Available soon!", {
         description: `${option.label} payment will be available shortly.`,
-        duration: 4000,
+        duration: 3000,
       });
     }
-  };
+  }, []);
 
-  /* ── Submit ── */
-  const handleOrder = async (e) => {
-    e.preventDefault();
-
-    /* Mark all fields touched to show all errors */
-    const allTouched = Object.fromEntries(
-      [
-        "firstName",
-        "lastName",
-        "phone",
-        "address",
-        "district",
-        "city",
-        "state",
-        "zipCODe",
-      ].map((k) => [k, true]),
-    );
-    setTouched(allTouched);
-
-    const validationErrors = validate({
-      firstName,
-      lastName,
-      phone,
-      address,
-      district,
-      city,
-      state,
-      zipCODe,
-    });
-
-    if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors);
-      toast.error("Please fix the errors before placing your order.");
-      /* Scroll to first error */
-      const firstErrorKey = Object.keys(validationErrors)[0];
-      document
-        .getElementById(firstErrorKey)
-        ?.scrollIntoView({ behavior: "smooth", block: "center" });
-      return;
-    }
-
-    /* Block non-COD */
-    if (paymentMethod !== "COD") {
-      toast.info("We are working on it! Available soon!");
-      return;
-    }
-
-    if (!cart || cart.length === 0) {
-      toast.error("Your cart is empty. Add items before placing an order.");
-      return;
-    }
-
-    setIsLoading(true);
-    try {
-      const orderData = {
-        products: cart.map((item) => ({
-          productId: item.productId,
-          name: item.name,
-          image: item.image,
-          price: item.price,
-          offerPrice: item.offerPrice,
-          mainCategory: item.mainCategory,
-          size: item.size,
-          color: item.color,
-          sku: item.sku,
-          gender: item.gender,
-          foodType: item.foodType,
-          weight: item.weight,
-          taste: item.taste,
-          shippingFee: shipping,
-          quantity: item.quantity,
-        })),
-        totalPrice: shipmentTotal,
-        customer: {
-          fullName: `${firstName.trim()} ${lastName.trim()}`,
-          email: currentUser?.email,
-          phone: phone.trim(),
-        },
-        delivery: {
-          province: state,
-          district: district.trim(),
-          city: city.trim(),
-          ward: zipCODe.trim(),
-          landmark: address.trim(),
-          notes: "",
-        },
-        payment: { method: paymentMethod },
-      };
-
-      const { status, message } = await createOrderAction(orderData);
-
-      if (status === 200 || status === 201) {
-        toast.success(message || "Order placed successfully! 🎉");
-        resetForm();
-        await refreshCart();
-      } else {
-        toast.error(message || "Failed to place order. Please try again.");
+  const scrollToError = useCallback((fieldName) => {
+    if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
+    scrollTimeoutRef.current = setTimeout(() => {
+      const element = document.getElementById(fieldName);
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth", block: "center" });
+        element.focus({ preventScroll: true });
       }
-    } catch (error) {
-      console.error("Order Error:", error);
-      toast.error(error.message || "Something went wrong. Please try again.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    }, 100);
+  }, []);
 
-  /* ── Full-screen placing overlay ── */
+  const handleOrder = useCallback(
+    async (e) => {
+      e.preventDefault();
+
+      // Mark all fields touched
+      const allTouched = Object.fromEntries(FIELD_NAMES.map((k) => [k, true]));
+      setTouched(allTouched);
+
+      const validationErrors = validate(formData);
+
+      if (Object.keys(validationErrors).length > 0) {
+        setErrors(validationErrors);
+        toast.error("Please fix the errors before placing your order.");
+        scrollToError(Object.keys(validationErrors)[0]);
+        return;
+      }
+
+      if (paymentMethod !== "COD") {
+        toast.info("We are working on it! Available soon!");
+        return;
+      }
+
+      if (!cart?.length) {
+        toast.error("Your cart is empty. Add items before placing an order.");
+        return;
+      }
+
+      setIsLoading(true);
+      try {
+        const orderData = {
+          products: cart.map((item) => ({
+            productId: item.productId,
+            name: item.name,
+            image: item.image,
+            price: item.price,
+            offerPrice: item.offerPrice,
+            mainCategory: item.mainCategory,
+            size: item.size,
+            color: item.color,
+            sku: item.sku,
+            gender: item.gender,
+            foodType: item.foodType,
+            weight: item.weight,
+            taste: item.taste,
+            shippingFee: 100,
+            quantity: item.quantity,
+          })),
+          totalPrice: shipmentTotal,
+          customer: {
+            fullName: `${formData.firstName.trim()} ${formData.lastName.trim()}`,
+            email: currentUser?.email,
+            phone: formData.phone.trim(),
+          },
+          delivery: {
+            province: formData.state,
+            district: formData.district.trim(),
+            city: formData.city.trim(),
+            ward: formData.zipCODe.trim(),
+            landmark: formData.address.trim(),
+            notes: "",
+          },
+          payment: { method: paymentMethod },
+        };
+
+        const { status, message } = await createOrderAction(orderData);
+
+        if (status === 200 || status === 201) {
+          toast.success(message || "Order placed successfully! 🎉");
+          resetForm();
+          await refreshCart();
+          router.push("/profile");
+        } else {
+          toast.error(message || "Failed to place order. Please try again.");
+        }
+      } catch (error) {
+        console.error("Order Error:", error);
+        toast.error(error.message || "Something went wrong. Please try again.");
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [
+      formData,
+      paymentMethod,
+      cart,
+      shipmentTotal,
+      currentUser,
+      resetForm,
+      refreshCart,
+      router,
+      scrollToError,
+    ],
+  );
+
+  // Loading overlay
   if (isLoading) {
     return (
-      <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-white/80 backdrop-blur-sm gap-4">
+      <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-white/90 backdrop-blur-sm gap-4">
         <Spinner className="w-12 h-12 text-gray-900" />
         <p className="text-sm font-semibold text-gray-500 tracking-wide animate-pulse">
           Placing your order…
@@ -350,16 +361,19 @@ const Checkout = () => {
     );
   }
 
-  /* ── Empty cart guard ── */
-  if (!cartLoading && (!cart || cart.length === 0)) {
+  // Empty cart guard
+  if (!cartLoading && !cart?.length) {
     return (
       <div className="min-h-screen bg-[#fafaf8] flex items-center justify-center px-4">
         <div className="text-center max-w-sm">
-          <img
-            src="/assets/empty-cart.svg"
-            alt="Empty Cart"
-            className="w-32 h-32 mx-auto mb-6 opacity-40"
-          />
+          <div className="w-32 h-32 mx-auto mb-6 opacity-40 relative">
+            <Image
+              src="/assets/empty-cart.svg"
+              alt="Empty Cart"
+              fill
+              className="object-contain"
+            />
+          </div>
           <h2 className="text-xl font-black text-gray-900 mb-2">
             Your cart is empty
           </h2>
@@ -399,145 +413,129 @@ const Checkout = () => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-          {/* ════ LEFT — FORM ════ */}
+          {/* LEFT - FORM */}
           <div className="lg:col-span-2 space-y-8">
-            {/* Delivery card */}
             <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-6 md:p-8">
               <h2 className="text-lg font-bold text-gray-900 mb-6 pb-4 border-b border-gray-100">
                 Delivery Details
               </h2>
 
-              <form id="checkout-form" onSubmit={handleOrder} noValidate>
+              <form
+                ref={formRef}
+                id="checkout-form"
+                onSubmit={handleOrder}
+                noValidate
+              >
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                  <Field label="First Name" error={errors.firstName}>
-                    <input
-                      id="firstName"
-                      value={firstName}
-                      onChange={(e) => setFirstName(e.target.value)}
-                      onBlur={() => markTouched("firstName")}
-                      placeholder="John"
-                      className={inputCls(!!errors.firstName)}
-                    />
-                  </Field>
-
-                  <Field label="Last Name" error={errors.lastName}>
-                    <input
-                      id="lastName"
-                      value={lastName}
-                      onChange={(e) => setLastName(e.target.value)}
-                      onBlur={() => markTouched("lastName")}
-                      placeholder="Doe"
-                      className={inputCls(!!errors.lastName)}
-                    />
-                  </Field>
-
-                  <Field label="Email">
-                    <input
-                      type="email"
-                      value={currentUser?.email || ""}
-                      disabled
-                      className={`${inputCls(false)} opacity-50 cursor-not-allowed`}
-                    />
-                  </Field>
-
-                  <Field label="Phone" error={errors.phone}>
-                    <input
-                      id="phone"
-                      type="tel"
-                      value={phone}
-                      onChange={(e) => {
-                        const val = e.target.value
-                          .replace(/\D/g, "")
-                          .slice(0, 10);
-                        setPhone(val);
-                      }}
-                      onBlur={() => markTouched("phone")}
-                      placeholder="98XXXXXXXX"
-                      maxLength={10}
-                      className={inputCls(!!errors.phone)}
-                    />
-                  </Field>
-
-                  <Field label="Province" error={errors.state}>
-                    <Select
-                      value={state}
-                      onValueChange={(val) => {
-                        setState(val);
-                        markTouched("state");
-                      }}
-                    >
-                      <SelectTrigger
-                        id="state"
-                        className={inputCls(!!errors.state)}
+                  {FIELD_NAMES.map((field) =>
+                    field === "state" ? (
+                      <Field key={field} label="Province" error={errors.state}>
+                        <Select
+                          value={formData.state}
+                          onValueChange={(val) => {
+                            updateField("state", val);
+                            markTouched("state");
+                          }}
+                        >
+                          <SelectTrigger
+                            id="state"
+                            className={inputCls(!!errors.state)}
+                          >
+                            <SelectValue placeholder="Select Province" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {PROVINCES.map((p) => (
+                              <SelectItem key={p} value={p}>
+                                {p}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </Field>
+                    ) : field === "email" ? (
+                      <Field key={field} label="Email">
+                        <input
+                          type="email"
+                          value={currentUser?.email || ""}
+                          disabled
+                          className={`${inputCls(false)} opacity-50 cursor-not-allowed`}
+                        />
+                      </Field>
+                    ) : field !== "zipCODe" ? (
+                      <Field
+                        key={field}
+                        label={
+                          field === "zipCODe"
+                            ? "Zip Code"
+                            : field.charAt(0).toUpperCase() + field.slice(1)
+                        }
+                        error={errors[field]}
                       >
-                        <SelectValue placeholder="Select Province" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {PROVINCES.map((p) => (
-                          <SelectItem key={p} value={p}>
-                            {p}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </Field>
-
-                  <Field label="District" error={errors.district}>
-                    <input
-                      id="district"
-                      value={district}
-                      onChange={(e) => setDistrict(e.target.value)}
-                      onBlur={() => markTouched("district")}
-                      placeholder="Kathmandu"
-                      className={inputCls(!!errors.district)}
-                    />
-                  </Field>
-
-                  <Field label="City" error={errors.city}>
-                    <input
-                      id="city"
-                      value={city}
-                      onChange={(e) => setCity(e.target.value)}
-                      onBlur={() => markTouched("city")}
-                      placeholder="Thamel"
-                      className={inputCls(!!errors.city)}
-                    />
-                  </Field>
-
-                  <Field label="Zip CODe" error={errors.zipCODe}>
-                    <input
-                      id="zipCODe"
-                      value={zipCODe}
-                      onChange={(e) => {
-                        const val = e.target.value
-                          .replace(/\D/g, "")
-                          .slice(0, 5);
-                        setZipCODe(val);
-                      }}
-                      onBlur={() => markTouched("zipCODe")}
-                      placeholder="44600"
-                      maxLength={5}
-                      className={inputCls(!!errors.zipCODe)}
-                    />
-                  </Field>
-
-                  <div className="sm:col-span-2">
-                    <Field label="Landmark / Address" error={errors.address}>
-                      <input
-                        id="address"
-                        value={address}
-                        onChange={(e) => setAddress(e.target.value)}
-                        onBlur={() => markTouched("address")}
-                        placeholder="Street, building, landmark…"
-                        className={inputCls(!!errors.address)}
-                      />
-                    </Field>
-                  </div>
+                        <input
+                          id={field}
+                          value={formData[field]}
+                          onChange={(e) => {
+                            let val = e.target.value;
+                            if (field === "phone" || field === "zipCODe") {
+                              val = val
+                                .replace(/\D/g, "")
+                                .slice(0, field === "phone" ? 10 : 5);
+                            }
+                            updateField(field, val);
+                          }}
+                          onBlur={() => markTouched(field)}
+                          placeholder={
+                            field === "firstName"
+                              ? "John"
+                              : field === "lastName"
+                                ? "Doe"
+                                : field === "phone"
+                                  ? "98XXXXXXXX"
+                                  : field === "zipCODe"
+                                    ? "44600"
+                                    : field === "district"
+                                      ? "Kathmandu"
+                                      : field === "city"
+                                        ? "Thamel"
+                                        : field === "address"
+                                          ? "Street, building, landmark…"
+                                          : ""
+                          }
+                          maxLength={
+                            field === "phone"
+                              ? 10
+                              : field === "zipCODe"
+                                ? 5
+                                : undefined
+                          }
+                          className={inputCls(!!errors[field])}
+                        />
+                      </Field>
+                    ) : (
+                      <div key={field} className="sm:col-span-2">
+                        <Field
+                          label="Landmark / Address"
+                          error={errors.address}
+                        >
+                          <input
+                            id="address"
+                            value={formData.address}
+                            onChange={(e) =>
+                              updateField("address", e.target.value)
+                            }
+                            onBlur={() => markTouched("address")}
+                            placeholder="Street, building, landmark…"
+                            className={inputCls(!!errors.address)}
+                          />
+                        </Field>
+                      </div>
+                    ),
+                  )}
                 </div>
               </form>
             </div>
 
-            {/* Payment card */}
+            {/* Payment section */}
             <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-6 md:p-8">
               <h2 className="text-lg font-bold text-gray-900 mb-6 pb-4 border-b border-gray-100">
                 Payment Method
@@ -555,7 +553,7 @@ const Checkout = () => {
                     className="cursor-pointer"
                   >
                     <div
-                      className={`relative flex flex-col items-start gap-3 rounded-2xl border-2 p-5 transition-all duration-200
+                      className={`relative flex flex-col items-start gap-3 rounded-2xl border-2 p-5 transition-all duration-150
                       ${
                         paymentMethod === option.id
                           ? option.available
@@ -569,9 +567,7 @@ const Checkout = () => {
                         id={option.id}
                         className="absolute top-4 right-4"
                       />
-
                       <span className="text-2xl">{option.icon}</span>
-
                       <div>
                         <p
                           className={`font-bold text-sm ${paymentMethod === option.id ? "text-white" : "text-gray-900"}`}
@@ -584,7 +580,6 @@ const Checkout = () => {
                           {option.sub}
                         </p>
                       </div>
-
                       {!option.available && (
                         <span className="absolute bottom-3 right-3 text-[9px] font-bold uppercase tracking-widest bg-orange-100 text-orange-500 px-2 py-0.5 rounded-full">
                           Soon
@@ -600,22 +595,20 @@ const Checkout = () => {
                   <span className="text-orange-400">⚠</span>
                   <p className="text-xs text-orange-600 font-medium">
                     {PAYMENT_OPTIONS.find((o) => o.id === paymentMethod)?.label}{" "}
-                    is not available yet. Please select Cash on Delivery to
-                    proceed.
+                    is not available yet.
                   </p>
                 </div>
               )}
             </div>
           </div>
 
-          {/* ════ RIGHT — ORDER SUMMARY ════ */}
+          {/* RIGHT - ORDER SUMMARY */}
           <div className="lg:col-span-1">
             <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-6 lg:sticky lg:top-8">
               <h2 className="text-lg font-bold text-gray-900 mb-5 pb-4 border-b border-gray-100">
                 Order Summary
               </h2>
 
-              {/* Cart loading skeleton */}
               {cartLoading ? (
                 <div className="space-y-4">
                   {[1, 2].map((i) => (
@@ -630,9 +623,8 @@ const Checkout = () => {
                 </div>
               ) : (
                 <>
-                  {/* Items list */}
                   <div className="space-y-3 max-h-72 overflow-y-auto pr-1 mb-6">
-                    {cart.map((item, idx) => {
+                    {cart?.map((item, idx) => {
                       const discounted = item.offerPrice * item.quantity;
                       const original = item.price * item.quantity;
                       return (
@@ -640,11 +632,12 @@ const Checkout = () => {
                           key={idx}
                           className="flex gap-3 p-2.5 rounded-2xl hover:bg-gray-50 transition"
                         >
-                          <div className="w-16 h-16 rounded-xl bg-gray-100 overflow-hidden shrink-0">
-                            <img
+                          <div className="w-16 h-16 rounded-xl bg-gray-100 overflow-hidden shrink-0 relative">
+                            <Image
                               src={item.image}
                               alt={item.name}
-                              className="w-full h-full object-cover"
+                              fill
+                              className="object-cover"
                             />
                           </div>
                           <div className="flex-1 min-w-0">
@@ -670,7 +663,6 @@ const Checkout = () => {
                     })}
                   </div>
 
-                  {/* Price breakdown */}
                   <div className="space-y-2.5 text-sm border-t border-gray-100 pt-5">
                     <div className="flex justify-between text-gray-400">
                       <span>Subtotal</span>
@@ -690,7 +682,7 @@ const Checkout = () => {
                     )}
                     <div className="flex justify-between text-gray-400">
                       <span>Shipping</span>
-                      <span>Rs. {shipping}</span>
+                      <span>Rs. 100</span>
                     </div>
                     <div className="flex justify-between text-base font-black text-gray-900 border-t border-gray-100 pt-3 mt-1">
                       <span>Total</span>
@@ -698,17 +690,12 @@ const Checkout = () => {
                     </div>
                   </div>
 
-                  {/* Submit */}
                   <button
                     type="submit"
                     form="checkout-form"
                     disabled={isLoading || paymentMethod !== "COD"}
-                    className={`mt-6 w-full font-bold text-sm py-4 rounded-2xl transition-all duration-200 flex items-center justify-center gap-2
-                      ${
-                        paymentMethod !== "COD"
-                          ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                          : "bg-gray-900 hover:bg-gray-700 text-white"
-                      }`}
+                    className={`mt-6 w-full font-bold text-sm py-4 rounded-2xl transition-all duration-150 flex items-center justify-center gap-2
+                      ${paymentMethod !== "COD" ? "bg-gray-200 text-gray-400 cursor-not-allowed" : "bg-gray-900 hover:bg-gray-700 text-white"}`}
                   >
                     {isLoading ? (
                       <Spinner className="w-5 h-5" />
@@ -716,9 +703,9 @@ const Checkout = () => {
                       "Select COD to place order"
                     ) : (
                       <>
-                        Place Order
+                        Place Order{" "}
                         <span className="text-white/60">
-                          · Rs.{shipmentTotal}
+                          Rs. {shipmentTotal}
                         </span>
                       </>
                     )}

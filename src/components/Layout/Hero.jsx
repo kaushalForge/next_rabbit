@@ -42,7 +42,11 @@ const Hero = () => {
             >
               Explore our vacation-ready outfits with fast worldwide shipping
             </p>
-            <Link href="/collections/all" className="inline-block outline-none">
+            <Link
+              href="/collections/all"
+              // prefetch={true}
+              className="inline-block outline-none"
+            >
               <Button />
             </Link>
           </div>

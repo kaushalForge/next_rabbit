@@ -35,6 +35,7 @@ const ProductCard = ({ product, index }) => {
       {/* ── Image ── */}
       <Link
         href={`/collections/product/${product?._id}`}
+        scroll={true}
         prefetch={true}
         className="block"
       >
