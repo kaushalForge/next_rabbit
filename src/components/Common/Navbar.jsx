@@ -102,10 +102,28 @@ const Navbar = () => {
 
           {/* Desktop Menu */}
           <div className="hidden lg:flex items-center justify-center space-x-4 text-sm font-semibold flex-1">
-            <Link href="/collections/all?gender=Male">Men</Link>
-            <Link href="/collections/all?gender=Female">Women</Link>
-            <Link href="/collections/all?category=Top Wear">Top Wear</Link>
-            <Link href="/collections/all?category=Bottom Wear">
+            <Link
+              href="/collections/all?mainCategory=Fashion&gender=Male"
+              prefetch={true}
+            >
+              Men
+            </Link>
+            <Link
+              href="/collections/all?mainCategory=Fashion&gender=Female"
+              prefetch={true}
+            >
+              Women
+            </Link>
+            <Link
+              href="/collections/all?mainCategory=Fashion&category=Top+Wear"
+              prefetch={true}
+            >
+              Top Wear
+            </Link>
+            <Link
+              href="/collections/all?mainCategory=Fashion&category=Bottom+Wear"
+              prefetch={true}
+            >
               Bottom Wear
             </Link>
           </div>
