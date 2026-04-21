@@ -16,7 +16,7 @@ export async function fetchAllProductsAction(query) {
       "Content-Type": "application/json",
     },
     credentials: "include",
-    cache: "no-store",
+    cache: "default",
   });
 
   const { products } = await res.json();
@@ -29,7 +29,7 @@ export async function getWomenCollections() {
     {
       method: "GET",
       credentials: "include",
-      cache: "no-store",
+      cache: "default",
     },
   );
 
@@ -42,7 +42,7 @@ export async function getMenCollections() {
     {
       method: "GET",
       credentials: "include",
-      cache: "no-store",
+      cache: "default",
     },
   );
 
@@ -55,7 +55,7 @@ export async function getNewArrivals() {
     {
       method: "GET",
       credentials: "include",
-      cache: "no-store",
+      cache: "default",
     },
   );
 
@@ -68,7 +68,7 @@ export async function getFeaturedProducts() {
     {
       method: "GET",
       credentials: "include",
-      cache: "no-store",
+      cache: "default",
     },
   );
 
@@ -79,7 +79,7 @@ export async function getBestSellers() {
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_SITE_URL}/api/products/best-seller`,
     {
-      cache: "no-store",
+      cache: "default",
       credentials: "include",
     },
   );

@@ -83,7 +83,7 @@ const Navbar = () => {
           {/* Logo */}
           <Link
             href="/"
-            aria-label="Rabbit"
+            prefetch={true}
             className="absolute outline-none -top-8 left-0 -translate-y-1/2 items-center h-6 w-24 justify-center mb-2"
             tabIndex={-1}
           >
