@@ -1,8 +1,15 @@
 "use client";
-
+import { Dancing_Script } from "next/font/google";
 import React from "react";
 import Link from "next/link";
 import Image from "next/image";
+import Button from "../Resuables/Button";
+
+const dancingFont = Dancing_Script({
+  subsets: ["latin"],
+  weight: "700",
+});
+
 const Hero = () => {
   return (
     <>
@@ -17,13 +24,13 @@ const Hero = () => {
         />
         <div className="absolute inset-0 bg-opacity-5 flex items-center justify-center">
           <div className="text-center p-6">
-            <h1 className="hero-text-stroke text-6xl md:text-9xl font-bold tracking-wider uppercase text-[#c9a84c]">
-              Pure
+            <h1 className="hero-text-stroke text-6xl md:text-9xl font-bold tracking-wider uppercase text-[#cc9317]">
+              <span className={`${dancingFont.className}`}>Pure</span>
               <br />
-              Style
+              <span className={`${dancingFont.className}`}>Style</span>
             </h1>
             <p
-              className="text-lg font-medium md:text-2xl mb-6 whitespace-nowrap text-[#ffffff]"
+              className="text-lg font-medium md:text-2xl mb-6 whitespace-nowrap text-[#f0f0f0]"
               style={{
                 textShadow: `
       0 0 4px rgba(255,69,0,0.6),    /* lighter red-orange */
@@ -35,14 +42,9 @@ const Hero = () => {
             >
               Explore our vacation-ready outfits with fast worldwide shipping
             </p>
-            <button className="hover:-translate-y-0.5 duration-150 ease-in-out cursor-pointer">
-              <Link
-                href="/collections/all"
-                className="bg-white px-6 py-2 rounded-sm text-gray-950 text-lg font-bold"
-              >
-                Shop Now
-              </Link>
-            </button>
+            <Link href="/collections/all" className="inline-block outline-none">
+              <Button />
+            </Link>
           </div>
         </div>
       </section>

@@ -31,7 +31,7 @@ const ProductCard = ({ product, idx }) => {
         href={`/collections/product/${product?._id}`}
         className="h-full w-full"
       >
-        <div className="relative w-full h-32 md:h-52 aspect-[3/2] md:aspect-[4/3] bg-gray-100 overflow-hidden">
+        <div className="relative w-full h-32 md:h-52 aspect-3/2 md:aspect-4/3 bg-gray-100 overflow-hidden">
           <Image
             src={imageUrl}
             alt={imageAlt}
@@ -46,7 +46,7 @@ const ProductCard = ({ product, idx }) => {
           {product?.rating > 0 && (
             <span className="absolute top-3 left-2 z-20 inline-flex items-center gap-1 bg-black text-white text-[11px] font-semibold px-2.5 py-1 rounded-full shadow-md">
               <svg
-                className="w-3 h-3 text-yellow-500 flex-shrink-0"
+                className="w-3 h-3 text-yellow-500 shrink-0"
                 fill="currentColor"
                 viewBox="0 0 20 20"
               >
@@ -109,10 +109,8 @@ const ProductCard = ({ product, idx }) => {
 };
 
 const GridUI1 = ({ products }) => {
-  // Ensure products is always an array
   const productList = Array.isArray(products) ? products : [];
 
-  // Return nothing if no products
   if (productList.length === 0) return null;
 
   return (

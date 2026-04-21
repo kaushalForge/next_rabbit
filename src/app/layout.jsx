@@ -39,7 +39,7 @@ export const metadata = {
 
 export default async function AdminLayout({ children }) {
   return (
-    <html lang="en" className={outfit.variable}>
+    <html lang="en" className={`${outfit.variable}`}>
       <ReactLenis root>
         <body
           suppressHydrationWarning

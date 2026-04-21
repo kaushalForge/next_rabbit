@@ -6,15 +6,9 @@ const MenCollectionRouting = async () => {
   const menCollection = await getMenCollections();
   return (
     <>
-      <Suspense>
-        <MenCollection products={menCollection} />
-      </Suspense>
+      <MenCollection products={menCollection} />
     </>
   );
 };
 
 export default MenCollectionRouting;
-
-
-
-

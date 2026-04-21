@@ -2,6 +2,7 @@
 import React from "react";
 import { AiFillTikTok } from "react-icons/ai";
 import { SiFacebook } from "react-icons/si";
+import { SiWelcometothejungle } from "react-icons/si";
 
 const Topbar = () => {
   return (
@@ -37,7 +38,11 @@ const Topbar = () => {
         </div>
 
         {/* Contact */}
-        <div className="hidden md:flex z-10">+977 97xxxxxxxx</div>
+
+        <div className="hidden md:flex flex-row items-center justify-center z-10">
+          <SiWelcometothejungle />
+          elcome
+        </div>
       </div>
     </div>
   );

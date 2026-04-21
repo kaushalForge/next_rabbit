@@ -2,6 +2,7 @@
 
 import { useRef, useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 
 const NewArrivals = ({ newArrivals }) => {
   const scrollRef = useRef(null);
@@ -125,8 +126,13 @@ const NewArrivals = ({ newArrivals }) => {
 
                   {/* Image */}
                   <div className="relative overflow-hidden rounded-2xl">
-                    <img
-                      src={product.images?.[0]?.url}
+                    <Image
+                      src={
+                        product.images?.[0]?.url || "/assets/rabbit-banner.png"
+                      }
+                      width={1200}
+                      height={630}
+                      quality={80}
                       alt={product.images?.[0]?.altText || product.name}
                       className="w-full h-105 md:h-125 object-cover pointer-events-none transition-transform duration-500 group-hover:scale-105"
                       draggable={false}
