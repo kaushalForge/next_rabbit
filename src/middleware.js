@@ -6,12 +6,17 @@ export function middleware(request) {
   if (
     !pathname.startsWith("/admin") &&
     !pathname.startsWith("/api/admin") &&
-    !pathname.startsWith("/checkout")
+    !pathname.startsWith("/checkout") &&
+    !pathname.startsWith("/profile")
   ) {
     return NextResponse.next();
   }
 
   const token = request.cookies.get("cUser")?.value;
+
+  if (!token && pathname.startsWith("/profile")) {
+    return NextResponse.redirect(new URL("/login", request.url));
+  }
 
   if (!token) {
     return NextResponse.redirect(new URL("/404", request.url));
@@ -20,5 +25,5 @@ export function middleware(request) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/api/admin/:path*", "/checkout"],
+  matcher: ["/admin/:path*", "/api/admin/:path*", "/checkout", "/profile"],
 };
