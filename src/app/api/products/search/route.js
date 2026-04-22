@@ -6,7 +6,6 @@ export async function GET(request) {
   try {
     await dbConnect();
     const { searchParams } = new URL(request.url);
-
     // ===== Parameters =====
     const mainCategory = searchParams.get("mainCategory") || "all"; // optional
     const category = searchParams.get("category");
@@ -42,16 +41,42 @@ export async function GET(request) {
       query.brand = { $in: brand.split(",").map((b) => b.trim()) };
     }
 
-    // ===== Search =====
+    // ===== Search Operation =====
+    const normalizeText = (text = "") => {
+      return text
+        .toLowerCase()
+        .replace(/[-_/]/g, " ") // treat - _ / as space
+        .replace(/[^a-z0-9\s]/g, "") // remove punctuation
+        .replace(/\s+/g, " ") // collapse spaces
+        .trim();
+    };
+
+    const normalizeWord = (word) => {
+      if (word.endsWith("s")) return word.slice(0, -1);
+      return word;
+    };
+
+    const buildSearchTokens = (search) => {
+      return normalizeText(search)
+        .split(" ")
+        .map(normalizeWord)
+        .filter(Boolean);
+    };
+
+    // ===== Actual Searching Logic =====
     if (search) {
-      query.$or = [
-        { name: { $regex: search, $options: "i" } },
-        { description: { $regex: search, $options: "i" } },
-        { metaTitle: { $regex: search, $options: "i" } },
-        { metaDescription: { $regex: search, $options: "i" } },
-        { category: { $regex: search, $options: "i" } },
-        { metaKeywords: { $regex: search, $options: "i" } },
-      ];
+      const tokens = buildSearchTokens(search);
+
+      query.$and = tokens.map((token) => ({
+        $or: [
+          { name: { $regex: token, $options: "i" } },
+          { description: { $regex: token, $options: "i" } },
+          { metaTitle: { $regex: token, $options: "i" } },
+          { metaDescription: { $regex: token, $options: "i" } },
+          { category: { $regex: token, $options: "i" } },
+          { metaKeywords: { $regex: token, $options: "i" } },
+        ],
+      }));
     }
 
     // ===== Nested filters =====
