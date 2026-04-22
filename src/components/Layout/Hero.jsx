@@ -19,7 +19,8 @@ const Hero = () => {
           alt="Rabbit"
           fill
           priority
-          quality={85}
+          sizes="100vw"
+          quality={90}
           className="object-cover object-center"
         />
         <div className="absolute inset-0 bg-opacity-5 flex items-center justify-center">

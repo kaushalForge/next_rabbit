@@ -144,7 +144,7 @@ const Branding = () => {
 
               <div className="rabbit-float relative w-52 h-52 md:w-64 md:h-64">
                 <Image
-                  src="/images/RabbitHubLogo.png"
+                  src="/images/RabbitHouseLogo.png"
                   alt="Rabbit"
                   fill
                   unoptimized

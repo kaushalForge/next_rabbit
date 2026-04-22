@@ -6,6 +6,7 @@ import { CartProvider } from "./context/CartContext";
 import { OrderProvider } from "./context/OrderContext";
 import { ReactLenis } from "../lib/lenis";
 import { Suspense } from "react";
+import ScrollToTop from "../components/Helper/ScrollToTop";
 
 const outfit = Outfit({
   subsets: ["latin"],
@@ -49,6 +50,7 @@ export default async function AdminLayout({ children }) {
           <Suspense>
             <AuthProvider>
               <CartProvider>
+                <ScrollToTop />
                 <OrderProvider>{children}</OrderProvider>
               </CartProvider>
             </AuthProvider>

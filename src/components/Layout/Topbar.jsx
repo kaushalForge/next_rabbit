@@ -39,7 +39,7 @@ const Topbar = () => {
 
         {/* Contact */}
 
-        <div className="hidden md:flex flex-row items-center justify-center z-10">
+        <div className="hidden md:flex flex-row items-center justify-center z-10 select-none">
           <SiWelcometothejungle />
           elcome
         </div>

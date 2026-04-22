@@ -4,45 +4,157 @@ import styled from "styled-components";
 const Button = () => {
   return (
     <StyledWrapper>
-      <button className="btn outline-none">
-        <div className="wrapper">
-          <p className="text">Shop Now</p>
-          <div className="flower flower1">
-            <div className="petal one" />
-            <div className="petal two" />
-            <div className="petal three" />
-            <div className="petal four" />
-          </div>
-          <div className="flower flower2">
-            <div className="petal one" />
-            <div className="petal two" />
-            <div className="petal three" />
-            <div className="petal four" />
-          </div>
-          <div className="flower flower3">
-            <div className="petal one" />
-            <div className="petal two" />
-            <div className="petal three" />
-            <div className="petal four" />
-          </div>
-          <div className="flower flower4">
-            <div className="petal one" />
-            <div className="petal two" />
-            <div className="petal three" />
-            <div className="petal four" />
-          </div>
-          <div className="flower flower5">
-            <div className="petal one" />
-            <div className="petal two" />
-            <div className="petal three" />
-            <div className="petal four" />
-          </div>
-          <div className="flower flower6">
-            <div className="petal one" />
-            <div className="petal two" />
-            <div className="petal three" />
-            <div className="petal four" />
-          </div>
+      <button>
+        Shop Now
+        <div className="star-1">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            xmlSpace="preserve"
+            version="1.1"
+            style={{
+              shapeRendering: "geometricPrecision",
+              textRendering: "geometricPrecision",
+              imageRendering: "optimizeQuality",
+              fillRule: "evenodd",
+              clipRule: "evenodd",
+            }}
+            viewBox="0 0 784.11 815.53"
+            xmlnsXlink="http://www.w3.org/1999/xlink"
+          >
+            <defs />
+            <g id="Layer_x0020_1">
+              <metadata id="CorelCorpID_0Corel-Layer" />
+              <path
+                className="fil0"
+                d="M392.05 0c-20.9,210.08 -184.06,378.41 -392.05,407.78 207.96,29.37 371.12,197.68 392.05,407.74 20.93,-210.06 184.09,-378.37 392.05,-407.74 -207.98,-29.38 -371.16,-197.69 -392.06,-407.78z"
+              />
+            </g>
+          </svg>
+        </div>
+        <div className="star-2">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            xmlSpace="preserve"
+            version="1.1"
+            style={{
+              shapeRendering: "geometricPrecision",
+              textRendering: "geometricPrecision",
+              imageRendering: "optimizeQuality",
+              fillRule: "evenodd",
+              clipRule: "evenodd",
+            }}
+            viewBox="0 0 784.11 815.53"
+            xmlnsXlink="http://www.w3.org/1999/xlink"
+          >
+            <defs />
+            <g id="Layer_x0020_1">
+              <metadata id="CorelCorpID_0Corel-Layer" />
+              <path
+                className="fil0"
+                d="M392.05 0c-20.9,210.08 -184.06,378.41 -392.05,407.78 207.96,29.37 371.12,197.68 392.05,407.74 20.93,-210.06 184.09,-378.37 392.05,-407.74 -207.98,-29.38 -371.16,-197.69 -392.06,-407.78z"
+              />
+            </g>
+          </svg>
+        </div>
+        <div className="star-3">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            xmlSpace="preserve"
+            version="1.1"
+            style={{
+              shapeRendering: "geometricPrecision",
+              textRendering: "geometricPrecision",
+              imageRendering: "optimizeQuality",
+              fillRule: "evenodd",
+              clipRule: "evenodd",
+            }}
+            viewBox="0 0 784.11 815.53"
+            xmlnsXlink="http://www.w3.org/1999/xlink"
+          >
+            <defs />
+            <g id="Layer_x0020_1">
+              <metadata id="CorelCorpID_0Corel-Layer" />
+              <path
+                className="fil0"
+                d="M392.05 0c-20.9,210.08 -184.06,378.41 -392.05,407.78 207.96,29.37 371.12,197.68 392.05,407.74 20.93,-210.06 184.09,-378.37 392.05,-407.74 -207.98,-29.38 -371.16,-197.69 -392.06,-407.78z"
+              />
+            </g>
+          </svg>
+        </div>
+        <div className="star-4">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            xmlSpace="preserve"
+            version="1.1"
+            style={{
+              shapeRendering: "geometricPrecision",
+              textRendering: "geometricPrecision",
+              imageRendering: "optimizeQuality",
+              fillRule: "evenodd",
+              clipRule: "evenodd",
+            }}
+            viewBox="0 0 784.11 815.53"
+            xmlnsXlink="http://www.w3.org/1999/xlink"
+          >
+            <defs />
+            <g id="Layer_x0020_1">
+              <metadata id="CorelCorpID_0Corel-Layer" />
+              <path
+                className="fil0"
+                d="M392.05 0c-20.9,210.08 -184.06,378.41 -392.05,407.78 207.96,29.37 371.12,197.68 392.05,407.74 20.93,-210.06 184.09,-378.37 392.05,-407.74 -207.98,-29.38 -371.16,-197.69 -392.06,-407.78z"
+              />
+            </g>
+          </svg>
+        </div>
+        <div className="star-5">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            xmlSpace="preserve"
+            version="1.1"
+            style={{
+              shapeRendering: "geometricPrecision",
+              textRendering: "geometricPrecision",
+              imageRendering: "optimizeQuality",
+              fillRule: "evenodd",
+              clipRule: "evenodd",
+            }}
+            viewBox="0 0 784.11 815.53"
+            xmlnsXlink="http://www.w3.org/1999/xlink"
+          >
+            <defs />
+            <g id="Layer_x0020_1">
+              <metadata id="CorelCorpID_0Corel-Layer" />
+              <path
+                className="fil0"
+                d="M392.05 0c-20.9,210.08 -184.06,378.41 -392.05,407.78 207.96,29.37 371.12,197.68 392.05,407.74 20.93,-210.06 184.09,-378.37 392.05,-407.74 -207.98,-29.38 -371.16,-197.69 -392.06,-407.78z"
+              />
+            </g>
+          </svg>
+        </div>
+        <div className="star-6">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            xmlSpace="preserve"
+            version="1.1"
+            style={{
+              shapeRendering: "geometricPrecision",
+              textRendering: "geometricPrecision",
+              imageRendering: "optimizeQuality",
+              fillRule: "evenodd",
+              clipRule: "evenodd",
+            }}
+            viewBox="0 0 784.11 815.53"
+            xmlnsXlink="http://www.w3.org/1999/xlink"
+          >
+            <defs />
+            <g id="Layer_x0020_1">
+              <metadata id="CorelCorpID_0Corel-Layer" />
+              <path
+                className="fil0"
+                d="M392.05 0c-20.9,210.08 -184.06,378.41 -392.05,407.78 207.96,29.37 371.12,197.68 392.05,407.74 20.93,-210.06 184.09,-378.37 392.05,-407.74 -207.98,-29.38 -371.16,-197.69 -392.06,-407.78z"
+              />
+            </g>
+          </svg>
         </div>
       </button>
     </StyledWrapper>
@@ -50,202 +162,157 @@ const Button = () => {
 };
 
 const StyledWrapper = styled.div`
-  .btn {
-    height: 4em;
-    width: 12em;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: transparent;
-    border: 0px solid black;
+  button {
+    position: relative;
+    padding: 12px 35px;
+    background: rgba(10, 124, 120, 0.4);
+    box-shadow: 0 0 25px #fec1958c;
+    font-size: 17px;
+    font-weight: 600;
+    color: #ffffff;
+    border: 3px solid #0a7c78;
+    border-radius: 8px;
+    transition: all 0.3s ease-in-out;
     cursor: pointer;
   }
 
-  .wrapper {
-    height: 2em;
-    width: 8em;
-    position: relative;
-    background: transparent;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-
-  .text {
-    font-size: 17px;
-    z-index: 1;
-    color: #000;
-    padding: 4px 12px;
-    border-radius: 4px;
-    background: rgba(255, 255, 255, 0.7);
-    transition: all 0.5s ease;
-  }
-
-  .flower {
-    display: grid;
-    grid-template-columns: 1em 1em;
+  .star-1 {
     position: absolute;
-    transition: grid-template-columns 0.8s ease;
+    top: 20%;
+    left: 20%;
+    width: 25px;
+    height: auto;
+    filter: drop-shadow(0 0 0 #fffdef);
+    z-index: -5;
+    transition: all 1s cubic-bezier(0.05, 0.83, 0.43, 0.96);
   }
 
-  .flower1 {
-    top: -12px;
-    left: -13px;
-    transform: rotate(5deg);
+  .star-2 {
+    position: absolute;
+    top: 45%;
+    left: 45%;
+    width: 15px;
+    height: auto;
+    filter: drop-shadow(0 0 0 #ff4500);
+    z-index: -5;
+    transition: all 1s cubic-bezier(0, 0.4, 0, 1.01);
   }
 
-  .flower2 {
-    bottom: -5px;
-    left: 8px;
-    transform: rotate(35deg);
+  .star-3 {
+    position: absolute;
+    top: 40%;
+    left: 40%;
+    width: 5px;
+    height: auto;
+    filter: drop-shadow(0 0 0 #fffdef);
+    z-index: -5;
+    transition: all 1s cubic-bezier(0, 0.4, 0, 1.01);
   }
 
-  .flower3 {
-    bottom: -15px;
-    transform: rotate(0deg);
+  .star-4 {
+    position: absolute;
+    top: 20%;
+    left: 40%;
+    width: 8px;
+    height: auto;
+    filter: drop-shadow(0 0 0 #fffdef);
+    z-index: -5;
+    transition: all 0.8s cubic-bezier(0, 0.4, 0, 1.01);
   }
 
-  .flower4 {
-    top: -14px;
-    transform: rotate(15deg);
+  .star-5 {
+    position: absolute;
+    top: 25%;
+    left: 45%;
+    width: 15px;
+    height: auto;
+    filter: drop-shadow(0 0 0 #fffdef);
+    z-index: -5;
+    transition: all 0.6s cubic-bezier(0, 0.4, 0, 1.01);
   }
 
-  .flower5 {
-    right: 11px;
-    top: -3px;
-    transform: rotate(25deg);
+  .star-6 {
+    position: absolute;
+    top: 5%;
+    left: 50%;
+    width: 5px;
+    height: auto;
+    filter: drop-shadow(0 0 0 #fffdef);
+    z-index: -5;
+    transition: all 0.8s ease;
   }
 
-  .flower6 {
-    right: -15px;
-    bottom: -15px;
-    transform: rotate(30deg);
+  button:hover {
+    background: rgba(13, 143, 138, 0.4);
+    color: #ffffff;
+    box-shadow: 0 0 25px #fec1958c;
   }
 
-  .petal {
-    height: 1em;
-    width: 1em;
-    border-radius: 40% 70% / 7% 90%;
-    background: linear-gradient(#07a6d7, #93e0ee);
-    border: 0.5px solid #96d1ec;
-    z-index: 0;
-    transition:
-      width 0.8s ease,
-      height 0.8s ease;
+  button:hover .star-1 {
+    position: absolute;
+    top: -80%;
+    left: -30%;
+    width: 25px;
+    height: auto;
+    filter: drop-shadow(0 0 10px #fffdef);
+    z-index: 2;
   }
 
-  .two {
-    transform: rotate(90deg);
+  button:hover .star-2 {
+    position: absolute;
+    top: -25%;
+    left: 10%;
+    width: 15px;
+    height: auto;
+    filter: drop-shadow(0 0 10px #fffdef);
+    z-index: 2;
   }
 
-  .three {
-    transform: rotate(270deg);
+  button:hover .star-3 {
+    position: absolute;
+    top: 55%;
+    left: 25%;
+    width: 5px;
+    height: auto;
+    filter: drop-shadow(0 0 10px #fffdef);
+    z-index: 2;
   }
 
-  .four {
-    transform: rotate(180deg);
+  button:hover .star-4 {
+    position: absolute;
+    top: 30%;
+    left: 80%;
+    width: 8px;
+    height: auto;
+    filter: drop-shadow(0 0 10px #fffdef);
+    z-index: 2;
   }
 
-  .btn:hover .petal {
-    background: linear-gradient(#0761d7, #93bdee);
-    border: 0.5px solid #96b4ec;
+  button:hover .star-5 {
+    position: absolute;
+    top: 25%;
+    left: 115%;
+    width: 15px;
+    height: auto;
+    filter: drop-shadow(0 0 10px #fffdef);
+    z-index: 2;
   }
 
-  .btn:hover .flower {
-    grid-template-columns: 1.5em 1.5em;
+  button:hover .star-6 {
+    position: absolute;
+    top: 5%;
+    left: 60%;
+    width: 5px;
+    height: auto;
+    filter: drop-shadow(0 0 10px #fffdef);
+    z-index: 2;
   }
 
-  .btn:hover .flower .petal {
-    width: 1.5em;
-    height: 1.5em;
-  }
-
-  .btn:hover .text {
-    background: rgba(255, 255, 255, 0.4);
-  }
-
-  .btn:hover div.flower1 {
-    animation: 15s linear 0s normal none infinite running flower1;
-  }
-
-  @keyframes flower1 {
-    0% {
-      transform: rotate(5deg);
-    }
-
-    100% {
-      transform: rotate(365deg);
-    }
-  }
-
-  .btn:hover div.flower2 {
-    animation: 13s linear 1s normal none infinite running flower2;
-  }
-
-  @keyframes flower2 {
-    0% {
-      transform: rotate(35deg);
-    }
-
-    100% {
-      transform: rotate(-325deg);
-    }
-  }
-
-  .btn:hover div.flower3 {
-    animation: 16s linear 1s normal none infinite running flower3;
-  }
-
-  @keyframes flower3 {
-    0% {
-      transform: rotate(0deg);
-    }
-
-    100% {
-      transform: rotate(360deg);
-    }
-  }
-
-  .btn:hover div.flower4 {
-    animation: 17s linear 1s normal none infinite running flower4;
-  }
-
-  @keyframes flower4 {
-    0% {
-      transform: rotate(15deg);
-    }
-
-    100% {
-      transform: rotate(375deg);
-    }
-  }
-
-  .btn:hover div.flower5 {
-    animation: 20s linear 1s normal none infinite running flower5;
-  }
-
-  @keyframes flower5 {
-    0% {
-      transform: rotate(25deg);
-    }
-
-    100% {
-      transform: rotate(-335deg);
-    }
-  }
-
-  .btn:hover div.flower6 {
-    animation: 15s linear 1s normal none infinite running flower6;
-  }
-
-  @keyframes flower6 {
-    0% {
-      transform: rotate(30deg);
-    }
-
-    100% {
-      transform: rotate(390deg);
-    }
+  .fil0 {
+    fill: #ffffff;
+    filter: drop-shadow(10px 10px 15px #0d8f8a) drop-shadow(10px 10px 30px #0d8f8a)
+      drop-shadow(10px 10px 60px #0d8f8a) drop-shadow(10px 10px 120px #0d8f8a)
+      brightness(1.5);
   }
 `;
 

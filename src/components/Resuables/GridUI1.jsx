@@ -92,9 +92,10 @@ const ProductCard = ({ product, idx }) => {
     >
       <Link
         href={`/collections/product/${product?._id}`}
+        scroll={true}
         className="h-full w-full"
       >
-        <div className="relative w-full h-32 md:h-52 aspect-3/2 md:aspect-4/3 bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden">
+        <div className="relative w-full h-32 md:h-52 aspect-3/2 md:aspect-4/3 bg-linear-to-br from-gray-50 to-gray-100 overflow-hidden">
           <motion.div
             variants={imageVariants}
             initial="rest"
@@ -162,8 +163,7 @@ const ProductCard = ({ product, idx }) => {
             transition={{ duration: 0.2 }}
             className="absolute inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center"
           >
-            <Link
-              href={`/collections/product/${product?._id}`}
+            <motion.div
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{
                 scale: isHovered ? 1 : 0.8,
@@ -175,7 +175,7 @@ hover:bg-gray-900 hover:text-white
 transition-colors duration-300 ease-in-out"
             >
               <motion.div>Quick View →</motion.div>
-            </Link>
+            </motion.div>
           </motion.div>
         </div>
       </Link>

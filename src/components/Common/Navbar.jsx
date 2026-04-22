@@ -132,28 +132,28 @@ const Navbar = () => {
           <div className="flex items-center space-x-2 md:space-x-4 shrink-0">
             {/* Avatar */}
             <div className="relative" ref={avatarRef}>
-              <button
-                onClick={() => {
-                  if (isLoggedIn) {
-                    window.location.href = "/profile";
-                  } else {
-                    toggleAvatarDropdown();
-                  }
-                }}
-                className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-200 hover:bg-gray-300 transition"
+              <Link
+                href="/profile"
+                prefetch
+                className="relative flex items-center justify-center w-8 h-8 rounded-full border border-gray-300 bg-gray-200 hover:bg-gray-300 transition overflow-hidden"
               >
-                {currentUser ? (
+                {currentUser?.avatar ? (
                   <Image
-                    src={currentUser?.avatar}
+                    src={currentUser.avatar}
                     alt={currentUser?.name || "User Avatar"}
                     fill
                     referrerPolicy="no-referrer"
-                    className="rounded-full object-cover border text-gray-700 border-gray-300"
+                    className="rounded-full object-cover"
                   />
                 ) : (
-                  <HiOutlineUser className="h-5 w-5 " />
+                  <Image
+                    src="/images/Avatar.png"
+                    alt="Default Avatar"
+                    fill
+                    className="rounded-full object-cover opacity-70"
+                  />
                 )}
-              </button>
+              </Link>
 
               {!isLoggedIn && avatarDropdownOpen && (
                 <div className="absolute right-0 mt-2 w-36 bg-white border rounded shadow-lg flex flex-col z-50">
