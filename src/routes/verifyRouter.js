@@ -63,10 +63,6 @@ router.get("/get-user", async (req, res) => {
 router.post("/logout", (req, res) => {
 
   try {
-    // Log cookies received in the request
-    // console.log("Cookies received from frontend:", req.cookies);
-    console.log(req.cookies.cUser);
-
     // Clear the cookie
     res.clearCookie("cUser", {
       httpOnly: true,

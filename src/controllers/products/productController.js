@@ -128,24 +128,6 @@ export async function createProductController(req, res) {
       category,
     } = req.body;
 
-    console.log(
-      name,
-      description,
-      originalPrice,
-      price,
-      color,
-      size,
-      material,
-      brand,
-      gender,
-      tags,
-      dimension,
-      isPublished,
-      isFeatured,
-      weight,
-      category,
-      "description",
-    );
     // ---------------- MANDATORY FIELDS ----------------
     if (
       !name ||
@@ -342,7 +324,7 @@ export async function deleteProduct(req, res) {
 
     return res.status(201).json({ message: "Product Deleted", deleteProduct });
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return res.status(500).json({ message: "Server Error", error });
   }
 }

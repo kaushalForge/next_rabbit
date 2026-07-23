@@ -24,7 +24,7 @@ const page = async ({ params }) => {
   );
 
   if (!res.ok) {
-    console.log("Failed to fetch product");
+    console.error("Failed to fetch product");
   }
 
   const productDetails = await res.json();

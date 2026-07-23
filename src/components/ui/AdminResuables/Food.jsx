@@ -73,9 +73,6 @@ const Food = ({ food, setFood }) => {
     }
   };
 
-  /* ================= LOG FOR DEBUG ================= */
-  const logFood = () => console.log("FOOD BATCHES 👉", food);
-
   return (
     <div className="space-y-4">
       {/* HEADER */}
@@ -115,7 +112,6 @@ const Food = ({ food, setFood }) => {
             </SelectContent>
           </Select>
 
-          {console.log(food?.[0].weight)}
           <Input
             label="Weight"
             placeholder="1kg"
@@ -186,15 +182,6 @@ const Food = ({ food, setFood }) => {
         </div>
       ))}
 
-      {food.length > 0 && (
-        <button
-          type="button"
-          onClick={logFood}
-          className="text-sm underline text-gray-500 hover:text-gray-700 transition-colors duration-200"
-        >
-          Log batches to console
-        </button>
-      )}
     </div>
   );
 };

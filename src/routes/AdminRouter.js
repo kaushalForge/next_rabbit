@@ -59,7 +59,7 @@ router.get("/users/all", protect, admin, async (req, res) => {
       res.status(404).json({ message: "Data not found" });
     }
   } catch (error) {
-    console.log(error);
+    console.error(error);
     res.status(500).json({ message: "Server Error" });
   }
 });

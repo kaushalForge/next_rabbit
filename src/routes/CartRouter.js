@@ -79,7 +79,7 @@ router.post("/", async (req, res) => {
       return res.status(201).json(newCart);
     }
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return res.status(500).json({ message: "Server Error", error });
   }
 });
@@ -117,7 +117,7 @@ router.put("/", async (req, res) => {
       return res.status(404).json({ message: "Product not found in cart" });
     }
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return res.status(500).json({ message: "Server Error", error });
   }
 });
@@ -145,7 +145,7 @@ router.delete("/", async (req, res) => {
     await cart.save();
     return res.status(200).json(cart);
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return res.status(500).json({ message: "Server Error", error });
   }
 });
@@ -160,7 +160,7 @@ router.get("/", async (req, res) => {
       res.status(404).json({ messagge: "Cart not found" });
     }
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return res.status(500).json({ message: "Server Error", error });
   }
 });
@@ -209,7 +209,7 @@ router.post("/merge", protect, async (req, res) => {
         try {
           await cartModel.findOneAndDelete({ guestId });
         } catch (err) {
-          console.log("Error deleting guest cart", err);
+          console.error("Error deleting guest cart", err);
         }
         res.status(200).json(userCart);
       } else {
@@ -227,7 +227,7 @@ router.post("/merge", protect, async (req, res) => {
       res.status(404).json({ message: "Guest cart not found" });
     }
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return res.status(500).json({ message: "Server Error", error });
   }
 });

@@ -6,10 +6,9 @@ import { cookies } from "next/headers";
 const FetchingHelper = async ({ id }) => {
   const cookieStore = await cookies();
   const token = cookieStore.get("cUser")?.value;
-  if (!token) console.log("Not authenticated");
 
   if (!id) {
-    console.log(object)("Product ID is required");
+    return <p className="p-8 text-center text-zinc-500">Product not found.</p>;
   }
 
   const res = await fetch(
@@ -24,7 +23,7 @@ const FetchingHelper = async ({ id }) => {
   );
 
   if (!res.ok) {
-    console.log(`Failed to fetch product (${res.status})`);
+    return <p className="p-8 text-center text-zinc-500">Failed to load product.</p>;
   }
 
   const productDetail = await res.json();

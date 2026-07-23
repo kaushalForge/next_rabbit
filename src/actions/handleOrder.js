@@ -33,7 +33,6 @@ export async function createOrderAction(orderData) {
     });
 
     const data = await res.json();
-    console.log(data);
 
     return {
       status: res.status,

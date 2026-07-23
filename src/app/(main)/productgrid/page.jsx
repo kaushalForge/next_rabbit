@@ -8,7 +8,6 @@ export default async function ProductsPage() {
     const res = await fetch("/api/products", { credentials: "include",cache: "no-store" });
     if (!res.ok) throw new Error("Failed to fetch products");
     products = await res.json();
-    console.log("New arrivals data:", products);
   } catch (err) {
     console.error("Failed to fetch products:", err.message);
   }

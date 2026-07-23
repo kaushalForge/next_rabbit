@@ -6,6 +6,20 @@ import { generateToken } from "@/utils/GenerateToken";
 
 const client = new OAuth2Client(process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID);
 
+// ponytail: secure + sameSite:"none" must follow the real protocol, or the
+// browser drops the cookie on plain-HTTP origins (e.g. `next start` on
+// localhost) and every protected route redirects to /login.
+function cookieOptions(request) {
+  const isHttps = request.nextUrl.protocol === "https:";
+  return {
+    httpOnly: true,
+    secure: isHttps,
+    sameSite: isHttps ? "none" : "lax",
+    path: "/",
+    maxAge: 60 * 60 * 24 * 7,
+  };
+}
+
 export async function googleLoginController(request) {
   try {
     await dbConnect();
@@ -63,13 +77,7 @@ export async function googleLoginController(request) {
       { status: 200 },
     );
 
-    response.cookies.set("cUser", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-      path: "/",
-      maxAge: 60 * 60 * 24 * 7,
-    });
+    response.cookies.set("cUser", token, cookieOptions(request));
 
     return response;
   } catch (error) {
@@ -147,15 +155,7 @@ export async function googleRegisterController(request) {
       { status: statusCode },
     );
 
-    response.cookies.set("cUser", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-      path: "/",
-      sameSite: "lax",
-      path: "/",
-      maxAge: 60 * 60 * 24 * 7,
-    });
+    response.cookies.set("cUser", token, cookieOptions(request));
 
     return response;
   } catch (error) {

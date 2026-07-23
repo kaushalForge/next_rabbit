@@ -20,7 +20,7 @@ router.get("/", async (req, res) => {
       re.status(404).json({ message: "Data not found" });
     }
   } catch (error) {
-    console.log(error);
+    console.error(error);
     res.status(500).json({ message: "Server Error" });
   }
 });
@@ -134,7 +134,7 @@ router.get("/best-seller", async (req, res) => {
       return res.status(404).json({ message: "No best-seller found" });
     }
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return res.status(500).send("Server Error", error);
   }
 });
@@ -150,7 +150,7 @@ router.get("/women-collection", async (req, res) => {
       return res.status(404).json({ message: "No women's collection found" });
     }
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return res.status(500).json({ message: "Server Error", error });
   }
 });
@@ -165,7 +165,7 @@ router.get("/men-collection", async (req, res) => {
       return res.status(404).json({ message: "No men's collection found" });
     }
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return res.status(500).json({ message: "Server Error", error });
   }
 });
@@ -182,7 +182,7 @@ router.get("/new-arrivals", async (req, res) => {
       return res.status(404).json({ message: "No New Arrivals found" });
     }
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return res.status(500).send("Server Error", error);
   }
 });
@@ -201,7 +201,7 @@ router.get("/similar/:id", async (req, res) => {
     });
     res.status(200).json(similarProducts).limit(4);
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return res.status(500).send("Server Error", error);
   }
 });
@@ -216,7 +216,7 @@ router.get("/:id", async (req, res) => {
       res.status(404).json({ message: "Product not found" });
     }
   } catch (error) {
-    console.log(error);
+    console.error(error);
     res.status(500).json({ message: "Server Error" });
   }
 });

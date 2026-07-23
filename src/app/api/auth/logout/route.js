@@ -7,10 +7,11 @@ export async function POST(req) {
       { status: 200 },
     );
 
+    const isHttps = req.nextUrl.protocol === "https:";
     response.cookies.set("cUser", "", {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+      secure: isHttps,
+      sameSite: isHttps ? "none" : "lax",
       path: "/",
       maxAge: 0,
     });

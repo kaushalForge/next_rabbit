@@ -184,47 +184,6 @@ const EditProduct = ({ productDetails }) => {
         });
       }
 
-      // ======== Debugging: Images ========
-      console.group("===== Images Debug =====");
-
-      // New Files
-      if (images.length) {
-        console.log("Newly Added Files:");
-        images.forEach((file, i) => {
-          console.log(i, file.name, file.size + " bytes", file.type);
-        });
-      } else {
-        console.log("No new files added.");
-      }
-
-      // Existing Images
-      if (existingImages.length) {
-        existingImages.forEach((img, i) => {
-          console.log(
-            i,
-            "URL:",
-            img.url,
-            "| altText:",
-            img.altText || "No altText",
-          );
-        });
-      } else {
-        console.log("No existing images remaining.");
-      }
-
-      console.groupEnd();
-
-      // ======== Debug: FormData Summary ========
-      console.group("===== FormData Summary =====");
-      for (const [key, value] of formData.entries()) {
-        if (value instanceof File) {
-          console.log(key, "(File):", value.name);
-        } else {
-          console.log(key, value);
-        }
-      }
-      console.groupEnd();
-
       // Call API action
       const { status, message } = await updateProductAction(formData);
       if (status === 200 || status === 201) {

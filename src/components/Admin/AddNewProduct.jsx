@@ -169,15 +169,6 @@ const AddNewProduct = () => {
 
       if (status === 200 || status === 201) {
         toast.success(message || "Product created successfully!");
-        console.log("=== Fashion ===");
-        formData.getAll("fashion[]").forEach((f, i) => {
-          console.log(`Fashion[${i}]:`, JSON.parse(f));
-        });
-
-        console.log("=== Food ===");
-        formData.getAll("food[]").forEach((f, i) => {
-          console.log(`Food[${i}]:`, JSON.parse(f));
-        });
 
         // optionally reset form here
       } else {
