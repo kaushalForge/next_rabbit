@@ -294,7 +294,7 @@ const FilterSidebar = () => {
   // Render
   // ─────────────────────────────────────────────────────────────────────────
   return (
-    <div className="w-full bg-white border-r border-gray-100 overflow-y-auto fixed top-0 left-0 h-full z-30 sm:relative sm:h-auto sm:z-auto shadow-2xl sm:shadow-none transition-all duration-300 ease-in-out">
+    <div className="w-full bg-white border-r border-gray-100 overflow-y-auto">
       {/* Sticky Header */}
       <div className="sticky top-0 bg-white z-10 px-5 pt-6 pb-4 border-b border-gray-100">
         <div className="flex items-center justify-between">

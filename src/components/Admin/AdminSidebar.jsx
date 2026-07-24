@@ -11,7 +11,7 @@ const navItems = [
   { href: "/admin/users", icon: <FaUser />, label: "Users" },
   { href: "/admin/products", icon: <FaBoxOpen />, label: "Products" },
   { href: "/admin/orders", icon: <FaClipboardList />, label: "Orders" },
-  { href: "/collections/all", icon: <FaStore />, label: "Shop" },
+  { href: "/", icon: <FaStore />, label: "Shop" },
 ];
 
 export default function AdminSidebar({ collapsed, toggleCollapse }) {

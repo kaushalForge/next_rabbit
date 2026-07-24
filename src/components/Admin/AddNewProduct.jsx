@@ -76,6 +76,7 @@ const AddNewProduct = () => {
   ]);
   const [metaTitle, setMetaTitle] = useState("");
   const [metaDescription, setMetaDescription] = useState("");
+  const [adminNotes, setAdminNotes] = useState("");
 
   /* ---------------- SUBMIT ---------------- */
 
@@ -102,6 +103,7 @@ const AddNewProduct = () => {
       formData.append("weight", weight);
       formData.append("material", material);
       formData.append("metaDescription", metaDescription);
+      formData.append("adminNotes", adminNotes);
       formData.append("isFeatured", String(isFeatured));
       formData.append("isNewArrival", String(isNewArrival));
       formData.append("isBestSeller", String(isBestSeller));
@@ -267,6 +269,20 @@ const AddNewProduct = () => {
         {/* CATEGORY DEPENDENT CARDS */}
         {mainCategory && (
           <>
+            <Card>
+              <CardContent className="pt-6 space-y-2">
+                <CardHeader className="p-0">
+                  <CardTitle className="text-red-600">Admin Notes</CardTitle>
+                </CardHeader>
+                <p className="text-xs text-muted-foreground">Not visible to customers.</p>
+                <textarea
+                  value={adminNotes}
+                  onChange={(e) => setAdminNotes(e.target.value)}
+                  placeholder="Internal notes about this product..."
+                  className="flex min-h-[80px] w-full rounded-md border border-red-200 bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus:border-red-400 focus:outline-none resize-y"
+                />
+              </CardContent>
+            </Card>
             <Card>
               <CardHeader>
                 <CardTitle>Product Info</CardTitle>

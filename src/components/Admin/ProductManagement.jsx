@@ -10,10 +10,11 @@ import {
   TbCurrencyRupeeNepalese,
   TbRefresh,
 } from "react-icons/tb";
-import { deleteProductAction } from "@/actions/adminProducts";
+import { deleteProductAction, toggleProductPublishAction } from "@/actions/adminProducts";
 import { toast } from "sonner";
 import { useAdminStats } from "@/data/stats";
 import { Spinner } from "../ui/spinner";
+import { useState } from "react";
 
 // ─────────────────────────────────────────────
 // ProductManagement
@@ -32,6 +33,8 @@ import { Spinner } from "../ui/spinner";
 
 const ProductManagement = () => {
   const { stats, loading, error, refetch } = useAdminStats();
+  const [togglingId, setTogglingId] = useState(null);
+  const [openDropdownId, setOpenDropdownId] = useState(null);
 
   const {
     totalProducts,
@@ -189,6 +192,7 @@ const ProductManagement = () => {
                 <th className="px-6 py-3 font-medium">Category</th>
                 <th className="px-6 py-3 font-medium">Stock per Variant</th>
                 <th className="px-6 py-3 font-medium text-center">Rating</th>
+                <th className="px-6 py-3 font-medium text-center">Status</th>
                 <th className="px-6 py-3 font-medium text-center">Actions</th>
               </tr>
             </thead>
@@ -299,6 +303,105 @@ const ProductManagement = () => {
                         </div>
                       </td>
 
+                      {/* Status */}
+                      <td className="px-6 py-3 text-center relative">
+                        <button
+                          onClick={() =>
+                            setOpenDropdownId(
+                              openDropdownId === product._id
+                                ? null
+                                : product._id,
+                            )
+                          }
+                          disabled={togglingId === product._id}
+                          className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold border transition ${
+                            product.isPublished
+                              ? "bg-green-100 text-green-700 border-green-200 hover:bg-green-200"
+                              : "bg-gray-100 text-gray-500 border-gray-200 hover:bg-gray-200"
+                          }`}
+                        >
+                          {togglingId === product._id ? (
+                            <span className="w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                          ) : (
+                            <>
+                              {product.isPublished
+                                ? "Published"
+                                : "Unpublished"}
+                              <svg
+                                className="w-3 h-3"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M19 9l-7 7-7-7"
+                                />
+                              </svg>
+                            </>
+                          )}
+                        </button>
+
+                        {openDropdownId === product._id && (
+                          <>
+                            <div
+                              className="fixed inset-0 z-10"
+                              onClick={() => setOpenDropdownId(null)}
+                            />
+                            <div className="absolute right-1/2 translate-x-1/2 top-full mt-1 z-20 bg-white border border-gray-200 rounded-lg shadow-lg min-w-[130px] overflow-hidden">
+                              <button
+                                onClick={async () => {
+                                  setTogglingId(product._id);
+                                  setOpenDropdownId(null);
+                                  const { status, message } =
+                                    await toggleProductPublishAction(
+                                      product._id,
+                                      true,
+                                    );
+                                  setTogglingId(null);
+                                  if (status === 200)
+                                    toast.success(message);
+                                  else toast.error(message);
+                                  refetch();
+                                }}
+                                className={`w-full text-left px-4 py-2 text-xs font-semibold hover:bg-gray-50 transition ${
+                                  product.isPublished
+                                    ? "bg-green-50 text-green-700"
+                                    : "text-gray-600"
+                                }`}
+                              >
+                                Published
+                              </button>
+                              <button
+                                onClick={async () => {
+                                  setTogglingId(product._id);
+                                  setOpenDropdownId(null);
+                                  const { status, message } =
+                                    await toggleProductPublishAction(
+                                      product._id,
+                                      false,
+                                    );
+                                  setTogglingId(null);
+                                  if (status === 200)
+                                    toast.success(message);
+                                  else toast.error(message);
+                                  refetch();
+                                }}
+                                className={`w-full text-left px-4 py-2 text-xs font-semibold hover:bg-gray-50 transition ${
+                                  !product.isPublished
+                                    ? "bg-gray-100 text-gray-500"
+                                    : "text-gray-600"
+                                }`}
+                              >
+                                Unpublished
+                              </button>
+                            </div>
+                          </>
+                        )}
+                      </td>
+
                       {/* Actions */}
                       <td className="px-6 py-3 text-center">
                         <div className="flex items-center justify-center gap-2">
@@ -321,7 +424,7 @@ const ProductManagement = () => {
                 })
               ) : (
                 <tr>
-                  <td colSpan={6} className="text-center py-10 text-gray-400">
+                  <td colSpan={7} className="text-center py-10 text-gray-400">
                     No products available
                   </td>
                 </tr>

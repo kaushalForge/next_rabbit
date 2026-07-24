@@ -1,37 +1,78 @@
-import Hero from "@/components/Layout/Hero";
-import GenderCollectionSection from "@/components/Layout/GenderCollectionSection";
-import NewArrivalRouting from "./(main)/new-arrivals/page";
-import WomenCollectionRouting from "./(main)/women-collection/page";
-import FetchingHelper from "@/components/Helper/fetchingHelper";
-import Branding from "@/components/Products/Branding";
-import Programs from "@/components/Products/Programs";
 import Header from "@/components/Common/Header";
 import Footer from "@/components/Common/Footer";
-import React, { Suspense } from "react";
-import MenCollectionRouting from "./(main)/men-collection/page";
-import FeaturedProducts from "./(main)/featured-products/page";
-import PreFooter from "@/components/Layout/PreFooter";
-import HomeAnimation from "@/components/Animation/HomeAnimation";
+import CollectionPage from "@/components/pages/Collections/CollectionPage";
+import { fetchAllProductsAction } from "@/actions/userProducts";
 
-const page = () => {
+export const metadata = {
+  title: "Trendy Fashion Nepal – Online Shopping Store",
+  description:
+    "Shop trendy fashion online in Nepal at Rabbit House. Stylish clothing for men and women with delivery across Kathmandu, Pokhara and all Nepal.",
+
+  keywords: [
+    "online shopping in Nepal",
+    "fashion store Nepal",
+    "men clothing Nepal",
+    "women clothing Nepal",
+    "Rabbit House Nepal",
+    "trendy outfits Kathmandu",
+    "online clothing store Nepal",
+    "buy clothes online Nepal",
+    "Nepali fashion store",
+    "clothing delivery Nepal",
+  ],
+
+  alternates: {
+    canonical: `${process.env.NEXT_PUBLIC_SITE_URL}`,
+  },
+
+  openGraph: {
+    title: "Trendy Fashion Nepal – Online Shopping Store | Rabbit House Nepal",
+    description:
+      "Shop trendy fashion online in Nepal at Rabbit House. Stylish clothing for men and women with delivery across Kathmandu, Pokhara and all Nepal.",
+    url: `${process.env.NEXT_PUBLIC_SITE_URL}`,
+    siteName: "Rabbit House Nepal",
+    images: [
+      {
+        url: `${process.env.NEXT_PUBLIC_SITE_URL}/assets/hero-banner.png`,
+        width: 1200,
+        height: 630,
+        alt: "Rabbit Clothing Collection Banner",
+      },
+      {
+        url: `${process.env.NEXT_PUBLIC_SITE_URL}/images/RabbitHub.png`,
+        width: 600,
+        height: 600,
+        alt: "Rabbit Logo",
+      },
+    ],
+    type: "website",
+  },
+
+  robots: {
+    index: true,
+    follow: true,
+  },
+};
+
+const HomePage = async (props) => {
+  const query = await props.searchParams;
+  query.collection = "all";
+  let products = [];
+  try {
+    const res = await fetchAllProductsAction(query);
+    products = res;
+  } catch (err) {
+    console.error("Error fetching products:", err);
+  }
   return (
-    <div>
+    <>
       <Header />
-      <Hero />
-      <GenderCollectionSection />
-      <NewArrivalRouting />
-      <MenCollectionRouting />
-      <WomenCollectionRouting />
-      {/* <div className="relative"> */}
-      <FeaturedProducts />
-      {/* <HomeAnimation /> */}
-      {/* </div> */}
-      <Branding />
-      <Programs />
-      <PreFooter />
+      <main className="flex-1">
+        <CollectionPage products={products} />
+      </main>
       <Footer />
-    </div>
+    </>
   );
 };
 
-export default page;
+export default HomePage;

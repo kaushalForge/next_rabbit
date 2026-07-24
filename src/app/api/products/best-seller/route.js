@@ -3,6 +3,7 @@
 import { NextResponse } from "next/server";
 import { dbConnect } from "@/lib/dbConnection";
 import Product from "@/models/product";
+import { slugify } from "@/utils/slugify";
 
 export async function GET() {
   try {
@@ -13,9 +14,12 @@ export async function GET() {
     const bestSellers = await Product.find({
       rating: { $gte: 0, $lte: 5 },
     })
-      .sort({ rating: -1 }) // highest rated first
+      .select("-adminNotes")
+      .sort({ rating: -1 })
       .limit(8)
       .lean();
+
+    for (const p of bestSellers) p.slug ||= slugify(p.name);
 
     // Return 404 if no products found
     if (!bestSellers || bestSellers.length === 0) {

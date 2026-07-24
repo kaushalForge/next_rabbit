@@ -49,7 +49,7 @@ export async function PUT(req) {
   try {
     await dbConnect();
 
-    const { orderId, shipmentId, status, paymentStatus, paymentMethod } =
+    const { orderId, shipmentId, status, paymentStatus, paymentMethod, paymentVerified } =
       await req.json();
 
     // ── Validate orderId ──
@@ -83,11 +83,11 @@ export async function PUT(req) {
       );
 
     // ── Require at least one field ──
-    if (!status && !paymentStatus && !paymentMethod)
+    if (!status && !paymentStatus && !paymentMethod && paymentVerified === undefined)
       return NextResponse.json(
         {
           message:
-            "Provide at least one of: status, paymentStatus, paymentMethod",
+            "Provide at least one of: status, paymentStatus, paymentMethod, paymentVerified",
         },
         { status: 400 },
       );
@@ -121,6 +121,24 @@ export async function PUT(req) {
             { status: 400 },
           );
         shipment.status = status;
+      }
+
+      // Payment verified
+      if (paymentVerified !== undefined) {
+        if (shipment) {
+          if (!shipment.payment) shipment.payment = {};
+          shipment.payment.verified = paymentVerified;
+        } else if (cancelledShipment) {
+          await Order.updateOne(
+            { _id: orderId },
+            { $set: { "cancelledProducts.$[el].payment.verified": paymentVerified } },
+            { arrayFilters: [{ "el._id": new mongoose.Types.ObjectId(shipmentId) }] },
+          );
+          return NextResponse.json(
+            { success: true, message: "Updated successfully" },
+            { status: 200 },
+          );
+        }
       }
 
       // Payment

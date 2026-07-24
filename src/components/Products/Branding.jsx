@@ -112,7 +112,7 @@ const Branding = () => {
               className="flex items-center gap-3 justify-center lg:justify-start"
             >
               <Link
-                href="/collections/all"
+                href="/"
                 className="group flex items-center gap-2 bg-orange-500 hover:bg-orange-400 text-white text-sm font-bold px-7 py-3.5 rounded-full transition-all duration-200"
               >
                 Shop Collection
@@ -121,7 +121,7 @@ const Branding = () => {
                 </span>
               </Link>
               <Link
-                href="/collections/all"
+                href="/"
                 className="text-white/40 hover:text-white text-sm font-medium transition-colors duration-200"
               >
                 View Lookbook

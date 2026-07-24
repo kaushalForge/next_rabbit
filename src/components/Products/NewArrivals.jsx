@@ -97,7 +97,7 @@ const NewArrivals = ({ newArrivals }) => {
 
                   {/* Image */}
                   <Link
-                    href={`/collections/product/${product._id}`}
+                    href={`/collections/product/${product.slug || product._id}`}
                     scroll={true}
                     className="relative overflow-hidden rounded-2xl"
                   >

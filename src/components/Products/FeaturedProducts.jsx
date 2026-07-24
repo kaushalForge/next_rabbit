@@ -36,7 +36,7 @@ const ProductCard = ({ product, index }) => {
       whileHover={{ y: -8 }}
     >
       <Link
-        href={`/collections/product/${product?._id}`}
+        href={`/collections/product/${product?.slug || product?._id}`}
         scroll={true}
         className="group block"
       >

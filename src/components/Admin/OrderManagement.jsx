@@ -693,6 +693,9 @@ const ShipmentRow = ({
   const [localPaymentStatus, setLocalPaymentStatus] = useState(
     shipment.payment?.status || "Pending",
   );
+  const [localVerified, setLocalVerified] = useState(
+    shipment.payment?.verified || false,
+  );
 
   // FIX: soft green ONLY on this specific shipment when it meets both criteria
   const isCompletedAndPaid =
@@ -840,6 +843,59 @@ const ShipmentRow = ({
             initialMethod={shipment.payment?.method}
             onPaymentStatusChange={setLocalPaymentStatus}
           />
+
+          {shipment.payment?.transactionId && (
+            <div className="flex items-center gap-3 flex-wrap px-3 py-2 rounded-lg bg-zinc-50 border border-zinc-100">
+              <p className="text-[9px] font-semibold uppercase tracking-[0.2em] text-zinc-500">
+                Payment Info
+              </p>
+              <span className="text-[11px] font-mono font-semibold text-zinc-800">
+                TXN: {shipment.payment.transactionId}
+              </span>
+              {shipment.payment.notes && (
+                <span className="text-[11px] text-zinc-600">
+                  Note: {shipment.payment.notes}
+                </span>
+              )}
+              {shipment.payment.screenshot && (
+                <a
+                  href={shipment.payment.screenshot}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[11px] font-semibold text-blue-600 hover:text-blue-800 underline"
+                >
+                  View Screenshot ↗
+                </a>
+              )}
+              {localVerified ? (
+                <span className="text-[10px] font-semibold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full ring-1 ring-emerald-200">
+                  ✓ Verified
+                </span>
+              ) : (
+                shipment.payment.method !== "COD" && (
+                  <button
+                    onClick={async () => {
+                      if (!confirm("Mark this payment as verified?")) return;
+                      const { status } = await updateOrderStatusAction({
+                        orderId,
+                        shipmentId: shipment._id,
+                        paymentVerified: true,
+                      });
+                      if (status === 200 || status === 201) {
+                        setLocalVerified(true);
+                        toast.success("Payment verified");
+                      } else {
+                        toast.error("Failed to verify payment");
+                      }
+                    }}
+                    className="text-[10px] font-semibold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full ring-1 ring-amber-300 hover:bg-amber-100 transition"
+                  >
+                    Verify Payment
+                  </button>
+                )
+              )}
+            </div>
+          )}
 
           <div className="flex flex-wrap gap-2">
             {(shipment.products || []).map((p, i) => (

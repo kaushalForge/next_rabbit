@@ -37,6 +37,7 @@ export async function updateOrderStatusAction({
   status,
   paymentStatus,
   paymentMethod,
+  paymentVerified,
 }) {
   try {
     const cookieStore = await cookies();
@@ -59,6 +60,7 @@ export async function updateOrderStatusAction({
           ...(status !== undefined && { status }),
           ...(paymentStatus !== undefined && { paymentStatus }),
           ...(paymentMethod !== undefined && { paymentMethod }),
+          ...(paymentVerified !== undefined && { paymentVerified }),
         }),
       },
     );

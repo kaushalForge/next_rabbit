@@ -182,6 +182,7 @@ export const PATCH = async (req, { params }) => {
     category: safeString(formData.get("category")),
     metaTitle: safeString(formData.get("metaTitle")),
     metaDescription: safeString(formData.get("metaDescription")),
+    adminNotes: safeString(formData.get("adminNotes")),
     isFeatured: safeBool(formData.get("isFeatured")),
     isNewArrival: safeBool(formData.get("isNewArrival")),
     isBestSeller: safeBool(formData.get("isBestSeller")),

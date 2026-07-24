@@ -17,6 +17,13 @@ const productSchema = new mongoose.Schema(
       unique: true,
     },
 
+    slug: {
+      type: String,
+      unique: true,
+      sparse: true,
+      index: true,
+    },
+
     description: {
       type: String,
       required: true,
@@ -68,6 +75,11 @@ const productSchema = new mongoose.Schema(
 
     metaTitle: String,
     metaDescription: String,
+
+    adminNotes: {
+      type: String,
+      default: "",
+    },
 
     isFeatured: {
       type: Boolean,
@@ -195,6 +207,18 @@ const productSchema = new mongoose.Schema(
   },
   { timestamps: true },
 );
+
+productSchema.pre("save", function (next) {
+  if (this.isModified("name") && this.name) {
+    this.slug = this.name
+      .toLowerCase()
+      .replace(/[^a-z0-9\s-]/g, "")
+      .replace(/[\s_]+/g, "-")
+      .replace(/-+/g, "-")
+      .replace(/^-|-$/g, "");
+  }
+  next();
+});
 
 const Product =
   mongoose.models.product || mongoose.model("product", productSchema);

@@ -189,13 +189,13 @@ const Profile = () => {
             {/* Quick links row */}
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
               {[
-                { href: "/collections/all", label: "Browse Collection" },
+                { href: "/", label: "Browse Collection" },
                 {
-                  href: "/collections/all?mainCategory=Fashion&gender=Male",
+                  href: "/?mainCategory=Fashion&gender=Male",
                   label: "Men's",
                 },
                 {
-                  href: "/collections/all?mainCategory=Fashion&gender=Female",
+                  href: "/?mainCategory=Fashion&gender=Female",
                   label: "Women's",
                 },
               ].map(({ href, label }) => (

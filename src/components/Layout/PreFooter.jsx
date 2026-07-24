@@ -127,7 +127,7 @@ const PreFooter = () => {
                   transition={{ duration: 0.45, delay: 0.22 }}
                 >
                   <Link
-                    href="/collections/all"
+                    href="/"
                     className="inline-flex items-center gap-2 bg-gray-900 hover:bg-gray-700 text-white text-sm font-bold px-8 py-4 rounded-full transition-all duration-200 group"
                   >
                     Explore Collection

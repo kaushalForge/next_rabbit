@@ -18,7 +18,7 @@ export default async function sitemap() {
 
   const staticPages = [
     { url: `${BASE_URL}`, lastModified: new Date() },
-    { url: `${BASE_URL}/collections/all`, lastModified: new Date() },
+    { url: `${BASE_URL}/discover`, lastModified: new Date() },
     { url: `${BASE_URL}/about`, lastModified: new Date() },
     { url: `${BASE_URL}/contact`, lastModified: new Date() },
     { url: `${BASE_URL}/privacy-policy`, lastModified: new Date() },
@@ -29,7 +29,7 @@ export default async function sitemap() {
   ];
 
   const productPages = products.map((product) => ({
-    url: `${BASE_URL}/collections/product/${product._id}`,
+    url: `${BASE_URL}/collections/product/${product.slug || product._id}`,
     lastModified: new Date(product.updatedAt),
   }));
 

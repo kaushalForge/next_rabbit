@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { dbConnect } from "@/lib/dbConnection";
 import Product from "@/models/product";
+import { slugify } from "@/utils/slugify";
 
 export async function GET() {
   try {
@@ -32,6 +33,7 @@ export async function GET() {
     const formattedProducts = menProducts.map((p) => ({
       _id: p._id,
       name: p.name,
+      slug: slugify(p.name),
       rating: p.rating || 0,
       images: p.images?.[0]
         ? [{ url: p.images[0].url, altText: p.images[0].altText || p.name }]

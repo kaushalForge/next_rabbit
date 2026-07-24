@@ -5,6 +5,7 @@ import { NextResponse } from "next/server";
 import { verifyJWT } from "@/lib/jwt";
 import mongoose from "mongoose";
 import { cookies } from "next/headers";
+import { uploadMultipleToCloudinary } from "@/lib/cloudinary";
 
 // ------------------- Get user from JWT cookie -------------------
 const getOwner = async () => {
@@ -107,6 +108,14 @@ export async function POST(req) {
         { message: "Payment method required" },
         { status: 400 },
       );
+
+    // ------------------- Upload screenshot if present -------------------
+    if (payment?.screenshot?.startsWith("data:image")) {
+      const base64 = payment.screenshot.split(",")[1];
+      const buffer = Buffer.from(base64, "base64");
+      const urls = await uploadMultipleToCloudinary([buffer], "payments");
+      payment.screenshot = urls[0];
+    }
 
     // ------------------- Calculate totals -------------------
     const productsTotal = products.reduce(

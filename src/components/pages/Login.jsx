@@ -65,7 +65,7 @@ const Login = () => {
       if (res.ok && data.success) {
         toast.success("Login successful!");
         await refreshCurrentUser();
-        router.replace("/");
+        router.replace("/discover");
       } else {
         toast.error(data.message || "Login failed");
         setAuthLoading(false);

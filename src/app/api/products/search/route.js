@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { dbConnect } from "@/lib/dbConnection";
 import productModel from "@/models/product";
+import { slugify } from "@/utils/slugify";
 
 export async function GET(request) {
   try {
@@ -175,9 +176,12 @@ export async function GET(request) {
     // ===== Execute query =====
     const products = await productModel
       .find(query)
+      .select("-adminNotes")
       .sort(sort)
       .limit(finalLimit)
       .lean();
+
+    for (const p of products) p.slug ||= slugify(p.name);
 
     return NextResponse.json(
       { success: true, products, count: products.length },

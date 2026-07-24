@@ -103,25 +103,25 @@ const Navbar = () => {
           {/* Desktop Menu */}
           <div className="hidden lg:flex items-center justify-center space-x-4 text-sm font-semibold flex-1">
             <Link
-              href="/collections/all?mainCategory=Fashion&gender=Male"
+              href="/?mainCategory=Fashion&gender=Male"
               prefetch={true}
             >
               Men
             </Link>
             <Link
-              href="/collections/all?mainCategory=Fashion&gender=Female"
+              href="/?mainCategory=Fashion&gender=Female"
               prefetch={true}
             >
               Women
             </Link>
             <Link
-              href="/collections/all?mainCategory=Fashion&category=Top+Wear"
+              href="/?mainCategory=Fashion&category=Top+Wear"
               prefetch={true}
             >
               Top Wear
             </Link>
             <Link
-              href="/collections/all?mainCategory=Fashion&category=Bottom+Wear"
+              href="/?mainCategory=Fashion&category=Bottom+Wear"
               prefetch={true}
             >
               Bottom Wear
@@ -142,6 +142,7 @@ const Navbar = () => {
                     src={currentUser.avatar}
                     alt={currentUser?.name || "User Avatar"}
                     fill
+                    priority
                     referrerPolicy="no-referrer"
                     className="rounded-full object-cover"
                   />
@@ -150,6 +151,7 @@ const Navbar = () => {
                     src="/images/Avatar.png"
                     alt="Default Avatar"
                     fill
+                    priority
                     className="rounded-full object-cover opacity-70"
                   />
                 )}
@@ -221,20 +223,20 @@ const Navbar = () => {
         </div>
 
         <div className="p-4 flex flex-col space-y-4 text-gray-800 font-medium">
-          <Link href="/collections/all?gender=Male" onClick={toggleNavDrawer}>
+          <Link href="/?gender=Male" onClick={toggleNavDrawer}>
             Men
           </Link>
-          <Link href="/collections/all?gender=Female" onClick={toggleNavDrawer}>
+          <Link href="/?gender=Female" onClick={toggleNavDrawer}>
             Women
           </Link>
           <Link
-            href="/collections/all?category=Top Wear"
+            href="/?category=Top Wear"
             onClick={toggleNavDrawer}
           >
             Top Wear
           </Link>
           <Link
-            href="/collections/all?category=Bottom Wear"
+            href="/?category=Bottom Wear"
             onClick={toggleNavDrawer}
           >
             Bottom Wear

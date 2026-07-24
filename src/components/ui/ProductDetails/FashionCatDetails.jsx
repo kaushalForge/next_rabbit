@@ -146,9 +146,11 @@ const FashionCatDetails = ({ productId, productDetail }) => {
               onClick={() =>
                 setSelectedColor((p) => (p === color ? "" : color))
               }
-              className={`h-10 w-10 rounded-full border transition ${
-                selectedColor === color ? "ring-2 ring-black" : ""
-              } disabled:opacity-30 disabled:cursor-not-allowed`}
+              className={`h-10 w-10 rounded-full transition disabled:opacity-30 disabled:cursor-not-allowed ${
+                selectedColor === color
+                  ? "ring-2 ring-black ring-offset-2"
+                  : "ring-1 ring-gray-200 ring-offset-2"
+              }`}
               style={{ backgroundColor: color.toLowerCase() }}
             />
           ))}

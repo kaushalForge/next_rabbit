@@ -8,6 +8,7 @@ const ADMIN_USER_ID = "69788218a867edc7dfbacc60";
 const products = [
   {
     name: "Classic Black T-Shirt",
+    slug: "classic-black-t-shirt",
     description: "Premium cotton black t-shirt with breathable fabric.",
     brand: "UrbanWear",
     mainCategory: "Fashion",

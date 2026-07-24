@@ -34,7 +34,7 @@ const ProductCard = ({ product, index }) => {
     >
       {/* ── Image ── */}
       <Link
-        href={`/collections/product/${product?._id}`}
+        href={`/collections/product/${product?.slug || product?._id}`}
         scroll={true}
         prefetch={true}
         className="block"
@@ -117,7 +117,7 @@ const ProductCard = ({ product, index }) => {
       {/* ── Info ── */}
       <div className="pt-2.5 px-0.5">
         {/* Name */}
-        <Link href={`/collections/product/${product?._id}`}>
+        <Link href={`/collections/product/${product?.slug || product?._id}`}>
           <h3 className="text-[12px] md:text-[13px] font-semibold text-gray-900 truncate leading-snug hover:underline underline-offset-2 mb-1.5">
             {product?.name}
           </h3>
@@ -159,7 +159,7 @@ const ProductCard = ({ product, index }) => {
 
         {/* ── Buy Now button ── */}
         <Link
-          href={`/collections/product/${product?._id}`}
+          href={`/collections/product/${product?.slug || product?._id}`}
           className="group/btn flex items-center justify-between w-full
             bg-gray-900 hover:bg-gray-700
             text-white rounded-xl

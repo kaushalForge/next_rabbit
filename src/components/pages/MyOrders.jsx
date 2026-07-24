@@ -410,7 +410,7 @@ const EmptyState = () => (
         </p>
       </div>
       <Link
-        href="/collections/all"
+        href="/"
         className="bg-zinc-900 hover:bg-zinc-700 text-white text-[11px] font-medium uppercase tracking-[0.2em] px-7 py-3 rounded-xl transition-all duration-200"
       >
         Shop the Collection
@@ -527,7 +527,7 @@ const MyOrders = () => {
               </p>
             </div>
             <Link
-              href="/collections/all"
+              href="/"
               className="bg-zinc-900 hover:bg-zinc-700 text-white text-[11px] font-medium uppercase tracking-[0.2em] px-6 py-2.5 rounded-xl transition-all duration-200"
             >
               Shop Now

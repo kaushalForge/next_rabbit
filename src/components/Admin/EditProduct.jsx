@@ -91,6 +91,33 @@ const EditProduct = ({ productDetails }) => {
   const [metaDescription, setMetaDescription] = useState(
     productDetails?.metaDescription || "",
   );
+  const [adminNotes, setAdminNotes] = useState(productDetails?.adminNotes || "");
+
+  useEffect(() => {
+    setAdminNotes(productDetails?.adminNotes || "");
+    setName(productDetails?.name || "");
+    setDescription(productDetails?.description || "");
+    setCategory(productDetails?.category || "");
+    setBrand(productDetails?.brand || "");
+    setCountryOfOrigin(productDetails?.countryOfOrigin || "");
+    setMaterial(productDetails?.material || "");
+    setWeight(productDetails?.weight || "");
+    setRating(productDetails?.rating || 0);
+    setMetaTitle(productDetails?.metaTitle || "");
+    setMetaDescription(productDetails?.metaDescription || "");
+    setIsFeatured(!!productDetails?.isFeatured);
+    setIsNewArrival(!!productDetails?.isNewArrival);
+    setIsBestSeller(!!productDetails?.isBestSeller);
+    setIsTrending(!!productDetails?.isTrending);
+    setIsOnSale(!!productDetails?.isOnSale);
+    setIsPublished(!!productDetails?.isPublished);
+    setTags(productDetails?.tags || []);
+    setFashion(productDetails?.fashion || []);
+    setFood(productDetails?.food || []);
+    setExistingImages(productDetails?.images || []);
+    setBulletDescription(productDetails?.bulletDescription || [""]);
+    setBulletKeyValueDescription(productDetails?.bulletKeyValueDescription || [{ key: "", value: "" }]);
+  }, [productDetails]);
 
   /* ---------------- SUBMIT ---------------- */
   const handleSubmit = async (e) => {
@@ -117,6 +144,7 @@ const EditProduct = ({ productDetails }) => {
       formData.append("countryOfOrigin", countryOfOrigin);
       formData.append("metaTitle", metaTitle);
       formData.append("metaDescription", metaDescription);
+      formData.append("adminNotes", adminNotes);
       formData.append("isFeatured", String(isFeatured));
       formData.append("isNewArrival", String(isNewArrival));
       formData.append("isBestSeller", String(isBestSeller));
@@ -185,11 +213,37 @@ const EditProduct = ({ productDetails }) => {
       }
 
       // Call API action
-      const { status, message } = await updateProductAction(formData);
-      if (status === 200 || status === 201) {
-        toast.success(message || "Product updated successfully!");
+      const result = await updateProductAction(formData);
+      if (result.status === 200 || result.status === 201) {
+        toast.success(result.data?.message || "Product updated successfully!");
+        const updated = result.data?.updatedProduct;
+        if (updated) {
+          setAdminNotes(updated.adminNotes || "");
+          setName(updated.name || "");
+          setDescription(updated.description || "");
+          setCategory(updated.category || "");
+          setBrand(updated.brand || "");
+          setCountryOfOrigin(updated.countryOfOrigin || "");
+          setMaterial(updated.material || "");
+          setWeight(updated.weight || "");
+          setRating(updated.rating || 0);
+          setMetaTitle(updated.metaTitle || "");
+          setMetaDescription(updated.metaDescription || "");
+          setIsFeatured(!!updated.isFeatured);
+          setIsNewArrival(!!updated.isNewArrival);
+          setIsBestSeller(!!updated.isBestSeller);
+          setIsTrending(!!updated.isTrending);
+          setIsOnSale(!!updated.isOnSale);
+          setIsPublished(!!updated.isPublished);
+          setTags(updated.tags || []);
+          setFashion(updated.fashion || []);
+          setFood(updated.food || []);
+          setExistingImages(updated.images || []);
+          setBulletDescription(updated.bulletDescription || [""]);
+          setBulletKeyValueDescription(updated.bulletKeyValueDescription || [{ key: "", value: "" }]);
+        }
       } else {
-        toast.error(message || "Failed to update product");
+        toast.error(result.data?.message || result.error || "Failed to update product");
       }
     } catch (err) {
       toast.error(err?.message || "Something went wrong");
@@ -309,6 +363,20 @@ const EditProduct = ({ productDetails }) => {
         {/* PRODUCT INFO */}
         {mainCategory && (
           <>
+            <Card>
+              <CardContent className="pt-6 space-y-2">
+                <CardHeader className="p-0">
+                  <CardTitle className="text-red-600">Admin Notes</CardTitle>
+                </CardHeader>
+                <p className="text-xs text-muted-foreground">Not visible to customers.</p>
+                <textarea
+                  value={adminNotes}
+                  onChange={(e) => setAdminNotes(e.target.value)}
+                  placeholder="Internal notes about this product..."
+                  className="flex min-h-[80px] w-full rounded-md border border-red-200 bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus:border-red-400 focus:outline-none resize-y"
+                />
+              </CardContent>
+            </Card>
             <Card>
               <CardHeader>
                 <CardTitle>Product Info</CardTitle>

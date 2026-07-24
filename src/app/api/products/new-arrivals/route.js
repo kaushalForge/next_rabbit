@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { dbConnect } from "@/lib/dbConnection";
 import Product from "@/models/product";
+import { slugify } from "@/utils/slugify";
 
 export async function GET() {
   try {
@@ -10,9 +11,12 @@ export async function GET() {
       isNewArrival: true,
       isPublished: true,
     })
+      .select("-adminNotes")
       .sort({ createdAt: -1 })
       .limit(8)
       .lean();
+
+    for (const p of newArrivals) p.slug ||= slugify(p.name);
 
     if (!newArrivals || newArrivals.length === 0) {
       return NextResponse.json(

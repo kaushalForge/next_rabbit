@@ -89,6 +89,32 @@ export async function updateProductAction(formData) {
   }
 }
 
+export async function toggleProductPublishAction(productId, isPublished) {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get("cUser")?.value;
+
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_SITE_URL}/api/admin/products/toggle-publish/${productId}`,
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Cookie: `cUser=${token}`,
+        },
+        body: JSON.stringify({ isPublished }),
+      },
+    );
+
+    const data = await res.json();
+    revalidatePath("/admin/products");
+    return { status: res.status, message: data.message };
+  } catch (error) {
+    console.error("toggleProductPublishAction error:", error);
+    return { status: 500, message: "Failed to toggle publish status" };
+  }
+}
+
 export async function deleteProductAction(productId) {
   try {
     const cookieStore = await cookies();

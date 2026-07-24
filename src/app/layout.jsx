@@ -18,14 +18,14 @@ const outfit = Outfit({
 export const metadata = {
   metadataBase: new URL("https://next-rabbit.vercel.app"),
   title: {
-    default: "Rabbit House - Dress Well, Live Better",
-    template: "%s - Rabbit House",
+    default: "Rabbit House Nepal | Fashion Store – Trendy Clothing & Outfits",
+    template: "%s | Rabbit House Nepal",
   },
   description:
-    "Rabbit House is a premium online clothing store offering stylish outfits, modern fashion, and comfortable everyday wear for men and women.",
+    "Shop trendy fashion online in Nepal at Rabbit House. Premium clothing for men and women with delivery across Kathmandu, Pokhara and all Nepal.",
   openGraph: {
-    title: "Rabbit House - Dress Well, Live Better",
-    siteName: "Rabbit House",
+    title: "Rabbit House Nepal | Fashion Store – Trendy Clothing & Outfits",
+    siteName: "Rabbit House Nepal",
     images: [
       {
         url: "/assets/rabbit-banner.png",
@@ -44,7 +44,7 @@ export default async function AdminLayout({ children }) {
       <ReactLenis root>
         <body
           suppressHydrationWarning
-          className={`${outfit.className} antialiased`}
+          className={`${outfit.className} antialiased min-h-screen flex flex-col`}
         >
           <Toaster position="top-right" visibleToasts={4} duration={1200} />
           <Suspense>

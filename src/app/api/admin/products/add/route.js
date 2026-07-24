@@ -147,8 +147,9 @@ export const POST = async (req) => {
       })
       .filter(Boolean),
     metaTitle: safeString(formData.get("metaTitle")),
-    category: safeString(formData.get("category")),
     metaDescription: safeString(formData.get("metaDescription")),
+    adminNotes: safeString(formData.get("adminNotes")),
+    category: safeString(formData.get("category")),
     isFeatured: formData.get("isFeatured") === "true",
     isNewArrival: formData.get("isNewArrival") === "true",
     isBestSeller: formData.get("isBestSeller") === "true",

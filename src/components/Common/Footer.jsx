@@ -41,7 +41,7 @@ const Footer = () => {
             <ul className="space-y-2 text-gray-600">
               <li>
                 <Link
-                  href="/collections/all?gender=Male&category=Top Wear"
+                  href="/?gender=Male&category=Top Wear"
                   className="hover:text-gray-500 transition-colors"
                 >
                   Men's Top Wear
@@ -49,7 +49,7 @@ const Footer = () => {
               </li>
               <li>
                 <Link
-                  href="/collections/all?gender=Female&category=Top Wear"
+                  href="/?gender=Female&category=Top Wear"
                   className="hover:text-gray-500 transition-colors"
                 >
                   Womens's Top Wear
@@ -57,7 +57,7 @@ const Footer = () => {
               </li>
               <li>
                 <Link
-                  href="/collections/all?gender=Male&category=Bottom Wear"
+                  href="/?gender=Male&category=Bottom Wear"
                   className="hover:text-gray-500 transition-colors"
                 >
                   Men's Bottom Wear
@@ -65,7 +65,7 @@ const Footer = () => {
               </li>
               <li>
                 <Link
-                  href="/collections/all?gender=Female&category=Bottom Wear"
+                  href="/?gender=Female&category=Bottom Wear"
                   className="hover:text-gray-500 transition-colors"
                 >
                   Womens's Bottom Wear

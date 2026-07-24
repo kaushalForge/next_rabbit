@@ -91,7 +91,7 @@ const ProductCard = ({ product, idx }) => {
       className="group h-auto w-auto flex flex-col rounded-2xl overflow-hidden bg-white border border-gray-100 shadow-sm hover:shadow-2xl transition-shadow duration-300 cursor-pointer"
     >
       <Link
-        href={`/collections/product/${product?._id}`}
+        href={`/collections/product/${product?.slug || product?._id}`}
         scroll={true}
         className="h-full w-full"
       >
@@ -186,7 +186,7 @@ transition-colors duration-300 ease-in-out"
         animate={{ opacity: 1 }}
         transition={{ delay: idx * 0.05 + 0.2 }}
       >
-        <Link href={`/collections/product/${product?._id}`}>
+        <Link href={`/collections/product/${product?.slug || product?._id}`}>
           <motion.h3
             className="text-sm font-semibold text-gray-900 truncate hover:text-gray-600 transition-colors duration-200"
             whileHover={{ x: 3 }}

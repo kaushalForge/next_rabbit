@@ -36,7 +36,7 @@ const SearchBar = () => {
     const finalSearch = normalizedSearch;
 
     // Update URL with search param
-    router.push(`/collections/all?search=${encodeURIComponent(finalSearch)}`, {
+    router.push(`/?search=${encodeURIComponent(finalSearch)}`, {
       scroll: false,
     });
 

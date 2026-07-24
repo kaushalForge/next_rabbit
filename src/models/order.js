@@ -66,6 +66,9 @@ const shipmentSchema = new mongoose.Schema(
         default: "Pending",
       },
       transactionId: String,
+      screenshot: String,
+      notes: String,
+      verified: { type: Boolean, default: false },
     },
     status: {
       type: String,

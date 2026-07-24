@@ -103,7 +103,7 @@ export default function AboutPage() {
               every item earns its place in your wardrobe.
             </p>
             <Link
-              href="/collections/all"
+              href="/"
               className="inline-block border border-[#1a1a1a] text-[#1a1a1a] px-8 py-3 text-sm tracking-widest uppercase hover:bg-[#1a1a1a] hover:text-white transition-all duration-300"
             >
               Shop Collection
@@ -165,7 +165,7 @@ export default function AboutPage() {
           and built to last.
         </p>
         <Link
-          href="/collections/all"
+          href="/"
           className="inline-block bg-[#1a1a1a] text-white px-10 py-4 text-sm tracking-widest uppercase hover:bg-[#d4a76a] transition-all duration-300"
         >
           Shop Now

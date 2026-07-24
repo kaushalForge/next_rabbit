@@ -42,16 +42,16 @@ const PAYMENT_OPTIONS = [
   {
     id: "eSewa",
     label: "eSewa",
-    sub: "Coming soon",
+    sub: "Scan QR & pay",
     icon: "🟢",
-    available: false,
+    available: true,
   },
   {
     id: "Khalti",
     label: "Khalti",
-    sub: "Coming soon",
+    sub: "Scan QR & pay",
     icon: "🟣",
-    available: false,
+    available: true,
   },
 ];
 
@@ -157,6 +157,10 @@ const Checkout = () => {
   });
 
   const [paymentMethod, setPaymentMethod] = useState("COD");
+  const [transactionId, setTransactionId] = useState("");
+  const [paymentNotes, setPaymentNotes] = useState("");
+  const [screenshot, setScreenshot] = useState(null);
+  const [screenshotPreview, setScreenshotPreview] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [cartLoading, setCartLoading] = useState(true);
   const [errors, setErrors] = useState({});
@@ -235,13 +239,21 @@ const Checkout = () => {
 
   const handlePaymentSelect = useCallback((value) => {
     setPaymentMethod(value);
-    const option = PAYMENT_OPTIONS.find((o) => o.id === value);
-    if (!option?.available) {
-      toast.info("We are working on it! Available soon!", {
-        description: `${option.label} payment will be available shortly.`,
-        duration: 3000,
-      });
+    if (value === "COD") {
+      setScreenshot(null);
+      setScreenshotPreview("");
+      setTransactionId("");
+      setPaymentNotes("");
     }
+  }, []);
+
+  const handleScreenshot = useCallback((e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setScreenshot(file);
+    const reader = new FileReader();
+    reader.onload = () => setScreenshotPreview(reader.result);
+    reader.readAsDataURL(file);
   }, []);
 
   const scrollToError = useCallback((fieldName) => {
@@ -272,8 +284,8 @@ const Checkout = () => {
         return;
       }
 
-      if (paymentMethod !== "COD") {
-        toast.info("We are working on it! Available soon!");
+      if (paymentMethod !== "COD" && (!screenshot || !transactionId.trim())) {
+        toast.error("Please upload a payment screenshot and enter transaction ID.");
         return;
       }
 
@@ -316,7 +328,12 @@ const Checkout = () => {
             landmark: formData.address.trim(),
             notes: "",
           },
-          payment: { method: paymentMethod },
+          payment: {
+            method: paymentMethod,
+            transactionId: transactionId.trim(),
+            notes: paymentNotes.trim(),
+            screenshot: screenshotPreview || "",
+          },
         };
 
         const { status, message } = await createOrderAction(orderData);
@@ -382,7 +399,7 @@ const Checkout = () => {
           </p>
           <div className="flex gap-3 justify-center">
             <button
-              onClick={() => router.push("/collections/all")}
+              onClick={() => router.push("/")}
               className="px-6 py-2.5 rounded-full bg-gray-900 text-white text-sm font-semibold hover:bg-gray-700 transition"
             >
               Browse Products
@@ -557,8 +574,8 @@ const Checkout = () => {
                       ${
                         paymentMethod === option.id
                           ? option.available
-                            ? "border-gray-900 bg-gray-900 shadow-md"
-                            : "border-gray-400 bg-gray-800 shadow-md"
+                            ? "border-gray-900 bg-gray-50"
+                            : "border-gray-400 bg-gray-50"
                           : "border-gray-200 hover:border-gray-300"
                       }`}
                     >
@@ -570,12 +587,12 @@ const Checkout = () => {
                       <span className="text-2xl">{option.icon}</span>
                       <div>
                         <p
-                          className={`font-bold text-sm ${paymentMethod === option.id ? "text-white" : "text-gray-900"}`}
+                          className="font-bold text-sm text-gray-900"
                         >
                           {option.label}
                         </p>
                         <p
-                          className={`text-xs mt-0.5 ${paymentMethod === option.id ? "text-white/50" : "text-gray-400"}`}
+                          className={`text-xs mt-0.5 ${paymentMethod === option.id ? "text-gray-500" : "text-gray-400"}`}
                         >
                           {option.sub}
                         </p>
@@ -591,12 +608,58 @@ const Checkout = () => {
               </RadioGroup>
 
               {paymentMethod !== "COD" && (
-                <div className="mt-4 flex items-center gap-2 px-4 py-3 rounded-xl bg-orange-50 border border-orange-100">
-                  <span className="text-orange-400">⚠</span>
-                  <p className="text-xs text-orange-600 font-medium">
-                    {PAYMENT_OPTIONS.find((o) => o.id === paymentMethod)?.label}{" "}
-                    is not available yet.
-                  </p>
+                <div className="mt-6 space-y-5">
+                  <div className="flex flex-col items-center gap-3 p-6 rounded-2xl border-2 border-dashed border-green-200 bg-green-50/50">
+                    <p className="text-sm font-bold text-gray-900">
+                      Pay via {PAYMENT_OPTIONS.find((o) => o.id === paymentMethod)?.label}
+                    </p>
+                    <div className="relative w-48 h-48 bg-white rounded-xl border shadow-sm overflow-hidden">
+                      <Image
+                        src={`/images/${paymentMethod.toLowerCase()}.png`}
+                        alt={`${paymentMethod} QR`}
+                        fill
+                        className="object-contain p-2"
+                      />
+                    </div>
+                    <p className="text-xs text-gray-500 text-center max-w-xs">
+                      Scan this QR with your {paymentMethod} app and complete the payment. Then upload the screenshot below.
+                    </p>
+                  </div>
+
+                  <div className="space-y-3">
+                    <div>
+                      <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Transaction ID *</label>
+                      <input
+                        value={transactionId}
+                        onChange={(e) => setTransactionId(e.target.value)}
+                        placeholder="Enter transaction ID from your payment app"
+                        className="w-full border border-gray-200 bg-gray-50 rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent mt-1"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Notes (optional)</label>
+                      <input
+                        value={paymentNotes}
+                        onChange={(e) => setPaymentNotes(e.target.value)}
+                        placeholder="Any additional note..."
+                        className="w-full border border-gray-200 bg-gray-50 rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent mt-1"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Payment Screenshot *</label>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleScreenshot}
+                        className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-gray-900 file:text-white hover:file:bg-gray-700 mt-1"
+                      />
+                      {screenshotPreview && (
+                        <div className="relative w-32 h-32 mt-2 rounded-xl border overflow-hidden">
+                          <Image src={screenshotPreview} alt="Screenshot preview" fill className="object-cover" />
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
@@ -693,14 +756,11 @@ const Checkout = () => {
                   <button
                     type="submit"
                     form="checkout-form"
-                    disabled={isLoading || paymentMethod !== "COD"}
-                    className={`mt-6 w-full font-bold text-sm py-4 rounded-2xl transition-all duration-150 flex items-center justify-center gap-2
-                      ${paymentMethod !== "COD" ? "bg-gray-200 text-gray-400 cursor-not-allowed" : "bg-gray-900 hover:bg-gray-700 text-white"}`}
+                    disabled={isLoading}
+                    className={`mt-6 w-full font-bold text-sm py-4 rounded-2xl transition-all duration-150 flex items-center justify-center gap-2 bg-gray-900 hover:bg-gray-700 text-white`}
                   >
                     {isLoading ? (
                       <Spinner className="w-5 h-5" />
-                    ) : paymentMethod !== "COD" ? (
-                      "Select COD to place order"
                     ) : (
                       <>
                         Place Order{" "}
@@ -711,11 +771,9 @@ const Checkout = () => {
                     )}
                   </button>
 
-                  {paymentMethod === "COD" && (
-                    <p className="text-center text-[11px] text-gray-400 mt-3">
-                      🔒 Secure checkout · Free returns up to 45 days
-                    </p>
-                  )}
+                  <p className="text-center text-[11px] text-gray-400 mt-3">
+                    🔒 Secure checkout · Free returns up to 45 days
+                  </p>
                 </>
               )}
             </div>

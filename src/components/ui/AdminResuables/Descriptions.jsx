@@ -96,6 +96,7 @@ const Descriptions = ({
           placeholder="SEO Meta Description"
         />
       </div>
+
       {/* ================= BULLET DESCRIPTION ================= */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">

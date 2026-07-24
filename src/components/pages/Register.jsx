@@ -68,7 +68,7 @@ const Register = () => {
       if (res.ok) {
         toast.success(data.message || "Registration successful!");
         await refreshCurrentUser();
-        router.replace("/");
+        router.replace("/discover");
       } else {
         toast.error(data.message || "Registration failed");
         setAuthLoading(false);
