@@ -44,7 +44,7 @@ const Footer = () => {
                   href="/?gender=Male&category=Top Wear"
                   className="hover:text-gray-500 transition-colors"
                 >
-                  Men's Top Wear
+                  Men&apos;s Top Wear
                 </Link>
               </li>
               <li>
@@ -52,7 +52,7 @@ const Footer = () => {
                   href="/?gender=Female&category=Top Wear"
                   className="hover:text-gray-500 transition-colors"
                 >
-                  Womens's Top Wear
+                  Womens&apos;s Top Wear
                 </Link>
               </li>
               <li>
@@ -60,7 +60,7 @@ const Footer = () => {
                   href="/?gender=Male&category=Bottom Wear"
                   className="hover:text-gray-500 transition-colors"
                 >
-                  Men's Bottom Wear
+                  Men&apos;s Bottom Wear
                 </Link>
               </li>
               <li>
@@ -68,7 +68,7 @@ const Footer = () => {
                   href="/?gender=Female&category=Bottom Wear"
                   className="hover:text-gray-500 transition-colors"
                 >
-                  Womens's Bottom Wear
+                  Womens&apos;s Bottom Wear
                 </Link>
               </li>
             </ul>

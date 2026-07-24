@@ -196,10 +196,13 @@ const FilterSidebar = () => {
     }
     const mc = searchParams.get("mainCategory") || "default";
     const next = parseParams(searchParams);
+    // ponytail: syncing URL state — setState intentional
+    /* eslint-disable react-hooks/set-state-in-effect */
     setMainCategory(mc);
     setFilters(next);
     setLocalMin(next.minPrice);
     setLocalMax(next.maxPrice);
+    /* eslint-enable react-hooks/set-state-in-effect */
   }, [searchParams]);
 
   // ── Single source of truth: apply filters + push URL atomically ───────────

@@ -6,12 +6,10 @@ import { fetchUsersAdminAction } from "@/actions/adminUsers";
 export const dynamic = "force-dynamic";
 
 const Page = async () => {
+  let users;
   try {
     // Fetch users using the centralized action
-    const users = await fetchUsersAdminAction();
-
-    // Render the UserManagement component with fetched data
-    return <UserManagement allUsersData={users} />;
+    users = await fetchUsersAdminAction();
   } catch (error) {
     console.error("Fetch error:", error);
     return (
@@ -20,6 +18,9 @@ const Page = async () => {
       </div>
     );
   }
+
+  // Render the UserManagement component with fetched data
+  return <UserManagement allUsersData={users} />;
 };
 
 export default Page;

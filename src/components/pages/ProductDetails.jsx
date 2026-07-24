@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
 import Image from "next/image";
 import ProductDescription from "@/components/ui/ProductDetails/ProductDetailsDescription";
@@ -10,14 +10,17 @@ import FashionCatDetails from "../ui/ProductDetails/FashionCatDetails";
 const ProductDetails = ({ productId, productDetail }) => {
   const { id } = useParams();
   const productFetchId = productId || id;
-  const images = productDetail?.images || [];
+  const images = useMemo(() => productDetail?.images || [], [productDetail?.images]);
   const [activeImage, setActiveImage] = useState(images[0] || null);
   const [mainImageLoading, setMainImageLoading] = useState(true);
 
   useEffect(() => {
     if (images.length) {
+      // ponytail: reset active image on product change — setState intentional
+      /* eslint-disable react-hooks/set-state-in-effect */
       setActiveImage(images[0]);
       setMainImageLoading(true);
+      /* eslint-enable react-hooks/set-state-in-effect */
     }
   }, [images]);
 

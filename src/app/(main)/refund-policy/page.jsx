@@ -169,7 +169,7 @@ export default function RefundPolicy() {
           <div className="bg-white border border-[#e8e4df] p-8">
             <h3 className="font-medium mb-4">Return Shipping Cost</h3>
             <p className="text-sm text-[#555] leading-relaxed">
-              Return shipping is at the customer's expense unless the item is
+              Return shipping is at the customer&apos;s expense unless the item is
               defective or an error was made on our part. We recommend using a
               trackable shipping service.
             </p>
@@ -177,7 +177,7 @@ export default function RefundPolicy() {
           <div className="bg-[#1a1a1a] text-white p-8">
             <h3 className="font-medium mb-4">Need to start a return?</h3>
             <p className="text-white/60 text-sm leading-relaxed mb-5">
-              Contact our support team with your order number and we'll guide
+              Contact our support team with your order number and we&apos;ll guide
               you through every step.
             </p>
             <a

@@ -160,10 +160,12 @@ const SectionTwo = ({
               handleDragEnd({ oldIndex, newIndex: i }, "new");
             }}
           >
-            <img
+            <Image
               src={URL.createObjectURL(file)}
               alt={`New Image ${i + 1}`}
-              className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
+              fill
+              unoptimized
+              className="object-cover transition duration-300 group-hover:scale-105"
             />
 
             <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition flex flex-col items-center justify-center gap-3 text-white text-sm font-medium">

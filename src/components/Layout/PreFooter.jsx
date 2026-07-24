@@ -113,7 +113,7 @@ const PreFooter = () => {
                   transition={{ duration: 0.45, delay: 0.15 }}
                   className="text-gray-400 text-sm md:text-base leading-relaxed max-w-md mx-auto lg:mx-0 mb-10"
                 >
-                  At Rabbit, we believe clothing is more than a fabric, it's a
+                  At Rabbit, we believe clothing is more than a fabric, it&apos;s a
                   silent language that speaks before you do. Every piece we
                   craft carries its own story, connecting with the person who
                   wears it. Designed to move with your life, built to express

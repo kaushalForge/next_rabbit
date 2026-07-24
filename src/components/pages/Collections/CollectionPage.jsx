@@ -38,12 +38,22 @@ const CollectionPage = ({ products }) => {
     ? searchParams.get("category").split(",").join(", ")
     : "All";
 
-  useEffect(() => {
-    setLoading(true);
-  }, [searchParams.toString()]);
+  const searchParamsString = searchParams.toString();
 
   useEffect(() => {
-    if (products) setLoading(false);
+    // ponytail: loading state for URL changes — setState intentional
+    /* eslint-disable react-hooks/set-state-in-effect */
+    setLoading(true);
+    /* eslint-enable react-hooks/set-state-in-effect */
+  }, [searchParamsString]);
+
+  useEffect(() => {
+    if (products) {
+      // ponytail: loading state for products — setState intentional
+      /* eslint-disable react-hooks/set-state-in-effect */
+      setLoading(false);
+      /* eslint-enable react-hooks/set-state-in-effect */
+    }
   }, [products]);
 
   useEffect(() => {
@@ -208,7 +218,7 @@ const CollectionPage = ({ products }) => {
                 No Products Found
               </h3>
               <p className="text-sm text-gray-500 font-medium max-w-xs leading-relaxed">
-                We couldn't find anything matching your filters. Try adjusting
+                We couldn&apos;t find anything matching your filters. Try adjusting
                 or clearing them.
               </p>
               <button

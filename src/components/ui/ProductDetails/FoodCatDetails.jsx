@@ -14,7 +14,7 @@ const FoodCatDetails = ({ productId, productDetail }) => {
   const { refreshCart } = useCart();
   const router = useRouter();
 
-  const foodVariants = productDetail?.food || [];
+  const foodVariants = useMemo(() => productDetail?.food || [], [productDetail?.food]);
   const productFetchId = productId;
 
   const [quantity, setQuantity] = useState(1);

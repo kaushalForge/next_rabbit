@@ -85,7 +85,7 @@ export default function TermsAndConditions() {
           {/* Body */}
           <div className="md:col-span-3 space-y-12">
             <div className="bg-white border border-[#e8e4df] p-6 text-sm text-[#555] leading-relaxed">
-              Please read these terms carefully before using Rabbit's website or
+              Please read these terms carefully before using Rabbit&apos;s website or
               making a purchase. By using our services, you agree to these terms
               in full.
             </div>

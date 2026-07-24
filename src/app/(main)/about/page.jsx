@@ -112,7 +112,7 @@ export default function AboutPage() {
           <div className="bg-[#f0ede8] aspect-square flex items-center justify-center">
             <div className="text-center p-12">
               <p className="text-7xl font-light text-[#1a1a1a]/10 leading-none mb-4">
-                "
+                &quot;
               </p>
               <p className="text-xl font-light text-[#1a1a1a] leading-relaxed italic">
                 Dress well, live better. Not a slogan — a standard we hold

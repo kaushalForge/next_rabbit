@@ -13,7 +13,7 @@ const FashionCatDetails = ({ productId, productDetail }) => {
   const router = useRouter();
 
   const { refreshCart } = useCart();
-  const fashionVariants = productDetail?.fashion || [];
+  const fashionVariants = useMemo(() => productDetail?.fashion || [], [productDetail?.fashion]);
   const productFetchId = productId;
   const { currentUser } = useAuth();
 

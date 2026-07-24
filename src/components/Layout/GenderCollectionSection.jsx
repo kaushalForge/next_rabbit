@@ -23,7 +23,7 @@ const GenderCollectionSection = () => {
             </div>
             <div className="absolute bottom-2 left-2 md:bottom-8 md:left-8 bg-white/70 bg-opacity-90 p-4">
               <h2 className="text-xl tracking-tighter whitespace-nowrap font-bold text-gray-900 mb-3">
-                Women's Collection
+Women&apos;s Collection
               </h2>
               <Link
                 href="/?mainCategory=Fashion&gender=Female"
@@ -49,7 +49,7 @@ const GenderCollectionSection = () => {
             </div>
             <div className="absolute bottom-2 left-2 md:bottom-8 md:left-8 bg-white/70 bg-opacity-90 p-4">
               <h2 className="text-xl tracking-tighter whitespace-nowrap font-bold text-gray-900 mb-3">
-                Men's Collection
+Men&apos;s Collection
               </h2>
               <Link
                 href="/?mainCategory=Fashion&gender=Male"

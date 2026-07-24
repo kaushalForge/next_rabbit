@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useAuth } from "@/app/context/AuthContext";
@@ -14,6 +14,34 @@ const Register = () => {
 
   const [pageLoading, setPageLoading] = useState(true); // Spinner while Google script loads
   const [authLoading, setAuthLoading] = useState(false); // Spinner while auth request is processing
+
+  const handleGoogleResponse = useCallback(async (response) => {
+    try {
+      // Start spinner immediately
+      setAuthLoading(true);
+
+      const res = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ idToken: response.credential }),
+        credentials: "include",
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        toast.success(data.message || "Registration successful!");
+        await refreshCurrentUser();
+        router.replace("/discover");
+      } else {
+        toast.error(data.message || "Registration failed");
+        setAuthLoading(false);
+      }
+    } catch (err) {
+      toast.error("Server error");
+      setAuthLoading(false);
+    }
+  }, [router, refreshCurrentUser]);
 
   useEffect(() => {
     const script = document.createElement("script");
@@ -49,35 +77,7 @@ const Register = () => {
     return () => {
       document.body.removeChild(script);
     };
-  }, []);
-
-  const handleGoogleResponse = async (response) => {
-    try {
-      // Start spinner immediately
-      setAuthLoading(true);
-
-      const res = await fetch("/api/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ idToken: response.credential }),
-        credentials: "include",
-      });
-
-      const data = await res.json();
-
-      if (res.ok) {
-        toast.success(data.message || "Registration successful!");
-        await refreshCurrentUser();
-        router.replace("/discover");
-      } else {
-        toast.error(data.message || "Registration failed");
-        setAuthLoading(false);
-      }
-    } catch (err) {
-      toast.error("Server error");
-      setAuthLoading(false);
-    }
-  };
+  }, [handleGoogleResponse]);
 
   return (
     <div className="container mx-auto flex items-center justify-center bg-gray-100 h-screen relative">

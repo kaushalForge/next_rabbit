@@ -111,7 +111,7 @@ export default function FAQ() {
             <em className="italic">Questions</em>
           </h1>
           <p className="text-white/60 mt-5 max-w-xl">
-            Can't find what you're looking for? Our support team is available
+            Can&apos;t find what you&apos;re looking for? Our support team is available
             Monday to Saturday, 9AM – 6PM.
           </p>
         </div>
@@ -173,10 +173,10 @@ export default function FAQ() {
           <p className="text-xs tracking-[0.3em] uppercase text-[#d4a76a] mb-4 font-medium">
             Still need help?
           </p>
-          <h2 className="text-2xl font-light mb-4">We're here for you.</h2>
+          <h2 className="text-2xl font-light mb-4">We&apos;re here for you.</h2>
           <p className="text-white/60 text-sm mb-8 max-w-md mx-auto">
             Our support team is ready to assist with any question not covered
-            above. Reach out and we'll get back to you within 24 hours.
+            above. Reach out and we&apos;ll get back to you within 24 hours.
           </p>
           <a
             href="/contact"

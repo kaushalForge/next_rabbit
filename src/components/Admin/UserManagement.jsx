@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { updateUserRoleAction, deleteUserAction } from "@/actions/adminUsers";
 import { toast } from "sonner";
 import { Separator } from "../ui/separator";
@@ -125,10 +126,12 @@ const UserManagement = ({ allUsersData, loading }) => {
               {/* Left: avatar + info */}
               <div className="flex items-center gap-3 min-w-0">
                 <div className="relative shrink-0">
-                  <img
+                  <Image
                     src={user.avatar || "/images/Avatar.png"}
                     alt={user.name}
-                    className="w-9 h-9 rounded-full object-cover bg-gray-100"
+                    width={36}
+                    height={36}
+                    className="rounded-full object-cover bg-gray-100"
                     referrerPolicy="no-referrer"
                   />
                   <span

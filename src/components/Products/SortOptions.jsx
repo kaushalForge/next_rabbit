@@ -17,14 +17,9 @@ const SortOptions = () => {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const [sortBy, setSortBy] = useState("");
   const [open, setOpen] = useState(false);
   const dropdownRef = useRef(null);
-
-  // Sync with URL
-  useEffect(() => {
-    setSortBy(searchParams.get("sortBy") || "");
-  }, [searchParams]);
+  const sortBy = searchParams.get("sortBy") || "";
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -38,7 +33,6 @@ const SortOptions = () => {
   }, []);
 
   const handleSelect = (value) => {
-    setSortBy(value);
     setOpen(false);
 
     const params = new URLSearchParams(searchParams.toString());

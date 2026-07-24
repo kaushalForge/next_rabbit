@@ -33,6 +33,7 @@ import {
   sendBulkEmailAction,
   fetchAllCustomersAction,
 } from "@/actions/adminOrder";
+import Image from "next/image";
 import { Spinner } from "../ui/spinner";
 
 const STATUSES = ["Pending", "Processing", "Shipped", "Delivered", "Cancelled"];
@@ -904,10 +905,12 @@ const ShipmentRow = ({
                 className="flex items-center gap-2 bg-zinc-50 rounded-lg px-2.5 py-1.5 border border-zinc-100"
               >
                 {p.image && (
-                  <img
+                  <Image
                     src={p.image}
                     alt={p.name}
-                    className="w-7 h-7 rounded object-cover border border-zinc-200"
+                    width={28}
+                    height={28}
+                    className="rounded object-cover border border-zinc-200"
                   />
                 )}
                 <div>
@@ -1035,8 +1038,8 @@ const OrderRow = ({
   emailSentAt,
 }) => {
   const [expanded, setExpanded] = useState(false);
-  const allShipments = order.shipments || [];
-  const cancelledShipments = order.cancelledProducts || [];
+  const allShipments = useMemo(() => order.shipments || [], [order.shipments]);
+  const cancelledShipments = useMemo(() => order.cancelledProducts || [], [order.cancelledProducts]);
 
   const visibleActiveShipments = useMemo(() => {
     if (filterStatus === "All" || filterStatus === "Cancelled")

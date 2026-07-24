@@ -67,23 +67,23 @@ const Chips = ({ value }) => {
 /* -------------------- FASHION COMPONENT -------------------- */
 
 const Fashion = ({ fashion = [], setFashion }) => {
-  const [drafts, setDrafts] = useState([]);
+  const [drafts, setDrafts] = useState(() => {
+    if (fashion.length === 0) return [{ color: "", size: "", price: "", offerPrice: "" }];
+    return fashion.map((v) => ({
+      color: Array.isArray(v.color) ? v.color.join(", ") : v.color || "",
+      size: Array.isArray(v.size) ? v.size.join(", ") : v.size || "",
+      price: v.price || "",
+      offerPrice: v.offerPrice || "",
+    }));
+  });
 
   /* ---------- INIT ---------- */
   useEffect(() => {
     if (fashion.length === 0) {
       setFashion([{ ...EMPTY_VARIANT }]);
-      setDrafts([{ color: "", size: "", price: "", offerPrice: "" }]);
-    } else {
-      setDrafts(
-        fashion.map((v) => ({
-          color: Array.isArray(v.color) ? v.color.join(", ") : v.color || "",
-          size: Array.isArray(v.size) ? v.size.join(", ") : v.size || "",
-          price: v.price || "",
-          offerPrice: v.offerPrice || "",
-        })),
-      );
     }
+    // ponytail: setState in effect — initializes parent state with empty variant
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   /* ---------- ADD VARIANT ---------- */

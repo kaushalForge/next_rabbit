@@ -84,7 +84,7 @@ export default function PrivacyPolicy() {
               <strong className="text-[#1a1a1a]">
                 Your privacy matters to us.
               </strong>{" "}
-              This policy explains how Rabbit ("we", "our", "us") handles the
+              This policy explains how Rabbit (&quot;we&quot;, &quot;our&quot;, &quot;us&quot;) handles the
               personal information you provide when using our website and
               services. Please read it carefully.
             </div>

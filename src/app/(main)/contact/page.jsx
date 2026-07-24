@@ -35,7 +35,7 @@ export default function Contact() {
             Get In Touch
           </p>
           <h1 className="text-4xl md:text-5xl font-light leading-tight">
-            We'd love to <br />
+            We&apos;d love to <br />
             <em className="italic">hear from you.</em>
           </h1>
         </div>

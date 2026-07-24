@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { FaStar } from "react-icons/fa";
 import {
   TbPackage,
@@ -212,10 +213,12 @@ const ProductManagement = () => {
                     >
                       {/* Image */}
                       <td className="px-6 py-3">
-                        <img
+                        <Image
                           src={product.images?.[0]?.url || "/placeholder.png"}
                           alt={product.images?.[0]?.altText || product.name}
-                          className="h-14 w-14 object-cover rounded-lg border border-gray-200"
+                          width={56}
+                          height={56}
+                          className="object-cover rounded-lg border border-gray-200"
                         />
                       </td>
 
@@ -256,7 +259,7 @@ const ProductManagement = () => {
                           </span>
                         ) : (
                           <div className="flex flex-wrap gap-1.5">
-                            {variants.map((variant) => {
+                            {variants.map((variant, i) => {
                               const stock = Number(variant.stock) || 0;
                               const label =
                                 stock === 0
@@ -272,7 +275,7 @@ const ProductManagement = () => {
                                     : "bg-green-100 text-green-700";
                               return (
                                 <span
-                                  key={variant._id}
+                                  key={variant._id || i}
                                   className={`px-2.5 py-1 rounded-full text-xs font-semibold ${cls}`}
                                 >
                                   {label}

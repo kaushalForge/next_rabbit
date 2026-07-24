@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useAuth } from "@/app/context/AuthContext";
@@ -14,6 +14,33 @@ const Login = () => {
 
   const [pageLoading, setPageLoading] = useState(true);
   const [authLoading, setAuthLoading] = useState(false);
+
+  const handleGoogleResponse = useCallback(async (response) => {
+    try {
+      setAuthLoading(true);
+
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ idToken: response.credential }),
+        credentials: "include",
+      });
+
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        toast.success("Login successful!");
+        await refreshCurrentUser();
+        router.replace("/discover");
+      } else {
+        toast.error(data.message || "Login failed");
+        setAuthLoading(false);
+      }
+    } catch (error) {
+      toast.error("Server error");
+      setAuthLoading(false);
+    }
+  }, [router, refreshCurrentUser]);
 
   useEffect(() => {
     const script = document.createElement("script");
@@ -47,34 +74,7 @@ const Login = () => {
     return () => {
       document.body.removeChild(script);
     };
-  }, []);
-
-  const handleGoogleResponse = async (response) => {
-    try {
-      setAuthLoading(true);
-
-      const res = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ idToken: response.credential }),
-        credentials: "include",
-      });
-
-      const data = await res.json();
-
-      if (res.ok && data.success) {
-        toast.success("Login successful!");
-        await refreshCurrentUser();
-        router.replace("/discover");
-      } else {
-        toast.error(data.message || "Login failed");
-        setAuthLoading(false);
-      }
-    } catch (error) {
-      toast.error("Server error");
-      setAuthLoading(false);
-    }
-  };
+  }, [handleGoogleResponse]);
 
   return (
     <div className="container mx-auto flex items-center justify-center bg-gray-100 h-screen relative">
@@ -113,7 +113,7 @@ const Login = () => {
         </p>
 
         <p className="mt-4 text-center text-gray-500 text-sm">
-          Don't have an account?{" "}
+          Don&apos;t have an account?{" "}
           <span
             className="text-purple-500 underline cursor-pointer hover:text-purple-700 transition-colors"
             onClick={() => router.push("/register")}
