@@ -8,6 +8,8 @@ import MenCollectionRouting from "../men-collection/page";
 import FeaturedProducts from "../featured-products/page";
 import PreFooter from "@/components/Layout/PreFooter";
 
+export const dynamic = "force-dynamic";
+
 export const metadata = {
   metadataBase: new URL("https://next-rabbit.vercel.app"),
   title: {
