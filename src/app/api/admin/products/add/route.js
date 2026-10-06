@@ -69,7 +69,7 @@ export const POST = async (req) => {
     }
     const uploadedUrls =
       buffers.length > 0
-        ? await uploadMultipleToCloudinary(buffers, "NepStyle")
+        ? await uploadMultipleToCloudinary(buffers, "RabbitHub")
         : [];
     const images = uploadedUrls.map((url, i) => ({
       url,

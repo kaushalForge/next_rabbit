@@ -169,7 +169,7 @@ export async function createProductController(req, res) {
     // ---------------- UPLOAD IMAGES ----------------
     let uploadedUrls = [];
     if (imageBuffers.length > 0) {
-      uploadedUrls = await uploadMultipleToCloudinary(imageBuffers, "NepStyle");
+      uploadedUrls = await uploadMultipleToCloudinary(imageBuffers, "RabbitHub");
     }
 
     // Convert to objects with url + altText
@@ -252,7 +252,7 @@ export async function updateProduct(req, res) {
     if (imageBuffers.length > 0) {
       uploadedUrls = await Promise.all(
         imageBuffers.map((buffer) =>
-          uploadMultipleToCloudinary([buffer], "NepStyle"),
+          uploadMultipleToCloudinary([buffer], "RabbitHub"),
         ),
       );
       uploadedUrls = uploadedUrls.flat();

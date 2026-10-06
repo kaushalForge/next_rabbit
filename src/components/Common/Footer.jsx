@@ -122,7 +122,7 @@ const Footer = () => {
                 <TbBrandMeta className="h-6 w-6" />
               </a>
               <a
-                href="https://www.tiktok.com/@nepstyle"
+                href="https://www.tiktok.com/@rabbithubnepal"
                 target="_blank"
                 rel="noopener noreferrer"
               >

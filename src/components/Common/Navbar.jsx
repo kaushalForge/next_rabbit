@@ -13,7 +13,8 @@ import CartDrawer from "../Layout/CartDrawer";
 import { useAuth } from "@/app/context/AuthContext";
 import Image from "next/image";
 import { useCart } from "@/app/context/CartContext";
-
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 const Navbar = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -25,6 +26,7 @@ const Navbar = () => {
 
   const navDrawerRef = useRef(null);
   const avatarRef = useRef(null);
+  const logoRef = useRef(null);
 
   const isLoggedIn = !!currentUser;
 
@@ -51,26 +53,55 @@ const Navbar = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // GSAP Scroll Animation for Logo
+  useEffect(() => {
+    gsap.registerPlugin(ScrollTrigger);
+
+    if (!logoRef.current) return;
+
+    gsap.to(logoRef.current, {
+      y: 14,
+      ease: "none",
+      scrollTrigger: {
+        trigger: document.documentElement,
+        start: "top top",
+        end: "top -3",
+        scrub: 2,
+        markers: false,
+      },
+    });
+
+    return () => {
+      ScrollTrigger.getAll().forEach((t) => t.kill());
+    };
+  }, []);
+
   return (
     <>
       <nav className="sticky left-0 top-0 z-50 backdrop-blur-md shadow-sm">
-        <div className="flex items-center justify-between container p-4 mx-auto">
+        <div className="flex relative flex-wrap items-center justify-end gap-2 container p-4 mx-auto">
           {/* Logo */}
-          <Link href="/" className="shrink-0 ml-8 -mt-3">
-            <div className="flex items-center">
+          <Link
+            href="/"
+            prefetch={true}
+            className="absolute outline-none -top-8 left-0 -translate-y-1/2 items-center h-6 w-24 justify-center mb-2"
+            tabIndex={-1}
+          >
+            <div ref={logoRef}>
               <Image
                 src="/images/RabbitHouseLogo.png"
                 alt="Logo"
                 width={400}
                 height={400}
-                className="object-contain h-14 w-auto"
+                quality={75}
+                className="select-none outline-none"
                 priority
               />
             </div>
           </Link>
 
           {/* Desktop Menu */}
-          <div className="hidden lg:flex items-center justify-center space-x-4 text-sm font-semibold">
+          <div className="hidden lg:flex items-center justify-center space-x-4 text-sm font-semibold flex-1">
             <Link
               href="/?mainCategory=Fashion&gender=Male"
               prefetch={true}

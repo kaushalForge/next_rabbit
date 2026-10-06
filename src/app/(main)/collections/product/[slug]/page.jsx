@@ -9,12 +9,12 @@ function seoTitle(name) {
 
 function seoDescription(metaDesc, desc) {
   const raw = metaDesc?.trim() || desc?.trim() || "";
-  return raw.length > 150 ? raw.slice(0, 147) + "..." : raw || "Shop the latest fashion online in Nepal at NepStyle.";
+  return raw.length > 150 ? raw.slice(0, 147) + "..." : raw || "Shop the latest fashion online in Nepal at RabbitHub.";
 }
 
 export async function generateMetadata({ params }) {
   const { slug } = await params;
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://next-nepstyle.vercel.app";
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://next-rabbit.vercel.app";
 
   try {
     const res = await fetch(`${baseUrl}/api/products/${slug}`, {
@@ -40,7 +40,7 @@ export async function generateMetadata({ params }) {
         title,
         description,
         url: `${baseUrl}/collections/product/${slug}`,
-        siteName: "NepStyle Nepal",
+        siteName: "RabbitHub Nepal",
         ...(image && {
           images: [{ url: image, width: 1200, height: 630, alt: title }],
         }),
@@ -56,7 +56,7 @@ export async function generateMetadata({ params }) {
   } catch {
     return {
       title: "Trendy Fashion Nepal",
-      description: "Shop the latest fashion online in Nepal at NepStyle.",
+      description: "Shop the latest fashion online in Nepal at RabbitHub.",
     };
   }
 }
@@ -85,7 +85,7 @@ function productJsonLd(product) {
 
 const page = async ({ params }) => {
   const { slug } = await params;
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://next-nepstyle.vercel.app";
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://next-rabbit.vercel.app";
 
   const res = await fetch(`${baseUrl}/api/products/${slug}`, {
     method: "GET",

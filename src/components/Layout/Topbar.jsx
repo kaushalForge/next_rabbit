@@ -22,7 +22,7 @@ const Topbar = () => {
           </button>
           <button>
             <a
-              href="https://www.tiktok.com/@nepstyle"
+              href="https://www.tiktok.com/@rabbithubnepal"
               target="_blank"
               rel="noopener noreferrer"
               className="hover:text-gray-300 transition"
@@ -34,7 +34,7 @@ const Topbar = () => {
 
         {/* Center Text (does NOT block clicks now) */}
         <div className="absolute left-1/2 -translate-x-1/2 text-sm whitespace-nowrap pointer-events-none">
-          NepStyle - Dress well, live better
+          RabbitHub - Dress well, live better
         </div>
 
         {/* Contact */}

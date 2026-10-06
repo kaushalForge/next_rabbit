@@ -103,7 +103,7 @@ const NewArrivals = ({ newArrivals }) => {
                   >
                     <Image
                       src={
-                        product.images?.[0]?.url || "/assets/nepstyle-banner.png"
+                        product.images?.[0]?.url || "/assets/rabbit-banner.png"
                       }
                       alt={
                         product.images?.[0]?.altText ||

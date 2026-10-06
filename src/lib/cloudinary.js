@@ -44,7 +44,7 @@ export const uploadMultipleToCloudinary = async (buffers, folder) => {
 const getPublicIdFromUrl = (url) => {
   if (!url) return null;
   const parts = url.split("/");
-  const folderIndex = parts.indexOf("NepStyle");
+  const folderIndex = parts.indexOf("RabbitHub");
   if (folderIndex === -1) return null;
   const publicIdWithExt = parts.slice(folderIndex).join("/");
   return publicIdWithExt.split(".")[0];

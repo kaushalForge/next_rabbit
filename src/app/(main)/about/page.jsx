@@ -4,7 +4,7 @@ import Link from "next/link";
 export const metadata = {
   title: "About",
   description:
-    "Learn about NepStyle — a premium Nepali clothing brand crafted for those who believe style is a statement.",
+    "Learn about RabbitHub — a premium Nepali clothing brand crafted for those who believe style is a statement.",
 };
 
 const values = [
@@ -56,7 +56,7 @@ export default function AboutPage() {
             <em className="italic font-normal">silent language.</em>
           </h1>
           <p className="text-white/60 text-lg max-w-xl leading-relaxed">
-            NepStyle was born from a simple belief — that what you wear carries
+            RabbitHub was born from a simple belief — that what you wear carries
             meaning. We craft garments that speak before you do, designed for
             those who choose with intention.
           </p>
@@ -92,7 +92,7 @@ export default function AboutPage() {
               A Nepali brand built on quality, not compromise.
             </h2>
             <p className="text-[#555] leading-relaxed mb-5">
-              NepStyle was founded in Kathmandu with one goal: to give the modern
+              RabbitHub was founded in Kathmandu with one goal: to give the modern
               Nepali wardrobe the quality it deserves. We were tired of choosing
               between affordable and well-made. So we built something that
               refuses to compromise on either.
@@ -119,7 +119,7 @@ export default function AboutPage() {
                 ourselves to with every piece we make.
               </p>
               <p className="text-xs tracking-widest uppercase text-[#888] mt-6">
-                — NepStyle, Founded in Kathmandu
+                — RabbitHub, Founded in Kathmandu
               </p>
             </div>
           </div>

@@ -1,13 +1,13 @@
 export const metadata = {
   title: "Privacy Policy",
   description:
-    "How NepStyle collects, uses, and protects your personal information.",
+    "How RabbitHub collects, uses, and protects your personal information.",
 };
 
 const sections = [
   {
     title: "Information We Collect",
-    content: `When you place an order or create an account with NepStyle, we collect personal information including your name, email address, phone number, shipping address, and payment details. We may also collect browsing data such as pages visited, time spent on the site, and device information to improve your experience.`,
+    content: `When you place an order or create an account with RabbitHub, we collect personal information including your name, email address, phone number, shipping address, and payment details. We may also collect browsing data such as pages visited, time spent on the site, and device information to improve your experience.`,
   },
   {
     title: "How We Use Your Information",
@@ -15,7 +15,7 @@ const sections = [
   },
   {
     title: "Payment Security",
-    content: `All payment transactions on NepStyle are encrypted using industry-standard SSL (Secure Socket Layer) technology. We do not store your full credit or debit card details on our servers. Payments are processed through trusted and certified payment gateways.`,
+    content: `All payment transactions on RabbitHub are encrypted using industry-standard SSL (Secure Socket Layer) technology. We do not store your full credit or debit card details on our servers. Payments are processed through trusted and certified payment gateways.`,
   },
   {
     title: "Cookies & Tracking",
@@ -84,7 +84,7 @@ export default function PrivacyPolicy() {
               <strong className="text-[#1a1a1a]">
                 Your privacy matters to us.
               </strong>{" "}
-              This policy explains how NepStyle (&quot;we&quot;, &quot;our&quot;, &quot;us&quot;) handles the
+              This policy explains how RabbitHub (&quot;we&quot;, &quot;our&quot;, &quot;us&quot;) handles the
               personal information you provide when using our website and
               services. Please read it carefully.
             </div>

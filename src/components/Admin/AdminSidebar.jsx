@@ -34,7 +34,7 @@ export default function AdminSidebar({ collapsed, toggleCollapse }) {
             <MdSpaceDashboard className="text-red-500 w-7 h-7" />
             {!collapsed && (
               <span className="text-lg whitespace-nowrap font-semibold">
-                NepStyle Dashboard
+                RabbitHub Dashboard
               </span>
             )}
           </Link>

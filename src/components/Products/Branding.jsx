@@ -17,7 +17,7 @@ const Branding = () => {
           from { transform: rotate(0deg); }
           to   { transform: rotate(360deg); }
         }
-        .nepstyle-float { animation: float 4s ease-in-out infinite; }
+        .rabbithub-float { animation: float 4s ease-in-out infinite; }
         .spin-slow    { animation: spin-slow 18s linear infinite; }
       `}</style>
 
@@ -47,7 +47,7 @@ const Branding = () => {
             >
               <span className="w-1.5 h-1.5 rounded-full bg-orange-400 animate-pulse" />
               <span className="text-[11px] text-white/50 uppercase tracking-[0.2em] font-medium">
-                NepStyle - Dress well, live better
+                RabbitHub - Dress well, live better
               </span>
             </motion.div>
 
@@ -78,7 +78,7 @@ const Branding = () => {
               transition={{ duration: 0.5, delay: 0.2 }}
               className="text-white/40 text-sm md:text-base leading-relaxed max-w-md mx-auto lg:mx-0 mb-10"
             >
-              NepStyle brings you high-quality, comfortable clothing that
+              RabbitHub brings you high-quality, comfortable clothing that
               effortlessly blends fashion and function, designed to make you
               look and feel great every single day.
             </motion.p>
@@ -142,10 +142,10 @@ const Branding = () => {
               <div className="absolute inset-0 rounded-full border border-white/5" />
               <div className="absolute inset-4 rounded-full border border-orange-500/10" />
 
-              <div className="nepstyle-float relative w-52 h-52 md:w-64 md:h-64">
+              <div className="rabbithub-float relative w-52 h-52 md:w-64 md:h-64">
                 <Image
                   src="/images/RabbitHouseLogo.png"
-                  alt="NepStyle"
+                  alt="RabbitHub"
                   fill
                   unoptimized
                   className="object-contain select-none drop-shadow-2xl"
@@ -155,7 +155,7 @@ const Branding = () => {
 
             <div className="absolute bottom-8 left-0 right-0 text-center">
               <p className="text-white/10 text-xs uppercase tracking-[0.4em] font-bold">
-                NepStyle © 2025
+                RabbitHub © 2025
               </p>
             </div>
           </motion.div>

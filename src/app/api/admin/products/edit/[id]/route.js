@@ -87,7 +87,7 @@ export const PATCH = async (req, { params }) => {
       buffers.push(Buffer.from(await file.arrayBuffer()));
   }
   const uploadedUrls = buffers.length
-    ? await uploadMultipleToCloudinary(buffers, "NepStyle")
+    ? await uploadMultipleToCloudinary(buffers, "RabbitHub")
     : [];
 
   // Remove deleted images from Cloudinary

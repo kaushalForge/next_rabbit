@@ -35,7 +35,7 @@ const PreFooter = () => {
                 key={i}
                 className="flex items-center gap-6 px-6 text-[11px] font-bold uppercase tracking-[0.25em] text-black whitespace-nowrap"
               >
-                NepStyle
+                RabbitHub
                 <span className="text-orange-400">✦</span>
                 Free Shipping
                 <span className="text-orange-400">✦</span>
@@ -66,7 +66,7 @@ const PreFooter = () => {
               >
                 <Image
                   src="/images/RabbitHouseLogo.png"
-                  alt="NepStyle"
+                  alt="RabbitHub"
                   width={208}
                   height={208}
                   unoptimized
@@ -113,7 +113,7 @@ const PreFooter = () => {
                   transition={{ duration: 0.45, delay: 0.15 }}
                   className="text-gray-400 text-sm md:text-base leading-relaxed max-w-md mx-auto lg:mx-0 mb-10"
                 >
-                  At NepStyle, we believe clothing is more than a fabric, it&apos;s a
+                  At RabbitHub, we believe clothing is more than a fabric, it&apos;s a
                   silent language that speaks before you do. Every piece we
                   craft carries its own story, connecting with the person who
                   wears it. Designed to move with your life, built to express

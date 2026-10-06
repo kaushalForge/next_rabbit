@@ -6,14 +6,14 @@ import { fetchAllProductsAction } from "@/actions/userProducts";
 export const metadata = {
   title: "Trendy Fashion Nepal – Online Shopping Store",
   description:
-    "Shop trendy fashion online in Nepal at NepStyle. Stylish clothing for men and women with delivery across Kathmandu, Pokhara and all Nepal.",
+    "Shop trendy fashion online in Nepal at RabbitHub. Stylish clothing for men and women with delivery across Kathmandu, Pokhara and all Nepal.",
 
   keywords: [
     "online shopping in Nepal",
     "fashion store Nepal",
     "men clothing Nepal",
     "women clothing Nepal",
-    "NepStyle Nepal",
+    "RabbitHub Nepal",
     "trendy outfits Kathmandu",
     "online clothing store Nepal",
     "buy clothes online Nepal",
@@ -26,23 +26,23 @@ export const metadata = {
   },
 
   openGraph: {
-    title: "Trendy Fashion Nepal – Online Shopping Store | NepStyle Nepal",
+    title: "Trendy Fashion Nepal – Online Shopping Store | RabbitHub Nepal",
     description:
-    "Shop trendy fashion online in Nepal at NepStyle. Stylish clothing for men and women with delivery across Kathmandu, Pokhara and all Nepal.",
+    "Shop trendy fashion online in Nepal at RabbitHub. Stylish clothing for men and women with delivery across Kathmandu, Pokhara and all Nepal.",
     url: `${process.env.NEXT_PUBLIC_SITE_URL}`,
-    siteName: "NepStyle Nepal",
+    siteName: "RabbitHub Nepal",
     images: [
       {
         url: `${process.env.NEXT_PUBLIC_SITE_URL}/assets/hero-banner.png`,
         width: 1200,
         height: 630,
-        alt: "NepStyle Clothing Collection Banner",
+        alt: "RabbitHub Clothing Collection Banner",
       },
       {
-        url: `${process.env.NEXT_PUBLIC_SITE_URL}/images/NepStyle.png`,
+        url: `${process.env.NEXT_PUBLIC_SITE_URL}/images/RabbitHub.png`,
         width: 600,
         height: 600,
-        alt: "NepStyle Logo",
+        alt: "RabbitHub Logo",
       },
     ],
     type: "website",

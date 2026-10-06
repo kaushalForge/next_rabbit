@@ -90,7 +90,7 @@ const Register = () => {
 
       <div className="rounded-3xl shadow-xl p-8 bg-white w-full max-w-md">
         <h1 className="text-3xl font-medium text-gray-900 mb-3 text-center leading-snug">
-          Welcome to NepStyle 🐇
+          Welcome to RabbitHub 🐇
         </h1>
 
         <p className="text-gray-600 mb-6 text-center">

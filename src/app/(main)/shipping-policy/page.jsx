@@ -1,7 +1,7 @@
 export const metadata = {
   title: "Shipping Policy",
   description:
-    "Everything you need to know about NepStyle's shipping process, delivery timelines, and free shipping offer.",
+    "Everything you need to know about RabbitHub's shipping process, delivery timelines, and free shipping offer.",
 };
 
 const zones = [

@@ -16,7 +16,7 @@ const Hero = () => {
       <section className="relative overflow-hidden h-100 md:h-150 lg:h-185">
         <Image
           src="/assets/hero-banner.jpg"
-          alt="NepStyle"
+          alt="RabbitHub"
           fill
           priority
           sizes="100vw"
