@@ -11,22 +11,22 @@ import PreFooter from "@/components/Layout/PreFooter";
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  metadataBase: new URL("https://next-rabbit.vercel.app"),
+  metadataBase: new URL("https://next-nepstyle.vercel.app"),
   title: {
-    default: "Rabbit House - Dress Well, Live Better",
-    template: "%s - Rabbit House",
+    default: "NepStyle - Dress Well, Live Better",
+    template: "%s - NepStyle",
   },
   description:
-    "Rabbit House is a premium online clothing store offering stylish outfits, modern fashion, and comfortable everyday wear for men and women.",
+    "NepStyle is a premium online clothing store offering stylish outfits, modern fashion, and comfortable everyday wear for men and women.",
   openGraph: {
-    title: "Rabbit House - Dress Well, Live Better",
-    siteName: "Rabbit House",
+    title: "NepStyle - Dress Well, Live Better",
+    siteName: "NepStyle",
     images: [
       {
-        url: "/assets/rabbit-banner.png",
+        url: "/assets/nepstyle-banner.png",
         width: 1200,
         height: 630,
-        alt: "Rabbit House Clothing - Dress Well, Live Better",
+        alt: "NepStyle Clothing - Dress Well, Live Better",
       },
     ],
     type: "website",

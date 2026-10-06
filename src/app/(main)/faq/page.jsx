@@ -1,7 +1,7 @@
 export const metadata = {
   title: "FAQs",
   description:
-    "Answers to the most common questions about Rabbit — orders, shipping, returns, and more.",
+    "Answers to the most common questions about NepStyle — orders, shipping, returns, and more.",
 };
 
 const categories = [
@@ -72,7 +72,7 @@ const categories = [
         a: "We make every effort to photograph our products accurately. However, screen calibration can affect colour perception. If you have concerns about a specific product, contact us before purchasing.",
       },
       {
-        q: "How do I care for my Rabbit garments?",
+        q: "How do I care for my NepStyle garments?",
         a: "Care instructions are printed on the label of each garment. As a general rule, we recommend cold machine wash, gentle cycle, and air drying to maintain quality and longevity.",
       },
     ],

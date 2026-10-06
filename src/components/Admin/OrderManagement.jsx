@@ -87,45 +87,45 @@ const ORDER_TEMPLATES = [
   {
     label: "Order Confirmed",
     status: "Pending",
-    subject: "Order Confirmed — RabbitHouse",
+    subject: "Order Confirmed — NepStyle",
     message:
-      "Dear Customer,\n\nThank you for your order. We are pleased to confirm that your order has been successfully received and is now being prepared for processing.\n\nYou will receive a follow-up notification once your order has been dispatched.\n\nShould you have any questions in the meantime, please do not hesitate to contact us at inbox.rabbit@gmail.com.\n\nBest regards,\nRabbitHouse Customer Support",
+      "Dear Customer,\n\nThank you for your order. We are pleased to confirm that your order has been successfully received and is now being prepared for processing.\n\nYou will receive a follow-up notification once your order has been dispatched.\n\nShould you have any questions in the meantime, please do not hesitate to contact us at support@nepstyle.com.\n\nBest regards,\nNepStyle Customer Support",
   },
   {
     label: "Order Processing",
     status: "Processing",
-    subject: "Your Order Is Being Processed — RabbitHouse",
+    subject: "Your Order Is Being Processed — NepStyle",
     message:
-      "Dear Customer,\n\nWe would like to inform you that your order is currently being processed and prepared for shipment.\n\nOur team is carefully handling your items to ensure they are packed and dispatched in a timely manner. You will receive a shipping confirmation as soon as your order is on its way.\n\nWe appreciate your patience and thank you for choosing RabbitHouse.\n\nBest regards,\nRabbitHouse Customer Support",
+      "Dear Customer,\n\nWe would like to inform you that your order is currently being processed and prepared for shipment.\n\nOur team is carefully handling your items to ensure they are packed and dispatched in a timely manner. You will receive a shipping confirmation as soon as your order is on its way.\n\nWe appreciate your patience and thank you for choosing NepStyle.\n\nBest regards,\nNepStyle Customer Support",
   },
   {
     label: "Order Shipped",
     status: "Shipped",
-    subject: "Your Order Has Been Shipped — RabbitHouse",
+    subject: "Your Order Has Been Shipped — NepStyle",
     message:
-      "Dear Customer,\n\nWe are pleased to inform you that your order has been dispatched and is currently on its way to you.\n\nEstimated delivery time is 3 to 5 business days. Please ensure that someone is available at the delivery address to receive the package.\n\nIf you have any concerns regarding your delivery, please contact us at inbox.rabbit@gmail.com and we will be happy to assist.\n\nThank you for shopping with RabbitHouse.\n\nBest regards,\nRabbitHouse Customer Support",
+      "Dear Customer,\n\nWe are pleased to inform you that your order has been dispatched and is currently on its way to you.\n\nEstimated delivery time is 3 to 5 business days. Please ensure that someone is available at the delivery address to receive the package.\n\nIf you have any concerns regarding your delivery, please contact us at support@nepstyle.com and we will be happy to assist.\n\nThank you for shopping with NepStyle.\n\nBest regards,\nNepStyle Customer Support",
   },
   {
     label: "Order Delivered",
     status: "Delivered",
-    subject: "Your Order Has Been Delivered — RabbitHouse",
+    subject: "Your Order Has Been Delivered — NepStyle",
     message:
-      "Dear Customer,\n\nWe are delighted to confirm that your order has been successfully delivered.\n\nWe hope you are satisfied with your purchase. If you experience any issues with the items received, please contact us within 48 hours at inbox.rabbit@gmail.com and our support team will resolve the matter promptly.\n\nThank you for placing your trust in RabbitHouse. We look forward to serving you again.\n\nBest regards,\nRabbitHouse Customer Support",
+      "Dear Customer,\n\nWe are delighted to confirm that your order has been successfully delivered.\n\nWe hope you are satisfied with your purchase. If you experience any issues with the items received, please contact us within 48 hours at support@nepstyle.com and our support team will resolve the matter promptly.\n\nThank you for placing your trust in NepStyle. We look forward to serving you again.\n\nBest regards,\nNepStyle Customer Support",
   },
   {
     label: "Order Cancelled",
     status: "Cancelled",
-    subject: "Your Order Has Been Cancelled — RabbitHouse",
+    subject: "Your Order Has Been Cancelled — NepStyle",
     message:
-      "Dear Customer,\n\nWe regret to inform you that your order has been cancelled.\n\nIf you did not initiate this cancellation or believe this has occurred in error, please contact our support team immediately at inbox.rabbit@gmail.com.\n\nIf a payment was made against this order, a full refund will be processed within 5 to 7 business days, depending on your payment method and financial institution.\n\nWe sincerely apologize for any inconvenience this may have caused and hope to serve you again in the future.\n\nBest regards,\nRabbitHouse Customer Support",
+      "Dear Customer,\n\nWe regret to inform you that your order has been cancelled.\n\nIf you did not initiate this cancellation or believe this has occurred in error, please contact our support team immediately at support@nepstyle.com.\n\nIf a payment was made against this order, a full refund will be processed within 5 to 7 business days, depending on your payment method and financial institution.\n\nWe sincerely apologize for any inconvenience this may have caused and hope to serve you again in the future.\n\nBest regards,\nNepStyle Customer Support",
   },
   {
     label: "Payment Reminder",
     status: null,
     subject:
-      "Action Required: Prepare Payment for Your Incoming Order — RabbitHouse",
+      "Action Required: Prepare Payment for Your Incoming Order — NepStyle",
     message:
-      "Dear Customer,\n\nWe would like to inform you that your order is currently on its way and will be arriving at your delivery address shortly.\n\nAs your order is being fulfilled on a Cash on Delivery basis, we kindly request that you have the exact payment amount prepared and ready upon delivery.\n\nPlease ensure that you or an authorized representative is available at the delivery address to receive the package and complete the payment.\n\nShould you have any questions or require assistance prior to delivery, please do not hesitate to reach out to us at inbox.rabbit@gmail.com.\n\nThank you for shopping with RabbitHouse.\n\nBest regards,\nRabbitHouse Customer Support",
+      "Dear Customer,\n\nWe would like to inform you that your order is currently on its way and will be arriving at your delivery address shortly.\n\nAs your order is being fulfilled on a Cash on Delivery basis, we kindly request that you have the exact payment amount prepared and ready upon delivery.\n\nPlease ensure that you or an authorized representative is available at the delivery address to receive the package and complete the payment.\n\nShould you have any questions or require assistance prior to delivery, please do not hesitate to reach out to us at support@nepstyle.com.\n\nThank you for shopping with NepStyle.\n\nBest regards,\nNepStyle Customer Support",
   },
   { label: "Custom", status: null, subject: "", message: "" },
 ];
@@ -133,34 +133,34 @@ const ORDER_TEMPLATES = [
 const BULK_TEMPLATES = [
   {
     label: "Flash Sale",
-    subject: "Exclusive Flash Sale — Up to 50% Off at RabbitHouse",
+    subject: "Exclusive Flash Sale — Up to 50% Off at NepStyle",
     message:
-      "Dear Valued Customer,\n\nWe are excited to announce an exclusive flash sale at RabbitHouse — enjoy up to 50% off on a wide range of products for a limited time only.\n\nVisit our store now to explore the latest deals before they expire.\n\nThank you for being a valued member of the RabbitHouse community.\n\nBest regards,\nRabbitHouse Marketing Team",
+      "Dear Valued Customer,\n\nWe are excited to announce an exclusive flash sale at NepStyle — enjoy up to 50% off on a wide range of products for a limited time only.\n\nVisit our store now to explore the latest deals before they expire.\n\nThank you for being a valued member of the NepStyle community.\n\nBest regards,\nNepStyle Marketing Team",
   },
   {
     label: "New Arrivals",
     subject:
-      "New Products Just Landed at RabbitHouse — Be the First to Explore",
+      "New Products Just Landed at NepStyle — Be the First to Explore",
     message:
-      "Dear Valued Customer,\n\nWe are thrilled to inform you that an exciting range of new products has just arrived at RabbitHouse.\n\nOur latest collection has been carefully curated to bring you the best in quality and value.\n\nHead over to our store to browse the newest additions before they sell out.\n\nThank you for your continued support.\n\nBest regards,\nRabbitHouse Marketing Team",
+      "Dear Valued Customer,\n\nWe are thrilled to inform you that an exciting range of new products has just arrived at NepStyle.\n\nOur latest collection has been carefully curated to bring you the best in quality and value.\n\nHead over to our store to browse the newest additions before they sell out.\n\nThank you for your continued support.\n\nBest regards,\nNepStyle Marketing Team",
   },
   {
     label: "Seasonal Offer",
-    subject: "Special Seasonal Offers Are Live at RabbitHouse",
+    subject: "Special Seasonal Offers Are Live at NepStyle",
     message:
-      "Dear Valued Customer,\n\nThe season's best deals are now live at RabbitHouse.\n\nWe have prepared an exclusive selection of seasonal offers across multiple categories.\n\nVisit our store today and take advantage of these outstanding seasonal deals.\n\nThank you for shopping with RabbitHouse.\n\nBest regards,\nRabbitHouse Marketing Team",
+      "Dear Valued Customer,\n\nThe season's best deals are now live at NepStyle.\n\nWe have prepared an exclusive selection of seasonal offers across multiple categories.\n\nVisit our store today and take advantage of these outstanding seasonal deals.\n\nThank you for shopping with NepStyle.\n\nBest regards,\nNepStyle Marketing Team",
   },
   {
     label: "Loyalty Reward",
-    subject: "A Special Thank You from RabbitHouse — You've Earned It",
+    subject: "A Special Thank You from NepStyle — You've Earned It",
     message:
-      "Dear Valued Customer,\n\nWe sincerely appreciate your continued loyalty and support for RabbitHouse.\n\nAs a token of our gratitude, we would like to offer you an exclusive reward on your next purchase.\n\nWith gratitude,\nRabbitHouse Customer Team",
+      "Dear Valued Customer,\n\nWe sincerely appreciate your continued loyalty and support for NepStyle.\n\nAs a token of our gratitude, we would like to offer you an exclusive reward on your next purchase.\n\nWith gratitude,\nNepStyle Customer Team",
   },
   {
     label: "Announcement",
-    subject: "Important Announcement from RabbitHouse",
+    subject: "Important Announcement from NepStyle",
     message:
-      "Dear Valued Customer,\n\nWe have an important update we would like to share with you.\n\n[Insert your announcement here.]\n\nThank you for being a part of the RabbitHouse community.\n\nBest regards,\nRabbitHouse Team",
+      "Dear Valued Customer,\n\nWe have an important update we would like to share with you.\n\n[Insert your announcement here.]\n\nThank you for being a part of the NepStyle community.\n\nBest regards,\nNepStyle Team",
   },
   { label: "Custom", subject: "", message: "" },
 ];
@@ -1477,7 +1477,7 @@ const OrderManagement = () => {
           <div className="flex items-end justify-between flex-wrap gap-4">
             <div>
               <p className="text-[9px] font-semibold uppercase tracking-[0.35em] text-zinc-500 mb-1">
-                RabbitHouse · Admin
+                NepStyle · Admin
               </p>
               <h1 className="text-[22px] font-semibold text-zinc-900 tracking-tight leading-none">
                 Order Management

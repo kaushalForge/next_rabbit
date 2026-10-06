@@ -199,7 +199,7 @@ const AdminHomePage = () => {
         <div className="flex items-end justify-between">
           <div>
             <p className="text-[9px] font-medium uppercase tracking-[0.35em] mb-1">
-              RabbitHub · Admin Console
+              NepStyle · Admin Console
             </p>
             <h1 className="text-[22px] font-medium tracking-tight leading-none">
               Store Dashboard

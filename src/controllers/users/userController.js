@@ -3,6 +3,7 @@ import { OAuth2Client } from "google-auth-library";
 import { dbConnect } from "@/lib/dbConnection";
 import User from "@/models/user";
 import { generateToken } from "@/utils/GenerateToken";
+import { DEMO_ADMIN_EMAIL, DEMO_ADMIN_PASSWORD } from "@/lib/demoAdmin";
 
 const client = new OAuth2Client(process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID);
 
@@ -18,6 +19,44 @@ function cookieOptions(request) {
     path: "/",
     maxAge: 60 * 60 * 24 * 7,
   };
+}
+
+// Read-only demo admin: writes are blocked for this account in src/proxy.js.
+export async function demoLoginController(request) {
+  try {
+    const { email, password } = await request.json();
+    if (email?.trim().toLowerCase() !== DEMO_ADMIN_EMAIL || password !== DEMO_ADMIN_PASSWORD) {
+      return NextResponse.json(
+        { success: false, message: "Invalid demo credentials" },
+        { status: 401 },
+      );
+    }
+
+    await dbConnect();
+    const user = await User.findOneAndUpdate(
+      { email: DEMO_ADMIN_EMAIL },
+      {
+        $set: { role: "admin", lastLogin: new Date() },
+        $setOnInsert: { name: "Demo Admin", authProvider: "manual" },
+      },
+      { upsert: true, new: true },
+    );
+
+    const token = generateToken(user, { expiresIn: "1d" });
+    const response = NextResponse.json({
+      success: true,
+      message: "Logged in as demo admin (read-only)",
+      user: { id: user._id, name: user.name, email: user.email, role: user.role },
+    });
+    response.cookies.set("cUser", token, { ...cookieOptions(request), maxAge: 60 * 60 * 24 });
+    return response;
+  } catch (error) {
+    console.error("Demo login error:", error);
+    return NextResponse.json(
+      { success: false, message: "Demo login failed" },
+      { status: 500 },
+    );
+  }
 }
 
 export async function googleLoginController(request) {

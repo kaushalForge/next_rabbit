@@ -1,7 +1,7 @@
 export const metadata = {
   title: "Refund Policy",
   description:
-    "Rabbit's 45-day refund and return policy. Easy, no-questions-asked returns.",
+    "NepStyle's 45-day refund and return policy. Easy, no-questions-asked returns.",
 };
 
 const steps = [

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { isDemoAdminToken } from "@/lib/demoAdmin";
 
 export function proxy(request) {
   const { pathname } = request.nextUrl;
@@ -20,6 +21,14 @@ export function proxy(request) {
 
   if (!token) {
     return NextResponse.redirect(new URL("/404", request.url));
+  }
+
+  // Demo admin is read-only: every admin write (server actions call these routes too) is refused.
+  if (pathname.startsWith("/api/admin") && request.method !== "GET" && isDemoAdminToken(token)) {
+    return NextResponse.json(
+      { success: false, message: "Demo mode is read-only. Buy the template to unlock full admin access." },
+      { status: 403 },
+    );
   }
   return NextResponse.next();
 }

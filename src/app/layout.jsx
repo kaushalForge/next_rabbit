@@ -16,22 +16,22 @@ const outfit = Outfit({
 });
 
 export const metadata = {
-  metadataBase: new URL("https://next-rabbit.vercel.app"),
+  metadataBase: new URL("https://next-nepstyle.vercel.app"),
   title: {
-    default: "Rabbit House Nepal | Fashion Store – Trendy Clothing & Outfits",
-    template: "%s | Rabbit House Nepal",
+    default: "NepStyle Nepal | Fashion Store – Trendy Clothing & Outfits",
+    template: "%s | NepStyle Nepal",
   },
   description:
-    "Shop trendy fashion online in Nepal at Rabbit House. Premium clothing for men and women with delivery across Kathmandu, Pokhara and all Nepal.",
+    "Shop trendy fashion online in Nepal at NepStyle. Premium clothing for men and women with delivery across Kathmandu, Pokhara and all Nepal.",
   openGraph: {
-    title: "Rabbit House Nepal | Fashion Store – Trendy Clothing & Outfits",
-    siteName: "Rabbit House Nepal",
+    title: "NepStyle Nepal | Fashion Store – Trendy Clothing & Outfits",
+    siteName: "NepStyle Nepal",
     images: [
       {
-        url: "/assets/rabbit-banner.png",
+        url: "/assets/nepstyle-banner.png",
         width: 1200,
         height: 630,
-        alt: "Rabbit House Clothing - Dress Well, Live Better",
+        alt: "NepStyle Clothing - Dress Well, Live Better",
       },
     ],
     type: "website",

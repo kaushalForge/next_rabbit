@@ -6,8 +6,8 @@ import User from "@/models/user";
 import { verifyJWT } from "@/lib/jwt";
 
 const buildBulkEmailHtml = ({ customerName, message }) => {
-  const siteUrl = "https://next-rabbit.vercel.app";
-  const logoUrl = `${siteUrl}/images/RabbitHouse.png`;
+  const siteUrl = "https://next-nepstyle.vercel.app";
+  const logoUrl = `${siteUrl}/images/NepStyle.png`;
   const year = new Date().getFullYear();
 
   return `<!DOCTYPE html>
@@ -15,7 +15,7 @@ const buildBulkEmailHtml = ({ customerName, message }) => {
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-  <title>RabbitHouse</title>
+  <title>NepStyle</title>
 </head>
 <body style="margin:0;padding:0;background-color:#f6f6f6;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
   <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f6f6f6;margin:0;padding:0;">
@@ -31,10 +31,10 @@ const buildBulkEmailHtml = ({ customerName, message }) => {
           <!-- HEADER -->
           <tr>
             <td style="background:#0f0f0f;padding:36px 48px;text-align:center;">
-              <img src="${logoUrl}" alt="RabbitHouse" width="64" height="64"
+              <img src="${logoUrl}" alt="NepStyle" width="64" height="64"
                 style="display:block;margin:0 auto 16px;border-radius:14px;border:3px solid #ff4500;width:64px;height:64px;object-fit:cover;object-position:top;" />
               <p style="margin:0;font-size:26px;font-weight:800;letter-spacing:-0.5px;">
-                <span style="color:#ffffff;">Rabbit</span><span style="color:#ff4500;">Hub</span>
+                <span style="color:#ffffff;">NepStyle</span>
               </p>
               <p style="margin:8px 0 0;font-size:11px;color:#a1a1aa;letter-spacing:0.14em;text-transform:uppercase;">
                 Your Trusted Shopping Destination
@@ -48,7 +48,7 @@ const buildBulkEmailHtml = ({ customerName, message }) => {
               <span style="font-size:11px;font-weight:600;color:#71717a;letter-spacing:0.1em;text-transform:uppercase;">
                 Message from &nbsp;·&nbsp;
                 <span style="color:#ff4500;background:#fff4f0;border-radius:6px;padding:3px 12px;font-size:12px;font-weight:700;letter-spacing:0.08em;">
-                  RabbitHouse Team
+                  NepStyle Team
                 </span>
               </span>
             </td>
@@ -70,7 +70,7 @@ const buildBulkEmailHtml = ({ customerName, message }) => {
               <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:36px;">
                 <tr>
                   <td style="background:#fff8f6;border:1.5px solid #ffd5c8;border-radius:12px;padding:28px 32px;text-align:left;">
-                    <p style="margin:0 0 10px;font-size:10px;font-weight:700;color:#ff4500;letter-spacing:0.16em;text-transform:uppercase;">Message from RabbitHouse</p>
+                    <p style="margin:0 0 10px;font-size:10px;font-weight:700;color:#ff4500;letter-spacing:0.16em;text-transform:uppercase;">Message from NepStyle</p>
                     <p style="margin:0;font-size:15px;color:#374151;line-height:1.85;white-space:pre-wrap;">${message}</p>
                   </td>
                 </tr>
@@ -87,7 +87,7 @@ const buildBulkEmailHtml = ({ customerName, message }) => {
                 </tr>
               </table>
               <p style="margin:14px 0 0;font-size:12px;color:#a1a1aa;">
-                Or visit &nbsp;<a href="${siteUrl}" style="color:#ff4500;font-weight:600;text-decoration:none;">next-rabbit.vercel.app</a>
+                Or visit &nbsp;<a href="${siteUrl}" style="color:#ff4500;font-weight:600;text-decoration:none;">next-nepstyle.vercel.app</a>
               </p>
             </td>
           </tr>
@@ -128,14 +128,14 @@ const buildBulkEmailHtml = ({ customerName, message }) => {
           <tr>
             <td style="padding:28px 48px;text-align:center;background:#0f0f0f;">
               <p style="margin:0 0 8px;font-size:16px;font-weight:800;">
-                <span style="color:#ffffff;">Rabbit</span><span style="color:#ff4500;">Hub</span>
+                <span style="color:#ffffff;">NepStyle</span>
               </p>
               <p style="margin:0 0 12px;font-size:11px;color:#a1a1aa;">
-                Questions? &nbsp;<a href="mailto:inbox.rabbit@gmail.com" style="color:#ff4500;text-decoration:none;font-weight:600;">inbox.rabbit@gmail.com</a>
+                Questions? &nbsp;<a href="mailto:support@nepstyle.com" style="color:#ff4500;text-decoration:none;font-weight:600;">support@nepstyle.com</a>
               </p>
               <p style="margin:0;font-size:10px;color:#71717a;line-height:1.7;">
-                &copy; ${year} RabbitHouse &nbsp;&middot;&nbsp; All rights reserved.<br/>
-                You are receiving this email as a registered customer of RabbitHouse.
+                &copy; ${year} NepStyle &nbsp;&middot;&nbsp; All rights reserved.<br/>
+                You are receiving this email as a registered customer of NepStyle.
               </p>
             </td>
           </tr>
@@ -158,12 +158,12 @@ const sendEmail = async ({ to, subject, text, html }) => {
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
-        user: "inbox.rabbit@gmail.com",
-        pass: process.env.NEXT_PUBLIC_RABBIT_EMAIL_PASSWORD,
+        user: "support@nepstyle.com",
+        pass: process.env.NEXT_PUBLIC_NEPSTYLE_EMAIL_PASSWORD,
       },
     });
     await transporter.sendMail({
-      from: '"RabbitHouse" <inbox.rabbit@gmail.com>',
+      from: '"NepStyle" <support@nepstyle.com>',
       to,
       subject,
       text,

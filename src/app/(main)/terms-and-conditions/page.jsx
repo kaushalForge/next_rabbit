@@ -1,17 +1,17 @@
 export const metadata = {
   title: "Terms & Conditions",
   description:
-    "Read the terms and conditions governing the use of Rabbit's website and services.",
+    "Read the terms and conditions governing the use of NepStyle's website and services.",
 };
 
 const sections = [
   {
     title: "Acceptance of Terms",
-    content: `By accessing or using the Rabbit website (next-rabbit.vercel.app), you agree to be bound by these Terms and Conditions. If you do not agree to any part of these terms, you must discontinue use of the website immediately. We reserve the right to modify these terms at any time, and your continued use of the site constitutes acceptance of any changes.`,
+    content: `By accessing or using the NepStyle website (next-nepstyle.vercel.app), you agree to be bound by these Terms and Conditions. If you do not agree to any part of these terms, you must discontinue use of the website immediately. We reserve the right to modify these terms at any time, and your continued use of the site constitutes acceptance of any changes.`,
   },
   {
     title: "Use of the Website",
-    content: `You agree to use this website solely for lawful purposes. You must not misuse the site by introducing viruses, attempting unauthorised access, or engaging in any conduct that could harm Rabbit or its users. We reserve the right to restrict or terminate access to any user who violates these conditions.`,
+    content: `You agree to use this website solely for lawful purposes. You must not misuse the site by introducing viruses, attempting unauthorised access, or engaging in any conduct that could harm NepStyle or its users. We reserve the right to restrict or terminate access to any user who violates these conditions.`,
   },
   {
     title: "Product Information & Pricing",
@@ -23,7 +23,7 @@ const sections = [
   },
   {
     title: "Shipping & Delivery",
-    content: `We aim to dispatch all orders within 1–3 business days. Delivery timelines vary by location and are estimated, not guaranteed. Rabbit is not responsible for delays caused by courier services, customs, or circumstances beyond our control. Please refer to our Shipping Policy for full details.`,
+    content: `We aim to dispatch all orders within 1–3 business days. Delivery timelines vary by location and are estimated, not guaranteed. NepStyle is not responsible for delays caused by courier services, customs, or circumstances beyond our control. Please refer to our Shipping Policy for full details.`,
   },
   {
     title: "Returns & Refunds",
@@ -31,11 +31,11 @@ const sections = [
   },
   {
     title: "Intellectual Property",
-    content: `All content on this website — including but not limited to text, imagery, logos, and design — is the exclusive property of Rabbit and is protected under applicable intellectual property laws. Reproduction, distribution, or use of any content without prior written consent is strictly prohibited.`,
+    content: `All content on this website — including but not limited to text, imagery, logos, and design — is the exclusive property of NepStyle and is protected under applicable intellectual property laws. Reproduction, distribution, or use of any content without prior written consent is strictly prohibited.`,
   },
   {
     title: "Limitation of Liability",
-    content: `To the fullest extent permitted by law, Rabbit shall not be liable for any indirect, incidental, or consequential damages arising from the use of our website or products. Our total liability in any matter shall not exceed the amount you paid for the order in question.`,
+    content: `To the fullest extent permitted by law, NepStyle shall not be liable for any indirect, incidental, or consequential damages arising from the use of our website or products. Our total liability in any matter shall not exceed the amount you paid for the order in question.`,
   },
   {
     title: "Governing Law",
@@ -85,7 +85,7 @@ export default function TermsAndConditions() {
           {/* Body */}
           <div className="md:col-span-3 space-y-12">
             <div className="bg-white border border-[#e8e4df] p-6 text-sm text-[#555] leading-relaxed">
-              Please read these terms carefully before using Rabbit&apos;s website or
+              Please read these terms carefully before using NepStyle&apos;s website or
               making a purchase. By using our services, you agree to these terms
               in full.
             </div>

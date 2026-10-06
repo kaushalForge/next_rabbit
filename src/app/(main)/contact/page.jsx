@@ -1,7 +1,7 @@
 export const metadata = {
   title: "Contact",
   description:
-    "Reach out to the Rabbit team. We're here to help with orders, returns, and anything else you need.",
+    "Reach out to the NepStyle team. We're here to help with orders, returns, and anything else you need.",
 };
 
 const contactDetails = [
@@ -20,7 +20,7 @@ const contactDetails = [
   {
     icon: "✉️",
     label: "Email",
-    value: "inbox.rabbit@gmail.com",
+    value: "support@nepstyle.com",
     sub: "We reply within 24 hours",
   },
 ];
@@ -141,7 +141,7 @@ export default function Contact() {
                 allowFullScreen=""
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
-                title="Rabbit Store Location — Kathmandu, Nepal"
+                title="NepStyle Store Location — Kathmandu, Nepal"
               />
             </div>
             <div className="mt-5 p-5 bg-white border border-[#e8e4df]">

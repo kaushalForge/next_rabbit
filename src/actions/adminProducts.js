@@ -44,7 +44,12 @@ export async function createProductAction(productData) {
     },
   );
 
-  const data = await res.json();
+  let data;
+  try {
+    data = await res.json();
+  } catch {
+    data = { message: "Unexpected server error" };
+  }
   revalidatePath("/admin/products");
   return { status: res.status, message: data.message };
 }
