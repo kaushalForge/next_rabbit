@@ -65,7 +65,7 @@ const PreFooter = () => {
                 className="logo-float shrink-0 w-36 h-36 md:w-52 md:h-52 lg:mr-12"
               >
                 <Image
-                  src="/images/NepStyleLogo.png"
+                  src="/images/RabbitHouseLogo.png"
                   alt="NepStyle"
                   width={208}
                   height={208}

@@ -59,10 +59,10 @@ const Navbar = () => {
           <Link href="/" className="shrink-0 ml-8 -mt-3">
             <div className="flex items-center">
               <Image
-                src="/images/nepstyle.png"
+                src="/images/RabbitHouseLogo.png"
                 alt="Logo"
-                width={160}
-                height={56}
+                width={400}
+                height={400}
                 className="object-contain h-14 w-auto"
                 priority
               />
